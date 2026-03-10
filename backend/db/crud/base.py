@@ -4,7 +4,7 @@ import logging
 from typing import Any, TypeVar
 
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.db.base import Base
@@ -28,7 +28,7 @@ async def create_record(
         await session.rollback()
         logger.error("create_%s failed: integrity error", model.__tablename__)
         raise
-    except Exception as exc:
+    except SQLAlchemyError as exc:
         await session.rollback()
         logger.error("create_%s failed: %s", model.__tablename__, exc)
         raise
@@ -84,7 +84,7 @@ async def update_record(
         await session.rollback()
         logger.error("update_%s failed: integrity error", model.__tablename__)
         raise
-    except Exception as exc:
+    except SQLAlchemyError as exc:
         await session.rollback()
         logger.error("update_%s failed: %s", model.__tablename__, exc)
         raise
@@ -107,7 +107,7 @@ async def delete_record(
         await session.delete(record)
         await session.flush()
         return True
-    except Exception as exc:
+    except SQLAlchemyError as exc:
         await session.rollback()
         logger.error("delete_%s failed: %s", model.__tablename__, exc)
         raise
