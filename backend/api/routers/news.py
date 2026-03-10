@@ -3,6 +3,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.core.redis_client import cache
 from backend.db.crud.news import count_articles, get_article_by_id, list_articles
 from backend.db.models import NewsArticle
 from backend.db.session import get_db
@@ -42,12 +43,19 @@ async def get_news(
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=200),
 ) -> dict:
+    cache_key = f"news:list:{category}:{skip}:{limit}"
+    cached = cache.fetch(cache_key)
+    if cached:
+        return cached
+
     articles = await list_articles(session, category=category, skip=skip, limit=limit)
     total = await count_articles(session, category=category)
-    return {
+    result = {
         "totalArticles": total,
         "articles": [_article_to_dict(a) for a in articles],
     }
+    cache.store(cache_key, result, ttl=300)
+    return result
 
 
 @router.get("/news/{article_id}")
@@ -55,7 +63,14 @@ async def get_news_detail(
     article_id: str,
     session: AsyncSession = Depends(get_db),
 ) -> dict:
+    cache_key = f"news:detail:{article_id}"
+    cached = cache.fetch(cache_key)
+    if cached:
+        return cached
+
     article = await get_article_by_id(session, article_id)
     if not article:
         raise HTTPException(status_code=404, detail="Article not found")
-    return _article_to_dict(article)
+    result = _article_to_dict(article)
+    cache.store(cache_key, result, ttl=600)
+    return result

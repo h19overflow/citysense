@@ -3,6 +3,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.core.redis_client import cache
 from backend.db.crud.jobs import job_to_geojson_feature, list_jobs
 from backend.db.session import get_db
 
@@ -15,6 +16,13 @@ async def get_jobs(
     skip: int = Query(0, ge=0),
     limit: int = Query(500, ge=1, le=1000),
 ) -> dict:
+    cache_key = f"jobs:list:{skip}:{limit}"
+    cached = cache.fetch(cache_key)
+    if cached:
+        return cached
+
     jobs = await list_jobs(session, skip=skip, limit=limit)
     features = [f for f in (job_to_geojson_feature(j) for j in jobs) if f is not None]
-    return {"type": "FeatureCollection", "features": features}
+    result = {"type": "FeatureCollection", "features": features}
+    cache.store(cache_key, result, ttl=300)
+    return result
