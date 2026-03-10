@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from backend.core.bright_data_client import _run_async, serp_search, serp_maps_search
+from backend.core.data_scraping.bright_data_client import _run_async, serp_search, serp_maps_search
 
 
 # ---------------------------------------------------------------------------

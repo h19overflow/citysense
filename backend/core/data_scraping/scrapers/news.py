@@ -12,9 +12,9 @@ from backend.core.data_scraping.geo import (
     build_jittered_city_center,
     extract_location_mentions,
 )
-from backend.core.bright_data_client import serp_search, fetch_with_unlocker
-from backend.core.payloads import NEWS_QUERIES
-from backend.core.sentiment_rules import score_sentiment, score_misinfo_risk, build_summary
+from backend.core.data_scraping.bright_data_client import serp_search, fetch_with_unlocker
+from backend.core.data_scraping.payloads import NEWS_QUERIES
+from backend.core.data_scraping.sentiment_rules import score_sentiment, score_misinfo_risk, build_summary
 
 logger = logging.getLogger("scraper.news")
 

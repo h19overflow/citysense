@@ -6,7 +6,7 @@ from backend.core.data_scraping.scrapers.jobs import JobsScraper
 from backend.core.data_scraping.scrapers.news import NewsScraper
 from backend.core.data_scraping.scrapers.housing import HousingScraper
 from backend.core.data_scraping.base import BaseScraper
-from backend.core.sentiment_rules import score_sentiment, score_misinfo_risk, build_summary
+from backend.core.data_scraping.sentiment_rules import score_sentiment, score_misinfo_risk, build_summary
 
 
 # ---------------------------------------------------------------------------

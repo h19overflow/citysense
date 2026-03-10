@@ -92,7 +92,7 @@ def is_within_montgomery(lat: float, lng: float) -> bool:
 
 def geocode_serp_maps(location_text: str) -> dict | None:
     """Resolve a location string to coordinates via Google Maps SERP."""
-    from backend.core.bright_data_client import serp_maps_search
+    from backend.core.data_scraping.bright_data_client import serp_maps_search
 
     query = f"{location_text} Montgomery Alabama"
     body = serp_maps_search(query)

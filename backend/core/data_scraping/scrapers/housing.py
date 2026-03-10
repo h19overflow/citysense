@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from backend.config import DATASETS, OUTPUT_FILES
 from backend.core.data_scraping.base import BaseScraper
 from backend.core.data_scraping.geo import geocode_nominatim
-from backend.core.bright_data_client import trigger_and_collect
+from backend.core.data_scraping.bright_data_client import trigger_and_collect
 
 
 class HousingScraper(BaseScraper):

@@ -7,8 +7,8 @@ from datetime import datetime, timezone
 
 from backend.config import OUTPUT_FILES
 from backend.core.data_scraping.base import BaseScraper
-from backend.core.bright_data_client import fetch_with_unlocker
-from backend.core.payloads import BENEFITS_TARGETS
+from backend.core.data_scraping.bright_data_client import fetch_with_unlocker
+from backend.core.data_scraping.payloads import BENEFITS_TARGETS
 
 
 class BenefitsScraper(BaseScraper):

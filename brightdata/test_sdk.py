@@ -26,7 +26,7 @@ def save_result(name: str, data) -> None:
 
 def test_serp() -> None:
     print("\n=== SERP Search ===")
-    from backend.core.bright_data_client import serp_search
+    from backend.core.data_scraping.bright_data_client import serp_search
     result = serp_search("Montgomery Alabama news today")
     if result:
         print(f"  Got {len(result.get('results', []))} results")
@@ -37,7 +37,7 @@ def test_serp() -> None:
 
 def test_page_fetch() -> None:
     print("\n=== Page Fetch (crawl dataset) ===")
-    from backend.core.bright_data_client import fetch_with_unlocker
+    from backend.core.data_scraping.bright_data_client import fetch_with_unlocker
     content = fetch_with_unlocker("https://medicaid.alabama.gov")
     if content:
         print(f"  Got {len(content)} chars")
@@ -48,8 +48,8 @@ def test_page_fetch() -> None:
 
 def test_dataset_trigger() -> None:
     print("\n=== Dataset Trigger (Indeed jobs) ===")
-    from backend.core.bright_data_client import trigger_and_collect
-    from backend.core.payloads import JOB_SCRAPERS
+    from backend.core.data_scraping.bright_data_client import trigger_and_collect
+    from backend.core.data_scraping.payloads import JOB_SCRAPERS
 
     scraper = JOB_SCRAPERS[0]  # Indeed
     print(f"  Triggering: {scraper['name']} ({scraper['dataset_id']})")

@@ -5,7 +5,7 @@ Uses Bright Data SERP zone scoped to Montgomery, Alabama.
 
 import logging
 
-from backend.core.bright_data_client import serp_search
+from backend.core.data_scraping.bright_data_client import serp_search
 
 logger = logging.getLogger("web_search")
 
