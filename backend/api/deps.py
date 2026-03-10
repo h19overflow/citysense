@@ -26,7 +26,7 @@ def verify_webhook_secret(
         raise HTTPException(status_code=401, detail="Invalid or missing webhook secret")
 
 
-def get_current_user(
+async def get_current_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
 ) -> ClerkUser:
     """Extract and verify Clerk JWT from Authorization header."""
@@ -34,7 +34,7 @@ def get_current_user(
         raise HTTPException(status_code=401, detail="Missing authorization token")
 
     try:
-        return verify_clerk_token(credentials.credentials)
+        return await verify_clerk_token(credentials.credentials)
     except pyjwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
     except pyjwt.PyJWTError as exc:
@@ -42,7 +42,7 @@ def get_current_user(
         raise HTTPException(status_code=401, detail="Invalid token")
 
 
-def get_optional_user(
+async def get_optional_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
 ) -> ClerkUser | None:
     """Like get_current_user but returns None for unauthenticated requests."""
@@ -50,7 +50,7 @@ def get_optional_user(
         return None
 
     try:
-        return verify_clerk_token(credentials.credentials)
+        return await verify_clerk_token(credentials.credentials)
     except pyjwt.PyJWTError:
         return None
 
