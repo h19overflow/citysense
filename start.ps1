@@ -2,7 +2,7 @@
 
 $root = $PSScriptRoot
 
-$backend = Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$root'; uvicorn backend.api.main:app --reload --port 8082" -PassThru
+$backend = Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$root'; .\.venv\Scripts\python.exe -m uvicorn backend.api.main:app --reload --port 8082" -PassThru
 $frontend = Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$root\frontend'; npm run dev" -PassThru
 
 Write-Host "Started backend (PID: $($backend.Id)) and frontend (PID: $($frontend.Id))"
