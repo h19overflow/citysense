@@ -3,7 +3,6 @@
 from datetime import datetime
 
 from sqlalchemy import DateTime, ForeignKey, Index, String, Text, func
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.db.base import Base
@@ -16,9 +15,7 @@ class NewsComment(Base):
     article_id: Mapped[str] = mapped_column(
         String(12), ForeignKey("news_articles.id", ondelete="CASCADE"), nullable=False
     )
-    citizen_id: Mapped[str] = mapped_column(
-        UUID(as_uuid=False), ForeignKey("citizen_profiles.id", ondelete="CASCADE"), nullable=False
-    )
+    citizen_id: Mapped[str] = mapped_column(String(50), nullable=False)
     citizen_name: Mapped[str] = mapped_column(String(255), nullable=False)
     avatar_initials: Mapped[str] = mapped_column(String(5), nullable=False, default="")
     avatar_color: Mapped[str] = mapped_column(String(20), nullable=False, default="")

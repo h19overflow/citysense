@@ -12,7 +12,29 @@ from backend.core.data_scraping.scrapers.news_helpers import article_to_row
 
 _HOUSING_EXCLUDED = {"id", "address", "price"}
 
-__all__ = ["article_to_row", "feature_to_job_row", "feature_to_housing_row", "service_to_row"]
+__all__ = [
+    "article_to_row", "feature_to_job_row", "feature_to_housing_row",
+    "service_to_row", "comment_to_row",
+]
+
+
+def comment_to_row(comment: dict) -> dict:
+    """Convert exported_comments.json entry to news_comments row dict."""
+    raw_date = comment.get("createdAt", "")
+    try:
+        created_at = datetime.fromisoformat(raw_date.replace("Z", "+00:00"))
+    except (ValueError, TypeError):
+        created_at = datetime.now(timezone.utc)
+    return {
+        "id": comment["id"],
+        "article_id": comment["articleId"],
+        "citizen_id": comment.get("citizenId", "guest"),
+        "citizen_name": comment.get("citizenName", "Resident"),
+        "avatar_initials": comment.get("avatarInitials", "R"),
+        "avatar_color": comment.get("avatarColor", "#6b7280"),
+        "content": comment.get("content", ""),
+        "created_at": created_at,
+    }
 
 
 def feature_to_housing_row(feature: dict) -> dict:

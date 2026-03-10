@@ -67,6 +67,21 @@ async def count_articles(session: AsyncSession, category: str | None = None) -> 
     return result.scalar_one()
 
 
+async def bulk_upsert_comments(session: AsyncSession, comments: list[dict]) -> int:
+    """Upsert a batch of comments in a single statement. Returns count."""
+    if not comments:
+        return 0
+    columns = {k for c in comments for k in c.keys()}
+    stmt = pg_insert(NewsComment).values(comments)
+    stmt = stmt.on_conflict_do_update(
+        index_elements=["id"],
+        set_={col: stmt.excluded[col] for col in columns if col != "id"},
+    )
+    await session.execute(stmt)
+    await session.flush()
+    return len(comments)
+
+
 async def create_comment(session: AsyncSession, **kwargs: Any) -> NewsComment:
     return await create_record(session, NewsComment, **kwargs)
 

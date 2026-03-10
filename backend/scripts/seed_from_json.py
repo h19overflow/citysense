@@ -1,9 +1,6 @@
 """Seed the database from JSON/GeoJSON data files.
 
 Usage: python -m backend.scripts.seed_from_json
-
-Comments are skipped: exported_comments.json uses string IDs ("citizen-1") that fail
-the UUID type and FK constraint on news_comments.citizen_id. Seed citizen profiles first.
 """
 
 import asyncio
@@ -15,11 +12,12 @@ import backend.db.models  # noqa: F401 — registers table metadata on Base
 from backend.db.crud.benefits import bulk_upsert_benefits
 from backend.db.crud.housing import bulk_upsert_housing
 from backend.db.crud.jobs import bulk_upsert_jobs
-from backend.db.crud.news import bulk_upsert_articles
+from backend.db.crud.news import bulk_upsert_articles, bulk_upsert_comments
 from backend.db.session import engine, get_session
 from backend.scripts.create_tables import create_all_tables
 from backend.scripts.seed_converters import (
     article_to_row,
+    comment_to_row,
     feature_to_housing_row,
     feature_to_job_row,
     service_to_row,
@@ -38,6 +36,7 @@ def deduplicate_by_id(rows: list[dict]) -> list[dict]:
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 NEWS_PATH = PROJECT_ROOT / "frontend/public/data/news_feed.json"
+COMMENTS_PATH = PROJECT_ROOT / "backend/data/exported_comments.json"
 JOBS_PATH = PROJECT_ROOT / "frontend/public/data/jobs.geojson"
 HOUSING_PATH = PROJECT_ROOT / "frontend/public/data/housing.geojson"
 BENEFITS_PATH = PROJECT_ROOT / "frontend/public/data/gov_services.json"
@@ -75,9 +74,21 @@ async def seed_benefits() -> None:
     logger.info("benefits seeded: %d", count)
 
 
+async def seed_comments() -> None:
+    if not COMMENTS_PATH.exists():
+        logger.warning("comments file not found: %s", COMMENTS_PATH)
+        return
+    raw = json.loads(COMMENTS_PATH.read_text(encoding="utf-8"))
+    rows = deduplicate_by_id([comment_to_row(c) for c in raw.get("comments", [])])
+    async with get_session() as session:
+        count = await bulk_upsert_comments(session, rows)
+    logger.info("comments seeded: %d", count)
+
+
 async def main() -> None:
     await create_all_tables()
     await seed_articles()
+    await seed_comments()
     await seed_jobs()
     await seed_housing()
     await seed_benefits()
