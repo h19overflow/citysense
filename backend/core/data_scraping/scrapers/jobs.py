@@ -1,9 +1,7 @@
 """Jobs scraper — Indeed, LinkedIn, Glassdoor via Bright Data Web Scraper API."""
 
-import json
 import re
 import time
-from pathlib import Path
 
 from backend.config import OUTPUT_FILES
 from backend.core.data_scraping.base import BaseScraper
@@ -135,11 +133,33 @@ class JobsScraper(BaseScraper):
             },
         }
 
-    def save(self, records: list[dict]) -> None:
-        """Override to also append to history JSONL."""
-        super().save(records)
-        history_file = OUTPUT_FILES["jobs_history"]
-        history_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(history_file, "a", encoding="utf-8") as f:
-            for feat in records:
-                f.write(json.dumps(feat) + "\n")
+    async def save_to_database(self, records: list[dict]) -> int:
+        """Persist GeoJSON features to job_listings table."""
+        from backend.db.session import get_session
+        from backend.db.crud.jobs import bulk_upsert_jobs
+
+        rows = [self._feature_to_row(f) for f in records if f.get("properties")]
+        async with get_session() as session:
+            return await bulk_upsert_jobs(session, rows)
+
+    def _feature_to_row(self, feature: dict) -> dict:
+        """Convert GeoJSON Feature to DB row dict."""
+        from datetime import datetime, timezone
+        props = feature.get("properties", {})
+        coords = feature.get("geometry", {}).get("coordinates", [None, None])
+
+        return {
+            "id": props.get("id", ""),
+            "title": props.get("title", ""),
+            "company": props.get("company", ""),
+            "source": props.get("source", ""),
+            "address": props.get("address", ""),
+            "lat": coords[1] if len(coords) > 1 else None,
+            "lng": coords[0] if len(coords) > 0 else None,
+            "url": props.get("url", ""),
+            "scraped_at": datetime.now(timezone.utc),
+            "properties": {
+                k: v for k, v in props.items()
+                if k not in ("id", "title", "company", "source", "address", "url")
+            },
+        }

@@ -48,7 +48,9 @@ class BaseScraper(ABC):
     # ------------------------------------------------------------------
 
     def run(self) -> int:
-        """Execute full pipeline: fetch → process → dedup → save → broadcast."""
+        """Execute full pipeline: fetch -> process -> dedup -> save -> broadcast."""
+        import asyncio
+
         logger.info("[%s] Starting scrape", self.name)
 
         raw_data = self.fetch()
@@ -61,13 +63,21 @@ class BaseScraper(ABC):
             logger.info("[%s] No records after processing", self.name)
             return 0
 
-        existing = self.load_existing()
-        merged = self.deduplicate(processed, existing)
-        self.save(merged)
-        self.broadcast(processed)
+        # Save to database (primary), fall back to JSON if not implemented
+        try:
+            asyncio.run(self.save_to_database(processed))
+        except NotImplementedError:
+            existing = self.load_existing()
+            merged = self.deduplicate(processed, existing)
+            self.save(merged)
 
-        logger.info("[%s] Complete: %d new, %d total", self.name, len(processed), len(merged))
+        self.broadcast(processed)
+        logger.info("[%s] Complete: %d records", self.name, len(processed))
         return len(processed)
+
+    async def save_to_database(self, records: list[dict]) -> int:
+        """Override in subclasses to persist records to the database."""
+        raise NotImplementedError(f"{self.name} has not implemented save_to_database")
 
     # ------------------------------------------------------------------
     # Shared infrastructure

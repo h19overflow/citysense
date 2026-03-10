@@ -1,6 +1,5 @@
 """Benefits scraper — Government eligibility pages via Bright Data Web Unlocker."""
 
-import json
 import re
 import time
 from datetime import datetime, timezone
@@ -37,26 +36,33 @@ class BenefitsScraper(BaseScraper):
     def _collection_key(self) -> str:
         return "services"
 
-    def save(self, records: list[dict]) -> None:
-        """Override for benefits-specific JSON structure."""
-        self.output_file.parent.mkdir(parents=True, exist_ok=True)
-        output = {
-            "generated_at": datetime.now(timezone.utc).isoformat(),
-            "total_services": len(records),
-            "categories": list({s["category"] for s in records}),
-            "services": records,
-        }
-        with open(self.output_file, "w", encoding="utf-8") as f:
-            json.dump(output, f, indent=2, ensure_ascii=False)
+    async def save_to_database(self, records: list[dict]) -> int:
+        """Persist benefit services to benefit_services table."""
+        from backend.db.session import get_session
+        from backend.db.crud.benefits import bulk_upsert_benefits
 
-    def run(self) -> int:
-        """Override to merge with fallback data."""
-        raw_data = self.fetch()
-        live_services = self.process(raw_data) if raw_data else []
-        fallback = self.load_existing()
-        merged = self._merge_with_fallback(live_services, fallback)
-        self.save(merged)
-        return len(merged)
+        rows = [self._service_to_row(s) for s in records]
+        async with get_session() as session:
+            return await bulk_upsert_benefits(session, rows)
+
+    def _service_to_row(self, service: dict) -> dict:
+        """Convert scraper service dict to DB column dict."""
+        return {
+            "id": service["id"],
+            "category": service.get("category", ""),
+            "title": service.get("title", ""),
+            "provider": service.get("provider", ""),
+            "description": service.get("description", ""),
+            "url": service.get("url", ""),
+            "phone": service.get("phone", ""),
+            "scraped_at": datetime.now(timezone.utc),
+            "details": {
+                "eligibility": service.get("eligibility", []),
+                "income_limits": service.get("income_limits", {}),
+                "how_to_apply": service.get("how_to_apply", []),
+                "documents_needed": service.get("documents_needed", []),
+            },
+        }
 
     # ------------------------------------------------------------------
     # Benefits-specific parsing

@@ -1,6 +1,5 @@
 """News scraper — SERP discovery + sentiment enrichment + 3-tier geocoding."""
 
-import json
 import logging
 import time
 from datetime import datetime, timezone
@@ -57,17 +56,44 @@ class NewsScraper(BaseScraper):
     def _collection_key(self) -> str:
         return "articles"
 
-    def save(self, records: list[dict]) -> None:
-        """Override for news-specific JSON structure."""
-        self.output_file.parent.mkdir(parents=True, exist_ok=True)
-        output = {
-            "lastScraped": datetime.now(timezone.utc).isoformat(),
-            "totalArticles": len(records),
-            "articles": records,
+    async def save_to_database(self, records: list[dict]) -> int:
+        """Persist articles to the news_articles table."""
+        from backend.db.session import get_session
+        from backend.db.crud.news import bulk_upsert_articles
+
+        rows = [self._article_to_row(r) for r in records]
+        async with get_session() as session:
+            return await bulk_upsert_articles(session, rows)
+
+    def _article_to_row(self, article: dict) -> dict:
+        """Convert scraper article dict to DB column dict."""
+        scraped_raw = article.get("scrapedAt", "")
+        try:
+            scraped_at = datetime.fromisoformat(scraped_raw)
+        except (ValueError, TypeError):
+            scraped_at = datetime.now(timezone.utc)
+
+        return {
+            "id": article["id"],
+            "title": article.get("title", ""),
+            "excerpt": article.get("excerpt", ""),
+            "body": article.get("body", ""),
+            "source": article.get("source", ""),
+            "source_url": article.get("sourceUrl", ""),
+            "image_url": article.get("imageUrl"),
+            "category": article.get("category", "general"),
+            "published_at": article.get("publishedAt", ""),
+            "scraped_at": scraped_at,
+            "upvotes": article.get("upvotes", 0),
+            "downvotes": article.get("downvotes", 0),
+            "comment_count": article.get("commentCount", 0),
+            "sentiment": article.get("sentiment"),
+            "sentiment_score": article.get("sentimentScore"),
+            "misinfo_risk": article.get("misinfoRisk"),
+            "summary": article.get("summary"),
+            "location": article.get("location"),
+            "reaction_counts": article.get("reactionCounts"),
         }
-        with open(self.output_file, "w", encoding="utf-8") as f:
-            json.dump(output, f, indent=2, ensure_ascii=False)
-        logger.info("[%s] Saved %d articles to %s", self.name, len(records), self.output_file)
 
     def run(self) -> int:
         """Override to chain comment analysis after news scrape."""
