@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, LayoutDashboard, Bell } from "lucide-react";
+import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/react";
 import citysenseLogo from "@/assets/citysense-logo.png";
 import skyline from "@/assets/montgomery-skyline.png";
 import { FeaturesSection } from "@/components/splash/FeatureRows";
@@ -16,12 +17,27 @@ function LandingHeader({ onOpenCitizen, onOpenAdmin }: { onOpenCitizen: () => vo
           <span className="text-xl font-extrabold text-primary tracking-tight">CitySense</span>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={onOpenCitizen} className="hidden sm:inline-flex px-3 py-1.5 rounded-lg text-sm font-semibold text-muted-foreground hover:bg-muted hover:text-primary transition-colors">
-            Explore as Citizen
-          </button>
-          <button onClick={onOpenAdmin} className="inline-flex px-3.5 py-2 rounded-lg text-sm font-semibold bg-primary text-white hover:bg-primary/90 transition-colors">
-            Admin Dashboard
-          </button>
+          <Show when="signed-out">
+            <SignInButton mode="modal">
+              <button className="hidden sm:inline-flex px-3 py-1.5 rounded-lg text-sm font-semibold text-muted-foreground hover:bg-muted hover:text-primary transition-colors">
+                Sign In
+              </button>
+            </SignInButton>
+            <SignUpButton mode="modal">
+              <button className="inline-flex px-3.5 py-2 rounded-lg text-sm font-semibold bg-primary text-white hover:bg-primary/90 transition-colors">
+                Sign Up
+              </button>
+            </SignUpButton>
+          </Show>
+          <Show when="signed-in">
+            <button onClick={onOpenCitizen} className="hidden sm:inline-flex px-3 py-1.5 rounded-lg text-sm font-semibold text-muted-foreground hover:bg-muted hover:text-primary transition-colors">
+              Explore as Citizen
+            </button>
+            <button onClick={onOpenAdmin} className="inline-flex px-3.5 py-2 rounded-lg text-sm font-semibold bg-primary text-white hover:bg-primary/90 transition-colors">
+              Admin Dashboard
+            </button>
+            <UserButton />
+          </Show>
         </div>
       </div>
     </header>
