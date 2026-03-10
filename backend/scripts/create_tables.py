@@ -23,8 +23,12 @@ async def create_all_tables() -> None:
     async with engine.begin() as connection:
         await connection.run_sync(Base.metadata.create_all)
     logger.info("All tables created successfully.")
+
+
+async def _create_and_dispose() -> None:
+    await create_all_tables()
     await engine.dispose()
 
 
 if __name__ == "__main__":
-    asyncio.run(create_all_tables())
+    asyncio.run(_create_and_dispose())

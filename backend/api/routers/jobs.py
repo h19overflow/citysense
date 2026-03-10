@@ -18,7 +18,7 @@ async def get_jobs(
 ) -> dict:
     cache_key = f"jobs:list:{skip}:{limit}"
     cached = cache.fetch(cache_key)
-    if cached:
+    if cached is not None:
         return cached
 
     jobs = await list_jobs(session, skip=skip, limit=limit)

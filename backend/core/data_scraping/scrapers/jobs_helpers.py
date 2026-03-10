@@ -89,6 +89,19 @@ def build_geojson_feature(job: dict) -> dict | None:
     }
 
 
+def _parse_scraped_at(raw: str | None) -> datetime:
+    """Parse an ISO timestamp, falling back to UTC now if missing or invalid."""
+    if raw:
+        try:
+            parsed = datetime.fromisoformat(raw)
+            if parsed.tzinfo is None:
+                parsed = parsed.replace(tzinfo=timezone.utc)
+            return parsed
+        except (ValueError, TypeError):
+            pass
+    return datetime.now(timezone.utc)
+
+
 def feature_to_row(feature: dict) -> dict:
     """Convert a GeoJSON Feature to a flat DB row dict for bulk upsert."""
     props = feature.get("properties", {})
@@ -103,9 +116,9 @@ def feature_to_row(feature: dict) -> dict:
         "lat": coords[1] if len(coords) > 1 else None,
         "lng": coords[0] if len(coords) > 0 else None,
         "url": props.get("url", ""),
-        "scraped_at": datetime.now(timezone.utc),
+        "scraped_at": _parse_scraped_at(props.get("scraped_at")),
         "properties": {
             k: v for k, v in props.items()
-            if k not in ("id", "title", "company", "source", "address", "url")
+            if k not in ("id", "title", "company", "source", "address", "url", "scraped_at")
         },
     }

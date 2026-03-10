@@ -45,7 +45,7 @@ async def get_news(
 ) -> dict:
     cache_key = f"news:list:{category}:{skip}:{limit}"
     cached = cache.fetch(cache_key)
-    if cached:
+    if cached is not None:
         return cached
 
     articles = await list_articles(session, category=category, skip=skip, limit=limit)
@@ -65,7 +65,7 @@ async def get_news_detail(
 ) -> dict:
     cache_key = f"news:detail:{article_id}"
     cached = cache.fetch(cache_key)
-    if cached:
+    if cached is not None:
         return cached
 
     article = await get_article_by_id(session, article_id)

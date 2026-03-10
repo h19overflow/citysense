@@ -53,7 +53,7 @@ def test_article_to_row_parses_valid_iso_scraped_at_date() -> None:
     row = article_to_row(FULL_ARTICLE)
 
     assert isinstance(row["scraped_at"], datetime)
-    assert row["scraped_at"] == datetime(2024, 6, 1, 13, 0, 0)
+    assert row["scraped_at"] == datetime(2024, 6, 1, 13, 0, 0, tzinfo=timezone.utc)
 
 
 @pytest.mark.unit

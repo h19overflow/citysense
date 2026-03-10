@@ -86,6 +86,8 @@ def article_to_row(article: dict) -> dict:
     scraped_raw = article.get("scrapedAt", "")
     try:
         scraped_at = datetime.fromisoformat(scraped_raw)
+        if scraped_at.tzinfo is None:
+            scraped_at = scraped_at.replace(tzinfo=timezone.utc)
     except (ValueError, TypeError):
         scraped_at = datetime.now(timezone.utc)
 

@@ -18,7 +18,7 @@ async def get_housing(
 ) -> dict:
     cache_key = f"housing:list:{skip}:{limit}"
     cached = cache.fetch(cache_key)
-    if cached:
+    if cached is not None:
         return cached
 
     listings = await list_housing(session, skip=skip, limit=limit)

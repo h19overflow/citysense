@@ -42,7 +42,7 @@ async def get_benefits(
 ) -> dict:
     cache_key = f"benefits:list:{category}"
     cached = cache.fetch(cache_key)
-    if cached:
+    if cached is not None:
         return cached
 
     services = await list_benefits(session, category=category)

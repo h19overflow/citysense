@@ -139,7 +139,7 @@ class TestNewsDetailCaching:
             patch(
                 "backend.api.routers.news.cache.fetch", return_value=None
             ),
-            patch("backend.api.routers.news.cache.store"),
+            patch("backend.api.routers.news.cache.store") as mock_store,
             patch(
                 "backend.api.routers.news.get_article_by_id",
                 new_callable=AsyncMock,
@@ -152,3 +152,6 @@ class TestNewsDetailCaching:
         body = response.json()
         assert body["id"] == "x"
         assert body["title"] == "DB Detail"
+        mock_store.assert_called_once()
+        _, kwargs = mock_store.call_args
+        assert kwargs.get("ttl") == 600
