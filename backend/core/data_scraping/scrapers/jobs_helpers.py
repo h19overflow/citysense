@@ -59,7 +59,7 @@ def geocode_job(
 
 def build_geojson_feature(job: dict) -> dict | None:
     """Convert a geocoded job dict to a GeoJSON Feature, or return None if not geocoded."""
-    if "lat" not in job:
+    if "lat" not in job or "lng" not in job:
         return None
     return {
         "type": "Feature",

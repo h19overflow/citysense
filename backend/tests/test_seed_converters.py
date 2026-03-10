@@ -148,3 +148,13 @@ def test_feature_to_job_row_returns_none_coords_when_geometry_is_null() -> None:
 
     assert row["lat"] is None
     assert row["lng"] is None
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("coords", [[], [-77.05]])
+def test_feature_to_job_row_handles_partial_coordinates(coords: list) -> None:
+    """Partial or empty coordinates must not crash and should yield None for missing axis."""
+    feature = {**JOB_FEATURE, "geometry": {"type": "Point", "coordinates": coords}}
+    row = feature_to_job_row(feature)
+
+    assert row["lat"] is None
