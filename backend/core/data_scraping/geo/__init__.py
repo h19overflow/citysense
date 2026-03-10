@@ -4,6 +4,9 @@ from backend.core.data_scraping.geo.geocoding import (
     geocode_nominatim,
     geocode_arcgis_business,
     geocode_serp_maps,
+    is_within_montgomery,
+)
+from backend.core.data_scraping.geo.location import (
     build_jittered_city_center,
     extract_location_mentions,
     has_city_level_mention,
