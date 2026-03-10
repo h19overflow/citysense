@@ -5,10 +5,14 @@ import citysenseLogo from "@/assets/citysense-logo.png";
 import skyline from "@/assets/montgomery-skyline.png";
 import { FeaturesSection } from "@/components/splash/FeatureRows";
 import { ValueSection } from "@/components/splash/ValueSection";
+import { useAuthMe } from "@/lib/useAuth";
 
 const HERO_CHIPS = ["8 Service Categories", "Live News Feed", "AI-Powered Insights"];
 
 function LandingHeader({ onOpenCitizen, onOpenAdmin }: { onOpenCitizen: () => void; onOpenAdmin: () => void }) {
+  const { data } = useAuthMe();
+  const isAdmin = data?.is_admin ?? false;
+
   return (
     <header className="stitch-topbar">
       <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
@@ -33,9 +37,11 @@ function LandingHeader({ onOpenCitizen, onOpenAdmin }: { onOpenCitizen: () => vo
             <button onClick={onOpenCitizen} className="hidden sm:inline-flex px-3 py-1.5 rounded-lg text-sm font-semibold text-muted-foreground hover:bg-muted hover:text-primary transition-colors">
               Explore as Citizen
             </button>
-            <button onClick={onOpenAdmin} className="inline-flex px-3.5 py-2 rounded-lg text-sm font-semibold bg-primary text-white hover:bg-primary/90 transition-colors">
-              Admin Dashboard
-            </button>
+            {isAdmin && (
+              <button onClick={onOpenAdmin} className="inline-flex px-3.5 py-2 rounded-lg text-sm font-semibold bg-primary text-white hover:bg-primary/90 transition-colors">
+                Admin Dashboard
+              </button>
+            )}
             <UserButton />
           </Show>
         </div>
@@ -44,7 +50,7 @@ function LandingHeader({ onOpenCitizen, onOpenAdmin }: { onOpenCitizen: () => vo
   );
 }
 
-function HeroButtons({ onGetStarted }: { onGetStarted: () => void }) {
+function HeroButtons({ onGetStarted, isAdmin }: { onGetStarted: () => void; isAdmin: boolean }) {
   return (
     <div className="flex items-center justify-center gap-4 flex-wrap">
       <button
@@ -54,18 +60,20 @@ function HeroButtons({ onGetStarted }: { onGetStarted: () => void }) {
         Explore as Citizen
         <ArrowRight className="w-5 h-5" />
       </button>
-      <button
-        onClick={() => (window.location.href = "/admin")}
-        className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white font-semibold px-8 py-3.5 rounded-full text-base border border-white/25 hover:bg-white/20 hover:border-white/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
-      >
-        Admin Dashboard
-        <LayoutDashboard className="w-5 h-5" />
-      </button>
+      {isAdmin && (
+        <button
+          onClick={() => (window.location.href = "/admin")}
+          className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white font-semibold px-8 py-3.5 rounded-full text-base border border-white/25 hover:bg-white/20 hover:border-white/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
+        >
+          Admin Dashboard
+          <LayoutDashboard className="w-5 h-5" />
+        </button>
+      )}
     </div>
   );
 }
 
-function HeroSection({ onGetStarted }: { onGetStarted: () => void }) {
+function HeroSection({ onGetStarted, isAdmin }: { onGetStarted: () => void; isAdmin: boolean }) {
   return (
     <section className="relative bg-gradient-to-br from-primary via-secondary to-[#1b3f72] overflow-hidden">
       <div className="absolute top-10 left-1/2 -translate-x-1/2 w-80 h-80 rounded-full bg-primary/20 blur-[90px] pointer-events-none" />
@@ -92,7 +100,7 @@ function HeroSection({ onGetStarted }: { onGetStarted: () => void }) {
             </span>
           ))}
         </div>
-        <HeroButtons onGetStarted={onGetStarted} />
+        <HeroButtons onGetStarted={onGetStarted} isAdmin={isAdmin} />
       </div>
       <div className="absolute bottom-0 left-0 right-0">
         <img src={skyline} alt="" className="w-full h-44 md:h-56 object-cover object-top opacity-[0.22]" />
@@ -167,6 +175,8 @@ function Footer() {
 
 export default function Splash() {
   const navigate = useNavigate();
+  const { data } = useAuthMe();
+  const isAdmin = data?.is_admin ?? false;
 
   function openServices() { navigate("/app/services"); }
   function openNews() { navigate("/app/news"); }
@@ -178,7 +188,7 @@ export default function Splash() {
   return (
     <div className="stitch-shell">
       <LandingHeader onOpenCitizen={() => navigate("/app")} onOpenAdmin={() => navigate("/admin")} />
-      <HeroSection onGetStarted={() => navigate("/app")} />
+      <HeroSection onGetStarted={() => navigate("/app")} isAdmin={isAdmin} />
       <ValueSection onFindServices={openServices} onStayInformed={openNews} onGetAnswers={openAnswers} />
       <FeaturesSection onSelectService={openServiceCategory} />
       <NotificationSection />
