@@ -1,14 +1,16 @@
 """News endpoints: list and detail for news articles."""
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.db.crud.news import count_articles, get_article_by_id, list_articles
-from backend.db.session import get_session
+from backend.db.models import NewsArticle
+from backend.db.session import get_db
 
 router = APIRouter(tags=["news"])
 
 
-def _article_to_dict(article) -> dict:
+def _article_to_dict(article: NewsArticle) -> dict:
     """Convert NewsArticle ORM object to frontend-compatible camelCase dict."""
     return {
         "id": article.id,
@@ -35,13 +37,13 @@ def _article_to_dict(article) -> dict:
 
 @router.get("/news")
 async def get_news(
+    session: AsyncSession = Depends(get_db),
     category: str | None = Query(None),
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=200),
 ) -> dict:
-    async with get_session() as session:
-        articles = await list_articles(session, category=category, skip=skip, limit=limit)
-        total = await count_articles(session, category=category)
+    articles = await list_articles(session, category=category, skip=skip, limit=limit)
+    total = await count_articles(session, category=category)
     return {
         "totalArticles": total,
         "articles": [_article_to_dict(a) for a in articles],
@@ -49,9 +51,11 @@ async def get_news(
 
 
 @router.get("/news/{article_id}")
-async def get_news_detail(article_id: str) -> dict:
-    async with get_session() as session:
-        article = await get_article_by_id(session, article_id)
+async def get_news_detail(
+    article_id: str,
+    session: AsyncSession = Depends(get_db),
+) -> dict:
+    article = await get_article_by_id(session, article_id)
     if not article:
         raise HTTPException(status_code=404, detail="Article not found")
     return _article_to_dict(article)

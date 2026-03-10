@@ -1,15 +1,20 @@
 """Benefits endpoint: serve government benefit services."""
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.db.crud.benefits import list_benefits
-from backend.db.session import get_session
+from backend.db.models import BenefitService
+from backend.db.session import get_db
 
 router = APIRouter(tags=["benefits"])
 
 
-def _benefit_to_dict(svc) -> dict:
-    """Convert BenefitService ORM object to frontend-compatible dict."""
+def _benefit_to_dict(svc: BenefitService) -> dict:
+    """Convert BenefitService ORM object to frontend-compatible dict.
+
+    Matches the RawServiceGuide interface in govServices.ts (snake_case keys).
+    """
     details = svc.details or {}
     return {
         "id": svc.id,
@@ -20,20 +25,21 @@ def _benefit_to_dict(svc) -> dict:
         "eligibility": details.get("eligibility", []),
         "how_to_apply": details.get("how_to_apply", []),
         "documents_needed": details.get("documents_needed", []),
-        "income_limits": details.get("income_limits", {}),
+        "income_limits": details.get("income_limits", []),
         "url": svc.url,
         "phone": svc.phone,
-        "scrapedAt": svc.scraped_at.isoformat() if svc.scraped_at else "",
+        "address": "",
+        "tags": [],
+        "scraped_at": svc.scraped_at.isoformat() if svc.scraped_at else "",
     }
 
 
 @router.get("/benefits")
 async def get_benefits(
+    session: AsyncSession = Depends(get_db),
     category: str | None = Query(None),
 ) -> dict:
-    async with get_session() as session:
-        services = await list_benefits(session, category=category)
+    services = await list_benefits(session, category=category)
     return {
-        "totalServices": len(services),
         "services": [_benefit_to_dict(s) for s in services],
     }
