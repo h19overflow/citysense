@@ -33,7 +33,7 @@ const CATEGORY_BADGE: Record<string, string> = {
 
 const SENTIMENT_DOTS: Record<string, string> = {
   positive: "bg-emerald-500",
-  neutral: "bg-gray-400",
+  neutral: "bg-muted-foreground/40",
   negative: "bg-rose-500",
 };
 
@@ -74,7 +74,7 @@ export function NewsCard({ article, reactionCounts, userReaction, flagCount, isF
 
   return (
     <div
-      className="group relative w-full text-left rounded-2xl bg-white border border-border/40
+      className="group relative w-full text-left rounded-2xl bg-card border border-border/40
                  hover:shadow-lg hover:-translate-y-0.5 hover:z-10 transition-all duration-200 cursor-pointer magnolia-bg"
       onClick={() => onSelect(article)}
     >

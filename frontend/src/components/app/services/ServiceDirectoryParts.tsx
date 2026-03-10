@@ -25,7 +25,7 @@ export function DirectorySearchBar({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Search services, locations, or benefits..."
-        className="w-full pl-10 pr-4 py-3 rounded-xl border border-border/50 bg-white text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+        className="w-full pl-10 pr-4 py-3 rounded-xl border border-border/50 bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
       />
     </div>
   );

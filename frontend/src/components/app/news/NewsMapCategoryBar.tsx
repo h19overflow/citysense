@@ -18,7 +18,7 @@ export function NewsMapCategoryBar({
   onBack,
 }: NewsMapCategoryBarProps) {
   return (
-    <div className="absolute top-3 left-3 z-[1000] flex items-center gap-1.5 bg-white/95 backdrop-blur rounded-xl px-2 py-1.5 shadow-lg border border-border/50">
+    <div className="absolute top-3 left-3 z-[1000] flex items-center gap-1.5 bg-card/95 backdrop-blur rounded-xl px-2 py-1.5 shadow-lg border border-border/50">
       {onBack && (
         <>
           <button

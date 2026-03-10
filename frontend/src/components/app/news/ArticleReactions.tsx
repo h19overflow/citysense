@@ -78,7 +78,7 @@ export function ArticleReactions({
         {/* Emoji picker popover */}
         {pickerOpen && (
           <div
-            className="absolute bottom-full mb-1.5 left-0 z-50 flex items-center gap-1 p-1.5 rounded-2xl bg-white border border-border shadow-lg"
+            className="absolute bottom-full mb-1.5 left-0 z-50 flex items-center gap-1 p-1.5 rounded-2xl bg-card border border-border shadow-lg"
             onClick={(e) => e.stopPropagation()}
           >
             {REACTIONS.map(({ emoji, label }) => {

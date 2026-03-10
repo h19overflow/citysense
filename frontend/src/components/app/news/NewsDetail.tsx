@@ -64,7 +64,7 @@ export function NewsDetail({ article, userReaction, isFlagged, onBack, onReact, 
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Sticky header */}
-      <div className="shrink-0 flex items-center gap-3 border-b border-border/50 bg-white px-4 py-3">
+      <div className="shrink-0 flex items-center gap-3 border-b border-border/50 bg-background px-4 py-3">
         <button
           onClick={onBack}
           className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"

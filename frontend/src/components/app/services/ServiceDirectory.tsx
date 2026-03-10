@@ -144,7 +144,7 @@ function TabButton({
       onClick={onClick}
       className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
         active
-          ? "bg-white text-foreground shadow-sm"
+          ? "bg-card text-foreground shadow-sm"
           : "text-muted-foreground hover:text-foreground"
       }`}
     >

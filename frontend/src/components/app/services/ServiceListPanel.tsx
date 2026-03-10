@@ -35,7 +35,7 @@ export function ServiceListPanel({
           value={locationSearch}
           onChange={(e) => onChangeLocationSearch(e.target.value)}
           placeholder="Search locations..."
-          className="w-full pl-8 pr-3 py-2 rounded-lg border border-border/50 bg-white text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+          className="w-full pl-8 pr-3 py-2 rounded-lg border border-border/50 bg-background text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
         />
       </div>
 
@@ -86,7 +86,7 @@ function SortToggle({
           className={`px-2.5 py-1 rounded-full text-[11px] font-medium border transition-all ${
             selected === option
               ? "bg-primary text-primary-foreground border-primary"
-              : "bg-white text-muted-foreground border-border/50 hover:border-border"
+              : "bg-background text-muted-foreground border-border/50 hover:border-border"
           }`}
         >
           {option === "alphabetical" ? "A–Z" : "Nearest"}

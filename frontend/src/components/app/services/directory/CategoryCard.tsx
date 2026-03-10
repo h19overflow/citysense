@@ -14,7 +14,7 @@ export function CategoryCard({
   return (
     <button
       onClick={onSelect}
-      className="group relative rounded-2xl bg-white border border-border/40 text-left transition-all duration-200 hover:shadow-lg hover:border-border/60 hover:-translate-y-0.5 overflow-hidden magnolia-bg"
+      className="group relative rounded-2xl bg-card border border-border/40 text-left transition-all duration-200 hover:shadow-lg hover:border-border/60 hover:-translate-y-0.5 overflow-hidden magnolia-bg"
     >
       <div className={`absolute left-0 top-0 bottom-0 w-1 ${accent} rounded-l-2xl`} />
 

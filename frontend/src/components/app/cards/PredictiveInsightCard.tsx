@@ -22,7 +22,7 @@ export default function PredictiveInsightCard({ hotspots }: PredictiveInsightCar
   if (hotspots.length === 0) return null;
 
   return (
-    <div className="rounded-xl border border-border/50 bg-gradient-to-br from-slate-50 to-white p-3 space-y-2">
+    <div className="rounded-xl border border-border/50 bg-card p-3 space-y-2">
       <div className="flex items-center gap-2">
         <span className="text-sm">📊</span>
         <span className="text-xs font-semibold text-foreground">Predictive Insights</span>
@@ -34,7 +34,7 @@ export default function PredictiveInsightCard({ hotspots }: PredictiveInsightCar
           return (
             <div
               key={h.area_id}
-              className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-white border border-border/30"
+              className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-background border border-border/30"
             >
               <span className="text-xs">{icon}</span>
               <div className="flex-1 min-w-0">

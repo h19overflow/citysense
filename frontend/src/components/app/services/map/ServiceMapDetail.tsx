@@ -18,7 +18,7 @@ export function ServiceMapDetail({
   onViewCategory,
 }: ServiceMapDetailProps) {
   return (
-    <div className="w-[340px] shrink-0 border-l border-border/30 overflow-y-auto bg-white">
+    <div className="w-[340px] shrink-0 border-l border-border/30 overflow-y-auto bg-background">
       <MapPointDetailPanel
         point={point}
         categories={categories}

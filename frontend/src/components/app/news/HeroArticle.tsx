@@ -9,7 +9,7 @@ interface HeroArticleProps {
 
 const SENTIMENT_DOTS: Record<string, string> = {
   positive: "bg-emerald-400",
-  neutral: "bg-gray-300",
+  neutral: "bg-muted-foreground/40",
   negative: "bg-rose-400",
 };
 

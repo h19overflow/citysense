@@ -111,7 +111,7 @@ export function NewsView() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="shrink-0 border-b border-border/50 bg-white shadow-sm px-5 py-4 space-y-3">
+      <div className="shrink-0 border-b border-border/50 bg-background shadow-sm px-5 py-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">

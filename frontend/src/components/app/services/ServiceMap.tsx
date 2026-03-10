@@ -84,7 +84,7 @@ export function ServiceMap() {
           <Popup>
             <div className="text-xs">
               <p className="font-semibold">{point.name}</p>
-              {point.address && <p className="text-gray-600">{point.address}</p>}
+              {point.address && <p className="text-muted-foreground">{point.address}</p>}
               {point.phone && <p>{point.phone}</p>}
             </div>
           </Popup>

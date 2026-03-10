@@ -21,7 +21,7 @@ const PRIORITY_LABEL: Record<string, string> = {
 
 const SENTIMENT_DOT: Record<string, string> = {
   positive: "bg-emerald-500",
-  neutral: "bg-gray-400",
+  neutral: "bg-muted-foreground/40",
   negative: "bg-red-500",
 };
 

@@ -59,14 +59,14 @@ export function MiniMapPreview({ onShowMap }: { onShowMap: () => void }) {
       </MapContainer>
 
       <div className="absolute inset-0 bg-[hsl(var(--secondary))]/0 group-hover:bg-[hsl(var(--secondary))]/40 transition-colors duration-300 flex items-center justify-center">
-        <div className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/95 shadow-lg text-sm font-semibold text-secondary opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+        <div className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-card/95 shadow-lg text-sm font-semibold text-secondary opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
           <MapPin className="w-4 h-4" />
           Explore full map
         </div>
       </div>
 
       {points.length > 0 && (
-        <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm shadow-sm text-xs font-medium text-foreground">
+        <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-card/90 backdrop-blur-sm shadow-sm text-xs font-medium text-foreground">
           <span className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--pine-green))]" />
           {points.length} locations
         </div>

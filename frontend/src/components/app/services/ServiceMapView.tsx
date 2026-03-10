@@ -100,7 +100,7 @@ export default function ServiceMapView({ onBack, onSelectCategory, onNavigateToC
                 <Popup>
                   <div className="text-xs min-w-[160px]">
                     <p className="font-semibold">{point.name}</p>
-                    {point.address && <p className="text-gray-500">{point.address}</p>}
+                    {point.address && <p className="text-muted-foreground">{point.address}</p>}
                     {point.phone && <p className="mt-1">{point.phone}</p>}
                   </div>
                 </Popup>
@@ -111,7 +111,7 @@ export default function ServiceMapView({ onBack, onSelectCategory, onNavigateToC
             <NeighborhoodOverlay />
           </MapContainer>
 
-          <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm z-[1000] flex flex-wrap gap-x-4 gap-y-1">
+          <div className="absolute bottom-3 left-3 bg-card/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm z-[1000] flex flex-wrap gap-x-4 gap-y-1">
             {MAP_CATEGORIES.filter((c) => activeCategories.has(c.id)).map(({ id, label }) => (
               <div key={id} className="flex items-center gap-1.5">
                 <span className="text-xs">{getMarkerSymbol(id)}</span>
@@ -134,7 +134,7 @@ export default function ServiceMapView({ onBack, onSelectCategory, onNavigateToC
         )}
 
         {guideOpen && (
-          <div className="w-[340px] shrink-0 border-l border-border/30 bg-white">
+          <div className="w-[340px] shrink-0 border-l border-border/30 bg-background">
             <ServiceGuideChat />
           </div>
         )}

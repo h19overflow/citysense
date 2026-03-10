@@ -27,7 +27,7 @@ export function NewsletterHeader({
   onFlaggedChange,
 }: NewsletterHeaderProps) {
   return (
-    <div className="shrink-0 border-b border-border/50 bg-white">
+    <div className="shrink-0 border-b border-border/50 bg-background">
       {/* Masthead */}
       <div className="px-6 pt-5 pb-3">
         <div className="flex items-center justify-between">
@@ -73,13 +73,13 @@ export function NewsletterHeader({
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="pl-8 pr-3 py-1.5 text-xs border border-border/50 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-primary/40 w-36"
+              className="pl-8 pr-3 py-1.5 text-xs border border-border/50 rounded-lg bg-background focus:outline-none focus:ring-1 focus:ring-primary/40 w-36"
             />
           </div>
           <select
             value={sortMode}
             onChange={(e) => onSortChange(e.target.value as SortMode)}
-            className="text-xs border border-border/50 rounded-lg px-2 py-1.5 bg-white text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+            className="text-xs border border-border/50 rounded-lg px-2 py-1.5 bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
           >
             <option value="newest">Newest</option>
             <option value="oldest">Oldest</option>

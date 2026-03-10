@@ -66,20 +66,20 @@ export function NewsMapPreview({ onShowMap }: NewsMapPreviewProps) {
 
       {/* Hover overlay */}
       <div className="absolute inset-0 bg-[hsl(var(--secondary))]/0 group-hover:bg-[hsl(var(--secondary))]/40 transition-colors duration-300 flex items-center justify-center">
-        <div className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/95 shadow-lg text-sm font-semibold text-secondary opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+        <div className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-card/95 shadow-lg text-sm font-semibold text-secondary opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
           <MapPin className="w-4 h-4" />
           Explore news map
         </div>
       </div>
 
       {/* Article count badge */}
-      <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm shadow-sm text-xs font-medium text-foreground">
+      <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-card/90 backdrop-blur-sm shadow-sm text-xs font-medium text-foreground">
         <span className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--amber-gold))]" />
         {geoArticles.length} stories on map
       </div>
 
       {/* Sentiment legend */}
-      <div className="absolute top-3 right-3 flex items-center gap-2 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm shadow-sm text-[10px] font-medium text-muted-foreground">
+      <div className="absolute top-3 right-3 flex items-center gap-2 px-2.5 py-1 rounded-full bg-card/90 backdrop-blur-sm shadow-sm text-[10px] font-medium text-muted-foreground">
         <span className="flex items-center gap-1">
           <span className="w-2 h-2 rounded-full bg-emerald-500" />
           Positive

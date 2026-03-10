@@ -85,7 +85,7 @@ function BenefitCategoryCard({
   return (
     <div className={`rounded-2xl border p-5 ${config.bgLight} transition-all overflow-hidden`}>
       <div className="flex items-center gap-3 mb-4">
-        <div className={`w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm ${config.color}`}>
+        <div className={`w-10 h-10 rounded-xl bg-card flex items-center justify-center shadow-sm ${config.color}`}>
           <Icon className="w-5 h-5" />
         </div>
         <div>
@@ -123,7 +123,7 @@ function GuideItem({
   onNavigateToChat: (msg: string) => void;
 }) {
   return (
-    <div className={`rounded-xl bg-white border transition-all ${isExpanded ? "border-primary/30 shadow-md" : "border-white/60 hover:shadow-sm"}`}>
+    <div className={`rounded-xl bg-card border transition-all ${isExpanded ? "border-primary/30 shadow-md" : "border-border/60 hover:shadow-sm"}`}>
       <button onClick={onToggle} className="w-full text-left p-3">
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0">

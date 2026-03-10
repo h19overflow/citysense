@@ -36,7 +36,7 @@ function HotspotRow({ hotspot, onAskAI }: { hotspot: PredictionHotspot; onAskAI?
   return (
     <button
       onClick={() => onAskAI?.(`Tell me about the ${hotspot.risk_level} risk hotspot in ${hotspot.neighborhood} for ${hotspot.category}. What's driving the score of ${Math.round(hotspot.hotspot_score)} and what should we do about it?`)}
-      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white border border-border/30 hover:border-primary/40 hover:bg-primary/5 transition-colors text-left group"
+      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-card border border-border/30 hover:border-primary/40 hover:bg-primary/5 transition-colors text-left group"
     >
       <span className="text-sm">{icon}</span>
       <div className="flex-1 min-w-0">
@@ -71,7 +71,7 @@ function TrendRow({ trend, onAskAI }: { trend: PredictionTrend; onAskAI?: (q: st
   return (
     <button
       onClick={() => onAskAI?.(`What's happening with ${trend.category} complaints? They're ${trend.trend_direction} at ${growthPercent > 0 ? "+" : ""}${growthPercent}%. Which neighborhoods are most affected and what should we do?`)}
-      className="w-full flex items-center gap-3 px-3 py-2 rounded-lg bg-white border border-border/30 hover:border-primary/40 hover:bg-primary/5 transition-colors text-left group"
+      className="w-full flex items-center gap-3 px-3 py-2 rounded-lg bg-card border border-border/30 hover:border-primary/40 hover:bg-primary/5 transition-colors text-left group"
     >
       <span className="text-sm">{icon}</span>
       <div className="flex-1 min-w-0">

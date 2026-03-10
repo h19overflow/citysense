@@ -46,7 +46,7 @@ export function NewsMapView({
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="shrink-0 px-6 py-4 border-b border-border/30 bg-white flex items-center justify-between">
+      <div className="shrink-0 px-6 py-4 border-b border-border/30 bg-background flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button
             onClick={onBack}
@@ -96,7 +96,7 @@ export function NewsMapView({
         </MapContainer>
 
         {/* Sentiment + misinfo legend */}
-        <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-sm rounded-lg px-3 py-2.5 shadow-md z-[1000]">
+        <div className="absolute bottom-3 left-3 bg-card/95 backdrop-blur-sm rounded-lg px-3 py-2.5 shadow-md z-[1000]">
           <p className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
             Sentiment
           </p>
@@ -118,7 +118,7 @@ export function NewsMapView({
         </div>
 
         {/* Category icon legend */}
-        <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-sm rounded-lg px-3 py-2.5 shadow-md z-[1000]">
+        <div className="absolute bottom-3 right-3 bg-card/95 backdrop-blur-sm rounded-lg px-3 py-2.5 shadow-md z-[1000]">
           <p className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
             Category
           </p>

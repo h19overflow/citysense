@@ -77,7 +77,7 @@ export function NewsSidebarPanel({
   }
 
   return (
-    <div className="absolute top-0 right-0 h-full w-[320px] bg-white shadow-xl z-[1000] flex flex-col border-l border-border/30">
+    <div className="absolute top-0 right-0 h-full w-[320px] bg-card shadow-xl z-[1000] flex flex-col border-l border-border/30">
       {/* Header */}
       <div className="shrink-0 px-3 pt-3 pb-2 border-b border-border/20 space-y-2">
         <div className="flex items-center justify-between">
@@ -88,7 +88,7 @@ export function NewsSidebarPanel({
                 key={m}
                 onClick={() => onModeChange(m)}
                 className={`px-2 py-1 text-xs font-medium rounded transition-colors capitalize
-                  ${mode === m ? "bg-white text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                  ${mode === m ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
               >
                 {m}
               </button>
@@ -104,7 +104,7 @@ export function NewsSidebarPanel({
                 key={s}
                 onClick={() => setSort(s)}
                 className={`px-2.5 py-1 text-xs font-medium rounded transition-colors capitalize
-                  ${sort === s ? "bg-white text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                  ${sort === s ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
               >
                 {s}
               </button>
@@ -113,7 +113,7 @@ export function NewsSidebarPanel({
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value as NewsCategory | "all")}
-            className="text-xs border border-border/50 rounded-md px-2 py-1 bg-white text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+            className="text-xs border border-border/50 rounded-md px-2 py-1 bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
           >
             {CATEGORIES.map(({ value, label }) => (
               <option key={value} value={value}>{label}</option>

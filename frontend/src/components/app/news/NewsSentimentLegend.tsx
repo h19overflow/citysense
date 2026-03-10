@@ -39,7 +39,7 @@ export function NewsSentimentLegend({ articles, reactionCounts, mode, onModeChan
   };
 
   return (
-    <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-sm rounded-xl px-4 py-3 shadow-lg z-[1000] max-w-[200px]">
+    <div className="absolute bottom-3 right-3 bg-card/95 backdrop-blur-sm rounded-xl px-4 py-3 shadow-lg z-[1000] max-w-[200px]">
       <div className="flex items-center justify-between mb-2">
         <span className="text-[11px] font-bold text-foreground uppercase tracking-wide">News Pulse</span>
         <div className="flex gap-1">

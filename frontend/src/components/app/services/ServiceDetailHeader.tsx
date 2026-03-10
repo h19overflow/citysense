@@ -12,7 +12,7 @@ interface DetailViewHeaderProps {
 
 export function DetailViewHeader({ meta, Icon, totalCount, onBack, guideOpen, onToggleGuide }: DetailViewHeaderProps) {
   return (
-    <div className="shrink-0 border-b border-border/30 bg-white">
+    <div className="shrink-0 border-b border-border/30 bg-background">
       <div className="px-6 py-4 flex items-start gap-4">
         <button
           onClick={onBack}

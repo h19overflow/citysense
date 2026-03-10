@@ -112,7 +112,7 @@ export default function ServiceDetailView({ category, onBack }: ServiceDetailVie
                 <Popup>
                   <div className="text-xs min-w-[180px]">
                     <p className="font-semibold">{point.name}</p>
-                    {point.address && <p className="text-gray-500 mt-0.5">{point.address}</p>}
+                    {point.address && <p className="text-muted-foreground mt-0.5">{point.address}</p>}
                     {point.phone && <p className="mt-1">{point.phone}</p>}
                   </div>
                 </Popup>
@@ -121,7 +121,7 @@ export default function ServiceDetailView({ category, onBack }: ServiceDetailVie
             <FlyToPoint lat={selectedPoint?.lat ?? null} lng={selectedPoint?.lng ?? null} />
           </MapContainer>
 
-          <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm z-[1000]">
+          <div className="absolute bottom-3 left-3 bg-card/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm z-[1000]">
             <div className="flex items-center gap-1.5">
               <span className="text-xs">{getMarkerSymbol(category)}</span>
               <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: getMarkerColor(category) }} />
@@ -130,7 +130,7 @@ export default function ServiceDetailView({ category, onBack }: ServiceDetailVie
           </div>
         </div>
 
-        <div ref={listRef} className="w-[320px] shrink-0 border-l border-border/30 overflow-y-auto bg-white">
+        <div ref={listRef} className="w-[320px] shrink-0 border-l border-border/30 overflow-y-auto bg-background">
           <ServiceListPanel
             points={filteredPoints}
             selectedPointId={selectedPointId}
@@ -145,7 +145,7 @@ export default function ServiceDetailView({ category, onBack }: ServiceDetailVie
         </div>
 
         {guideOpen && (
-          <div className="w-[340px] shrink-0 border-l border-border/30 bg-white">
+          <div className="w-[340px] shrink-0 border-l border-border/30 bg-background">
             <ServiceGuideChat />
           </div>
         )}
