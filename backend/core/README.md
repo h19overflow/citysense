@@ -15,10 +15,9 @@ The core layer manages four critical functions:
 
 | Module | Purpose | Key Functions |
 |--------|---------|---|
-| `bright_data_client.py` | Bright Data SDK wrapper for web scraping & SERP searches | `trigger_and_collect()`, `trigger_scraper()`, `poll_snapshot()`, `fetch_with_unlocker()`, `serp_search()`, `serp_maps_search()` |
-| `scrape_scheduler.py` | Background scheduler — runs all scrape streams on startup & every 15 min | `start_scheduled_scraping()`, `run_all_streams()`, `_run_jobs_scrape()`, `_run_news_scrape()`, `_run_housing_scrape()`, `_run_benefits_scrape()` |
+| `data_scraping/` | Strategy-pattern scraping package (see its own README) | `BaseScraper`, `JobsScraper`, `NewsScraper`, `HousingScraper`, `BenefitsScraper` |
+| `predictive/` | Weighted hotspot scoring and trend detection | `compute_hotspots()`, `detect_trends()` |
 | `sse_broadcaster.py` | In-memory SSE queue manager for pushing real-time events to frontend | `create_client_queue()`, `broadcast_event()`, `broadcast_event_threadsafe()`, `stream_events()` |
-| `sentiment_rules.py` | Rule-based sentiment & misinformation scoring for news articles | `score_sentiment()`, `score_misinfo_risk()`, `build_summary()` |
 | `redis_client.py` | Optional Redis caching for roadmap generation (fails open) | `RedisCache` singleton with `fetch()`, `store()`, `delete()` methods |
 | `exceptions.py` | Application error hierarchy — base exception + domain-specific types | `AppException`, `ValidationError`, `NotFoundError`, `ConflictError`, `AuthError`, `ExternalServiceError` |
 
