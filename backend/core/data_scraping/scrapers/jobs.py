@@ -8,8 +8,8 @@ from pathlib import Path
 from backend.config import OUTPUT_FILES
 from backend.core.data_scraping.base import BaseScraper
 from backend.core.data_scraping.geo import geocode_nominatim, geocode_arcgis_business
-from backend.core.payloads import JOB_SCRAPERS, SKILL_CATEGORIES
-from backend.core.bright_data_client import trigger_and_collect
+from backend.core.data_scraping.payloads import JOB_SCRAPERS, SKILL_CATEGORIES
+from backend.core.data_scraping.bright_data_client import trigger_and_collect
 
 
 class JobsScraper(BaseScraper):

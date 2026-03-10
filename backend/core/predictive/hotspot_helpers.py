@@ -6,6 +6,7 @@ from collections import defaultdict
 from typing import Any
 
 from backend.core.predictive.hotspot_config import WEIGHTS, RISK_THRESHOLDS, FACTOR_LABELS
+from backend.core.predictive.models import HotspotDriver, RiskLevel
 
 
 def normalize_to_hundred(value: float, max_value: float) -> float:
@@ -15,7 +16,7 @@ def normalize_to_hundred(value: float, max_value: float) -> float:
     return min(100.0, (value / max_value) * 100.0)
 
 
-def resolve_risk_level(score: float) -> str:
+def resolve_risk_level(score: float) -> RiskLevel:
     """Map a numeric hotspot score to a risk level string."""
     for level, threshold in RISK_THRESHOLDS.items():
         if score >= threshold:
@@ -26,15 +27,15 @@ def resolve_risk_level(score: float) -> str:
 def build_hotspot_explanation(
     neighborhood: str,
     category: str,
-    drivers: list[dict],
-    risk: str,
+    drivers: list[HotspotDriver],
+    risk: RiskLevel,
 ) -> str:
     """Build a human-readable explanation of the hotspot score."""
-    top_driver = max(drivers, key=lambda d: d["contribution"]) if drivers else None
+    top_driver = max(drivers, key=lambda d: d.contribution) if drivers else None
     if not top_driver:
         return f"{neighborhood} shows normal activity levels."
 
-    factor_name = FACTOR_LABELS.get(top_driver["factor"], top_driver["factor"])
+    factor_name = FACTOR_LABELS.get(top_driver.factor, top_driver.factor)
 
     if risk == "critical":
         return (
@@ -48,7 +49,7 @@ def build_hotspot_explanation(
     return f"{neighborhood} is currently stable for {category} issues."
 
 
-def build_ui_label(neighborhood: str, risk: str, category: str) -> str:
+def build_ui_label(neighborhood: str, risk: RiskLevel, category: str) -> str:
     """Build a short UI badge label for a neighborhood hotspot."""
     labels = {
         "critical": f"🔴 {neighborhood}: Critical {category} hotspot",
@@ -113,7 +114,7 @@ def score_area(
     max_growth: float,
     max_events: float,
     sentiment_scores: dict[str, float],
-) -> tuple[list[dict], float]:
+) -> tuple[list[HotspotDriver], float]:
     """Compute normalized driver values and weighted score for one area."""
     norm_volume = normalize_to_hundred(stats["volume"], max_volume)
     norm_growth = normalize_to_hundred(max(stats["growth"], 0), max_growth)
@@ -128,10 +129,10 @@ def score_area(
     )
 
     drivers = [
-        {"factor": "complaint_volume", "value": round(norm_volume, 1), "weight": WEIGHTS["complaint_volume"], "contribution": round(WEIGHTS["complaint_volume"] * norm_volume, 1)},
-        {"factor": "complaint_growth_rate", "value": round(norm_growth, 1), "weight": WEIGHTS["complaint_growth_rate"], "contribution": round(WEIGHTS["complaint_growth_rate"] * norm_growth, 1)},
-        {"factor": "event_density", "value": round(norm_events, 1), "weight": WEIGHTS["event_density"], "contribution": round(WEIGHTS["event_density"] * norm_events, 1)},
-        {"factor": "negative_sentiment", "value": round(norm_sentiment, 1), "weight": WEIGHTS["negative_sentiment"], "contribution": round(WEIGHTS["negative_sentiment"] * norm_sentiment, 1)},
+        HotspotDriver(factor="complaint_volume", value=round(norm_volume, 1), weight=WEIGHTS["complaint_volume"], contribution=round(WEIGHTS["complaint_volume"] * norm_volume, 1)),
+        HotspotDriver(factor="complaint_growth_rate", value=round(norm_growth, 1), weight=WEIGHTS["complaint_growth_rate"], contribution=round(WEIGHTS["complaint_growth_rate"] * norm_growth, 1)),
+        HotspotDriver(factor="event_density", value=round(norm_events, 1), weight=WEIGHTS["event_density"], contribution=round(WEIGHTS["event_density"] * norm_events, 1)),
+        HotspotDriver(factor="negative_sentiment", value=round(norm_sentiment, 1), weight=WEIGHTS["negative_sentiment"], contribution=round(WEIGHTS["negative_sentiment"] * norm_sentiment, 1)),
     ]
 
     return drivers, weighted_score

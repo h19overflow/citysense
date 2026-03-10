@@ -12,7 +12,7 @@ Sentiment is optional (defaults to 0 if unavailable).
 
 from __future__ import annotations
 
-from backend.models import PredictionResult
+from backend.core.predictive.models import PredictionResult
 from backend.core.predictive.mock_data import load_complaints, load_events
 from backend.core.predictive.hotspot_helpers import (
     collect_area_stats,
