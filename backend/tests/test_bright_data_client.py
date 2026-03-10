@@ -42,7 +42,7 @@ def test_run_async_handles_running_loop() -> None:
 
 def test_serp_search_returns_none_when_serp_request_fails() -> None:
     """serp_search should return None when the underlying request returns None."""
-    with patch("backend.core.bright_data_client._serp_request", return_value=None):
+    with patch("backend.core.data_scraping.bright_data_client._serp_request", return_value=None):
         result = serp_search("montgomery county jobs")
     assert result is None
 
@@ -50,7 +50,7 @@ def test_serp_search_returns_none_when_serp_request_fails() -> None:
 def test_serp_search_returns_results_list_when_organic_present() -> None:
     """serp_search should extract and return organic results from the response."""
     fake_response = {"organic": [{"title": "Job A"}, {"title": "Job B"}]}
-    with patch("backend.core.bright_data_client._serp_request", return_value=fake_response):
+    with patch("backend.core.data_scraping.bright_data_client._serp_request", return_value=fake_response):
         result = serp_search("jobs")
     assert result is not None
     assert result["total"] == 2
@@ -60,7 +60,7 @@ def test_serp_search_returns_results_list_when_organic_present() -> None:
 def test_serp_search_falls_back_to_raw_body_when_no_known_key() -> None:
     """serp_search should return the raw body when no recognized result key exists."""
     fake_response = {"some_other_key": "data"}
-    with patch("backend.core.bright_data_client._serp_request", return_value=fake_response):
+    with patch("backend.core.data_scraping.bright_data_client._serp_request", return_value=fake_response):
         result = serp_search("query")
     assert result == fake_response
 
@@ -73,7 +73,7 @@ def test_serp_search_news_type_appends_tbm_param() -> None:
         captured_urls.append(url)
         return None  # type: ignore[return-value]
 
-    with patch("backend.core.bright_data_client._serp_request", side_effect=capture_url):
+    with patch("backend.core.data_scraping.bright_data_client._serp_request", side_effect=capture_url):
         serp_search("news query", search_type="nws")
 
     assert len(captured_urls) == 1
@@ -86,7 +86,7 @@ def test_serp_search_news_type_appends_tbm_param() -> None:
 
 def test_serp_maps_search_returns_none_when_request_fails() -> None:
     """serp_maps_search should return None when the underlying request returns None."""
-    with patch("backend.core.bright_data_client._serp_request", return_value=None):
+    with patch("backend.core.data_scraping.bright_data_client._serp_request", return_value=None):
         result = serp_maps_search("restaurants montgomery")
     assert result is None
 
@@ -94,7 +94,7 @@ def test_serp_maps_search_returns_none_when_request_fails() -> None:
 def test_serp_maps_search_returns_local_results() -> None:
     """serp_maps_search should extract local_results from the response."""
     fake_response = {"local_results": [{"name": "Place A"}]}
-    with patch("backend.core.bright_data_client._serp_request", return_value=fake_response):
+    with patch("backend.core.data_scraping.bright_data_client._serp_request", return_value=fake_response):
         result = serp_maps_search("coffee shops")
     assert result is not None
     assert result["total"] == 1
