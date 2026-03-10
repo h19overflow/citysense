@@ -1,57 +1,18 @@
-"""Row converters for seeding JSON/GeoJSON data into the database."""
+"""Row converters for seeding JSON/GeoJSON data into the database.
+
+article_to_row and feature_to_job_row are re-exported from scraper helpers
+to avoid duplicating logic. Housing and service converters have no scraper
+counterpart and live here.
+"""
 
 from datetime import datetime, timezone
 
-_JOB_EXCLUDED = {"id", "title", "company", "source", "address", "url"}
+from backend.core.data_scraping.scrapers.jobs_helpers import feature_to_row as feature_to_job_row
+from backend.core.data_scraping.scrapers.news_helpers import article_to_row
+
 _HOUSING_EXCLUDED = {"id", "address", "price"}
 
-
-def article_to_row(article: dict) -> dict:
-    """Convert camelCase news article dict to DB column dict."""
-    try:
-        scraped_at = datetime.fromisoformat(article.get("scrapedAt", ""))
-    except (ValueError, TypeError):
-        scraped_at = datetime.now(timezone.utc)
-    return {
-        "id": article["id"],
-        "title": article.get("title", ""),
-        "excerpt": article.get("excerpt", ""),
-        "body": article.get("body", ""),
-        "source": article.get("source", ""),
-        "source_url": article.get("sourceUrl", ""),
-        "image_url": article.get("imageUrl"),
-        "category": article.get("category", "general"),
-        "published_at": article.get("publishedAt", ""),
-        "scraped_at": scraped_at,
-        "upvotes": article.get("upvotes", 0),
-        "downvotes": article.get("downvotes", 0),
-        "comment_count": article.get("commentCount", 0),
-        "sentiment": article.get("sentiment"),
-        "sentiment_score": article.get("sentimentScore"),
-        "misinfo_risk": article.get("misinfoRisk"),
-        "summary": article.get("summary"),
-        "location": article.get("location"),
-        "reaction_counts": article.get("reactionCounts"),
-    }
-
-
-def feature_to_job_row(feature: dict) -> dict:
-    """Convert GeoJSON Feature to job_listings row dict."""
-    props = feature.get("properties", {})
-    geometry = feature.get("geometry") or {}
-    coords = geometry.get("coordinates", [None, None])
-    return {
-        "id": props.get("id", ""),
-        "title": props.get("title", ""),
-        "company": props.get("company", ""),
-        "source": props.get("source", ""),
-        "address": props.get("address", ""),
-        "lat": coords[1] if len(coords) > 1 else None,
-        "lng": coords[0] if len(coords) > 0 else None,
-        "url": props.get("url", ""),
-        "scraped_at": datetime.now(timezone.utc),
-        "properties": {k: v for k, v in props.items() if k not in _JOB_EXCLUDED},
-    }
+__all__ = ["article_to_row", "feature_to_job_row", "feature_to_housing_row", "service_to_row"]
 
 
 def feature_to_housing_row(feature: dict) -> dict:

@@ -33,7 +33,7 @@ class RedisCache:
             self._client = redis.from_url(url, decode_responses=True)
             self._client.ping()
             logger.info("Connected to Redis successfully.")
-        except Exception as exc:
+        except redis.RedisError as exc:
             logger.warning("Failed to connect to Redis: %s", exc)
             self._client = None
 
@@ -42,7 +42,7 @@ class RedisCache:
             return False
         try:
             return bool(self._client.ping())
-        except Exception:
+        except redis.RedisError:
             return False
 
     def fetch(self, key: str) -> dict[str, Any] | None:
@@ -52,7 +52,7 @@ class RedisCache:
             data = self._client.get(key)
             if data:
                 return json.loads(data)
-        except Exception as exc:
+        except (redis.RedisError, json.JSONDecodeError) as exc:
             logger.warning("Redis fetch failed for %s: %s", key, exc)
         return None
 
@@ -62,7 +62,7 @@ class RedisCache:
         try:
             payload = value if isinstance(value, str) else json.dumps(value)
             self._client.setex(key, ttl, payload)
-        except Exception as exc:
+        except (redis.RedisError, TypeError) as exc:
             logger.warning("Redis store failed for %s: %s", key, exc)
 
     def delete(self, key: str) -> None:
@@ -70,7 +70,7 @@ class RedisCache:
             return
         try:
             self._client.delete(key)
-        except Exception as exc:
+        except redis.RedisError as exc:
             logger.warning("Redis delete failed for %s: %s", key, exc)
 
 

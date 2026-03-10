@@ -92,7 +92,8 @@ def build_geojson_feature(job: dict) -> dict | None:
 def feature_to_row(feature: dict) -> dict:
     """Convert a GeoJSON Feature to a flat DB row dict for bulk upsert."""
     props = feature.get("properties", {})
-    coords = feature.get("geometry", {}).get("coordinates", [None, None])
+    geometry = feature.get("geometry") or {}
+    coords = geometry.get("coordinates", [None, None])
     return {
         "id": props.get("id", ""),
         "title": props.get("title", ""),
