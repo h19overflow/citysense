@@ -38,7 +38,8 @@ def article_to_row(article: dict) -> dict:
 def feature_to_job_row(feature: dict) -> dict:
     """Convert GeoJSON Feature to job_listings row dict."""
     props = feature.get("properties", {})
-    coords = feature.get("geometry", {}).get("coordinates", [None, None])
+    geometry = feature.get("geometry") or {}
+    coords = geometry.get("coordinates", [None, None])
     return {
         "id": props.get("id", ""),
         "title": props.get("title", ""),
@@ -56,7 +57,8 @@ def feature_to_job_row(feature: dict) -> dict:
 def feature_to_housing_row(feature: dict) -> dict:
     """Convert GeoJSON Feature to housing_listings row dict."""
     props = feature.get("properties", {})
-    coords = feature.get("geometry", {}).get("coordinates", [None, None])
+    geometry = feature.get("geometry") or {}
+    coords = geometry.get("coordinates", [None, None])
     raw_price = props.get("price")
     try:
         price: int | None = int(str(raw_price).replace(",", "").replace("$", "")) if raw_price is not None else None
