@@ -1,0 +1,17 @@
+[
+  {
+    "job_title": "Test Software Engineer",
+    "company_name": "Acme Corp",
+    "location": "Montgomery, AL",
+    "job_type": "Full-time",
+    "salary": "$60,000 - $80,000",
+    "seniority": "Entry Level",
+    "industry": "Technology",
+    "applicants": 15,
+    "posted": "2026-03-06",
+    "url": "https://example.com/job/1",
+    "apply_link": "https://example.com/apply/1",
+    "description": "Test job posting for SSE verification",
+    "source": "indeed.com"
+  }
+]

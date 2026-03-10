@@ -1,0 +1,35 @@
+{
+  "generatedAt": "2026-03-05T19:57:56.007588+00:00",
+  "newPermits30d": 0,
+  "commercialPercent": 33.7,
+  "newBusinesses90d": 0,
+  "topPermitType": "Residential",
+  "permitsByMonth": [
+    {
+      "month": "2025-10",
+      "count": 10
+    },
+    {
+      "month": "2026-01",
+      "count": 564
+    },
+    {
+      "month": "2026-02",
+      "count": 808
+    }
+  ],
+  "permitsByType": [
+    {
+      "type": "Residential",
+      "count": 903
+    },
+    {
+      "type": "Commercial",
+      "count": 466
+    },
+    {
+      "type": "Mixed Occupancy",
+      "count": 13
+    }
+  ]
+}

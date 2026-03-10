@@ -1,0 +1,229 @@
+{
+  "meta": {
+    "track": "Civic Access",
+    "analyst": "Hamza Khaled Mahmoud Ahmed",
+    "event": "World Wide Vibes Hackathon (WWV Mar 2026)",
+    "compiled": "2026-03-04",
+    "data_vintage": "2023 Census ACS 5-Year, BLS 2024, Alabama state reports 2023-2024"
+  },
+
+  "population_demographics": {
+    "total_population": 198000,
+    "population_source": "Census QuickFacts 2023",
+    "racial_composition": {
+      "black_or_african_american_pct": 62.8,
+      "white_pct": 26.6,
+      "hispanic_or_latino_pct": 4.76,
+      "asian_pct": "est. ~2%"
+    },
+    "median_household_income": 55687,
+    "poverty_rate_individual_pct": 19.7,
+    "poverty_rate_black_residents_pct": 30.8,
+    "poverty_rate_white_residents_pct": 10.6,
+    "median_age": 36.2,
+    "foreign_born_pct": 5.52,
+    "foreign_born_count_est": 10900,
+    "source": "U.S. Census Bureau QuickFacts: Montgomery city, Alabama"
+  },
+
+  "language_access": {
+    "speak_non_english_at_home_pct": 6.0,
+    "speak_non_english_at_home_count_est": 11880,
+    "spanish_speakers_at_home_pct": 2.8,
+    "spanish_speakers_count_est": 5544,
+    "indo_european_language_pct": 0.9,
+    "asian_language_at_home_pct": 2.2,
+    "asian_language_count_est": 4356,
+    "note": "6% (~11,880 residents) have a language access need. Small by national standards but non-trivial at household scale.",
+    "source": "Census ACS 2023 via web search aggregation"
+  },
+
+  "digital_divide": {
+    "households_with_any_internet_subscription_pct": 92,
+    "note_on_92pct": "Includes mobile-data-only plans. Does NOT imply reliable broadband for all uses.",
+    "digital_skills_gap": "Many low-income households not confident in basic digital skills",
+    "device_access_gap": "Low-income, senior, and disabled households lag significantly in device ownership",
+    "acp_underutilization": "Federal Affordable Connectivity Program subsidies under-utilized in Montgomery",
+    "senior_digital_lag": "Senior households lag behind in accessing medical and government services digitally",
+    "source": "Montgomery County Broadband Profile July 2023 (ADECA + Census); Community Action Association Alabama"
+  },
+
+  "senior_population": {
+    "aged_65_plus_pct": 15.57,
+    "aged_65_plus_count": 30892,
+    "aged_65_to_84_pct": 12.91,
+    "aged_85_plus_pct": 1.83,
+    "old_age_dependency_ratio": 24.2,
+    "note": "30,892 seniors — 15.57% of population — many with digital access and navigation barriers",
+    "source": "Neilsberg / Census 2023 5-Year Estimates"
+  },
+
+  "disability_population": {
+    "montgomery_county_with_disability_pct": 8.7,
+    "montgomery_county_with_disability_count": 91129,
+    "data_year": 2021,
+    "note": "Montgomery County (broader than city). City disability rate likely similar. Alabama disability rate higher than national average.",
+    "alabama_disability_context": "Alabama has among the highest disability rates in the Southeast",
+    "source": "Montgomery County Disabilities Profile (montgomeryplanning.org 2023)"
+  },
+
+  "crime_and_safety": {
+    "crime_rate_per_1000_residents": 30,
+    "crime_rate_context": "One of the highest in America vs all community sizes",
+    "homicides_2024": 36,
+    "homicide_increase_vs_2023": 27,
+    "homicides_2023": 9,
+    "geographic_disparity": {
+      "northwest_per_capita_rate": "1 in 9 chance of being a crime victim",
+      "southeast_per_capita_rate": "1 in 26 chance",
+      "note": "Northwest (higher poverty, more Black residents) has far higher per-capita crime rate"
+    },
+    "poverty_crime_link": "19.7% poverty overall; 30.8% Black poverty rate — strong geographic overlap with high-crime zones",
+    "source": "NeighborhoodScout, CrimeGrade.org, AreaVibes, rkeithlaw.com 2024"
+  },
+
+  "park_equity_access": {
+    "historical_context": "Montgomery parks directly reflect history of segregation. City closed all parks in 1958 rather than desegregate.",
+    "current_state": "Poor maintenance documented in predominantly Black neighbourhood parks (Fairview Environmental Park)",
+    "segregation_legacy": "I-65/I-85 construction displaced 1,700+ families (~75% Black) in 1960s-70s",
+    "federal_investment": "$36M federal Reconnecting Communities and Neighbourhoods Initiative grant received 2024",
+    "envision_montgomery_2040": "City's comprehensive plan calls for park upgrades — community prioritisation needed",
+    "source": "The Conversation (July 2024), UPI (2024), Segregation by Design, Binita Mahato academic study (2024)"
+  },
+
+  "benefits_navigation_gap": {
+    "alabama_medicaid": {
+      "expansion_status": "NOT expanded — most stringent eligibility in the US (tied with Texas)",
+      "non_disabled_adults_eligible_income_threshold_pct_fpl": 18,
+      "uninsured_who_would_benefit_if_expanded": 300000,
+      "unwinding_period_2023_2024": {
+        "start_date": "April 2023",
+        "montgomery_county_lost_coverage_june2023_to_june2024": 15578,
+        "statewide_lost_coverage": 278238
+      }
+    },
+    "snap_utilization": {
+      "alabama_snap_utilization_pct": 15.2,
+      "montgomery_county_additional_work_requirements": true,
+      "note": "SNAP requires work registration for ages 16-60 in Montgomery County — barrier to enrollment"
+    },
+    "wic": {
+      "eligibility_income_threshold_pct_fpl": 185,
+      "auto_eligible_if": "Already on SNAP, Medicaid, or TANF"
+    },
+    "core_finding": "Benefits navigation is a documented, quantifiable gap — 15,578 people in Montgomery County alone lost Medicaid in one 12-month period. The root cause is bureaucratic complexity, not ineligibility.",
+    "source": "Alabama Decatur Daily 2024, Alabama Arise, CBPP SNAP Factsheet Alabama, ADPH WIC"
+  },
+
+  "city_services_landscape": {
+    "311_service": {
+      "channels": ["online form", "phone 334-625-INFO", "text HELLO to 844-748-4867", "email 311@montgomeryal.gov"],
+      "ai_chatbot": false,
+      "note": "No AI chatbot. Basic 311 service only — not integrated with benefits, permits, or civic navigation."
+    },
+    "fy2025_general_fund_budget": 331625628,
+    "fy2025_budget_vs_fy2024_increase_pct": 6.5,
+    "budget_sources": "Sales/use taxes, ad valorem taxes, business licenses",
+    "community_development": "Community Development Division administers federal, state, and local funds for low-to-moderate income individuals",
+    "open_data_available": ["Open Checkbook (expenditures)", "Open Payroll (salaries)", "Open Budget (allocations)", "Crime Statistics", "City Recreation data"],
+    "source": "City of Montgomery website, Montgomery Open Data Portal"
+  },
+
+  "gap_analysis": {
+    "core_insight": "Montgomery has a large, fragmented population of vulnerable residents — elderly (15.57%), disabled (8.7%+), low-income (19.7%), non-English speaking (6%) — who are ENTITLED to government services and benefits but FAIL to navigate the complex, siloed, paper-heavy system to claim them. The result: $M in unclaimed benefits annually, 15K+ people losing Medicaid coverage they were likely still eligible for, and no single touchpoint for civic navigation.",
+    "why_no_spreadsheet": "Eligibility rules change. Benefits interact. Agencies are different. Language is a barrier. A RAG-powered LLM can explain eligibility, translate, summarize, and guide — a spreadsheet cannot.",
+    "why_ai_specifically": [
+      "Benefits eligibility requires natural language reasoning across 10+ overlapping rule sets",
+      "Citizens describe their situations in natural language — LLMs understand; forms do not",
+      "Multilingual support: real-time Spanish/English translation with context preservation",
+      "RAG over fragmented city/county/state/federal policy documents enables single-interface access",
+      "Seniors and low-literacy users benefit from conversational guidance over web navigation"
+    ],
+    "montgomery_data_coverage": {
+      "crime_statistics": "Available (Open Data Portal)",
+      "city_recreation": "Available (Open Data Portal)",
+      "open_checkbook_spending": "Available (Open Data Portal)",
+      "permits_general": "Available (Open Data Portal)",
+      "census_acs_demographics": "Available (Census API)",
+      "benefit_program_rules": "Publicly documented (ADPH, DHR, HHS)",
+      "311_service_info": "Available (city website)",
+      "parks_facilities": "Available (city website)"
+    }
+  },
+
+  "persona": {
+    "name": "Dorothy",
+    "age": 68,
+    "race": "Black woman",
+    "location": "West Montgomery",
+    "income": "$16,000-$20,000/year (Social Security fixed income)",
+    "household": "Lives alone; one adult child 30 min away",
+    "education": "High school diploma",
+    "digital_access": "Has a smartphone, no laptop. Not confident online.",
+    "current_situation": "Lost Medicaid coverage in the 2023 unwinding. Has not re-enrolled. Doesn't know she may still qualify.",
+    "potentially_eligible_for": [
+      "SNAP food assistance (~$200/mo at her income level)",
+      "Medicaid (if re-assessed correctly)",
+      "LIHEAP utility assistance",
+      "Senior recreation programs (City of Montgomery)",
+      "Prescription drug coverage (Medicare Extra Help / LIS)",
+      "Home repair assistance (Community Development Division)"
+    ],
+    "pain_points": [
+      "Calls the city and gets transferred 3-4 times without resolution",
+      "Different agencies for different programs — doesn't know where to start",
+      "Application forms are long and confusing — she can start but often abandons",
+      "Afraid of making a mistake that disqualifies her",
+      "No one told her Medicaid unwinding happened or how to re-enroll"
+    ],
+    "what_she_has": [
+      "A smartphone with basic browsing capability",
+      "Time — she is retired",
+      "A clear need — she is below 150% FPL",
+      "Motivation: avoiding debt, staying in her home"
+    ],
+    "why_data_confirmed": "30,892 seniors in Montgomery (15.57%). 30.8% Black poverty rate. 15,578 Montgomery County residents lost Medicaid in 2023-2024 unwinding. This persona is not invented — she is a statistical reality at scale."
+  },
+
+  "problem_statement": "In Montgomery, AL — where 19.7% of residents live in poverty, 15,578 residents lost Medicaid coverage in a single 12-month period, 30,892 elderly residents struggle with digital navigation, 11,880 residents have limited English proficiency, and the city's benefits, permits, and services are split across 10+ agencies with no unified entry point — there is no single conversational tool that takes a resident's situation, tells them exactly which services they qualify for, explains eligibility in plain language, and guides them through the first step.",
+
+  "verdict": "STRONG GO",
+  "verdict_rationale": "Clear LLM problem (language + reasoning + fragmented docs). Large addressable population (ALL Montgomery residents, especially 19.7% in poverty, 15.57% seniors, 6% non-English). No existing solution locally. Data sufficient. Demo is simple and compelling — just a chatbot conversation. Differentiated from generic job board / workforce solutions. Complements the Workforce Growth track architecture.",
+
+  "vs_workforce_growth": {
+    "civic_access_advantages": [
+      "Broader user base — ALL residents, not just working-age",
+      "Simpler core architecture — RAG + LLM, less ML complexity",
+      "More naturally LLM-native (language navigation vs ML ranking)",
+      "Easier live demo (conversation is immediately intuitive to judges)",
+      "Strong emotional resonance (Dorothy losing Medicaid is a compelling story)"
+    ],
+    "workforce_growth_advantages": [
+      "Richer, more structured ML pipeline (skill matching, gap scoring)",
+      "Bright Data bonus points stronger use case (live job scraping)",
+      "Hamza's AI/DS background better showcased",
+      "More technically differentiating vs competitors"
+    ],
+    "recommendation": "If solo or 1 teammate: pick Workforce Growth (higher technical ceiling). If 2+ teammates: dual track is feasible — shared ETL and RAG layer, two agents on one platform."
+  },
+
+  "sources": [
+    {"name": "U.S. Census Bureau QuickFacts: Montgomery city, Alabama", "url": "https://www.census.gov/quickfacts/fact/table/montgomerycityalabama/PST040223"},
+    {"name": "Montgomery County Broadband Profile July 2023 (ADECA)", "url": "https://broadband.alabama.gov/wp-content/uploads/CountyProfiles/Montgomery.pdf"},
+    {"name": "Community Action Association Alabama — Digital Access Barriers", "url": "https://caaalabama.org/digital-access-is-foundational-yet-barriers-to-broadband-continue-to-harm-families-across-the-south/"},
+    {"name": "Neilsberg: Montgomery AL Population by Age 2025", "url": "https://www.neilsberg.com/insights/montgomery-al-population-by-age/"},
+    {"name": "montgomeryplanning.org — People with Disabilities Profile", "url": "https://montgomeryplanning.org/wp-content/uploads/2023/11/People-with-Disabilities-Profile-ID-FINAL-UPDATE-web.pdf"},
+    {"name": "NeighborhoodScout: Montgomery AL Crime Rates", "url": "https://www.neighborhoodscout.com/al/montgomery/crime"},
+    {"name": "rkeithlaw.com: Montgomery AL Crime Rate 2026", "url": "https://www.rkeithlaw.com/blog/montgomery-al-crime-rate/"},
+    {"name": "The Conversation: Montgomery parks segregation history (July 2024)", "url": "https://theconversation.com/buses-werent-the-only-civil-rights-battleground-in-montgomery-the-citys-parks-still-reflect-a-history-of-segregation-224830"},
+    {"name": "Decatur Daily: Alabama Medicaid enrollment drops 275,000 (2024)", "url": "https://www.decaturdaily.com/news/local/alabama-medicaid-enrollment-drops-by-more-than-275-000-one-year-into-unwinding/article_1bc1fc9e-744f-11ef-8721-af032cadb3a2.html"},
+    {"name": "Alabama Arise Medicaid Unwinding Toolkit", "url": "https://alarise.org/resources/alabama-arise-toolkit-on-the-medicaid-unwinding-period/"},
+    {"name": "healthinsurance.org: Medicaid eligibility Alabama", "url": "https://www.healthinsurance.org/medicaid/alabama/"},
+    {"name": "City of Montgomery 311 Report an Issue", "url": "https://www.montgomeryal.gov/residents/report-an-issue"},
+    {"name": "Montgomery City Council FY2025 Budget $331.6M", "url": "https://www.montgomeryal.gov/Home/Components/News/News/4479/16"},
+    {"name": "Montgomery Open Checkbook (Open Data Portal)", "url": "https://opendata.montgomeryal.gov/content/0209b66abda547c4a1aaeaf3539d8767"},
+    {"name": "Migration Policy Institute: Alabama Language Data", "url": "https://www.migrationpolicy.org/data/state-profiles/state/language/AL"},
+    {"name": "CBPP: Alabama SNAP Fact Sheet", "url": "https://www.cbpp.org/sites/default/files/atoms/files/snap_factsheet_alabama.pdf"},
+    {"name": "Segregation by Design: Montgomery", "url": "https://www.segregationbydesign.com/montgomery"}
+  ]
+}

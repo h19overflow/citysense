@@ -1,0 +1,22 @@
+{
+  "metadata": {
+    "generated": "2026-03-05",
+    "source": "mock_data_for_hackathon"
+  },
+  "events": [
+    {"id": "e001", "name": "Montgomery Biscuits Opening Night", "neighborhood": "Downtown", "area_id": "36104-DT", "date": "2026-03-15", "expected_attendance": 5000, "category": "sports"},
+    {"id": "e002", "name": "Jubilee Festival", "neighborhood": "Downtown", "area_id": "36104-DT", "date": "2026-03-22", "expected_attendance": 15000, "category": "festival"},
+    {"id": "e003", "name": "Capitol Heights Community Cleanup", "neighborhood": "Capitol Heights", "area_id": "36104", "date": "2026-03-10", "expected_attendance": 200, "category": "community"},
+    {"id": "e004", "name": "Dalraida Neighborhood Watch Meeting", "neighborhood": "Dalraida", "area_id": "36109", "date": "2026-03-08", "expected_attendance": 50, "category": "community"},
+    {"id": "e005", "name": "Cloverdale Art Walk", "neighborhood": "Cloverdale", "area_id": "36106", "date": "2026-03-20", "expected_attendance": 3000, "category": "arts"},
+    {"id": "e006", "name": "MLK Memorial March", "neighborhood": "Downtown", "area_id": "36104-DT", "date": "2026-03-29", "expected_attendance": 8000, "category": "civic"},
+    {"id": "e007", "name": "Carter Hill Youth Basketball Tournament", "neighborhood": "Carter Hill", "area_id": "36104-CH", "date": "2026-03-12", "expected_attendance": 500, "category": "sports"},
+    {"id": "e008", "name": "Bell Road Farmers Market", "neighborhood": "Bell Road", "area_id": "36117", "date": "2026-03-08", "expected_attendance": 800, "category": "market"},
+    {"id": "e009", "name": "Midtown Music Festival", "neighborhood": "Midtown", "area_id": "36107", "date": "2026-03-28", "expected_attendance": 4000, "category": "festival"},
+    {"id": "e010", "name": "Montgomery Job Fair", "neighborhood": "Downtown", "area_id": "36104-DT", "date": "2026-03-18", "expected_attendance": 2000, "category": "employment"},
+    {"id": "e011", "name": "Pike Road Spring Festival", "neighborhood": "Pike Road", "area_id": "36064", "date": "2026-03-25", "expected_attendance": 1500, "category": "festival"},
+    {"id": "e012", "name": "Highland Park Easter Egg Hunt", "neighborhood": "Highland Park", "area_id": "36107-HP", "date": "2026-03-30", "expected_attendance": 600, "category": "community"},
+    {"id": "e013", "name": "Downtown Food Truck Rally", "neighborhood": "Downtown", "area_id": "36104-DT", "date": "2026-03-14", "expected_attendance": 2500, "category": "food"},
+    {"id": "e014", "name": "Dalraida Infrastructure Town Hall", "neighborhood": "Dalraida", "area_id": "36109", "date": "2026-03-19", "expected_attendance": 150, "category": "civic"}
+  ]
+}

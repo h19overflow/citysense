@@ -1,0 +1,519 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-03-06",
+  "citizens": [
+    {
+      "id": "citizen-dorothy",
+      "persona": "Dorothy",
+      "tagline": "Single mother navigating benefits",
+      "avatar_initials": "DW",
+      "avatar_color": "#8B5CF6",
+      "profile": {
+        "zip": "36104",
+        "neighborhood": "Centennial Hill",
+        "householdSize": 4,
+        "income": 24500,
+        "incomeSource": "part-time cashier + SNAP",
+        "benefits": ["SNAP", "Medicaid"],
+        "children": 3,
+        "childrenAges": [4, 8, 12],
+        "housingType": "renting",
+        "monthlyRent": 750,
+        "hasVehicle": false,
+        "primaryTransport": "bus",
+        "internetAccess": "phone-only",
+        "languagesSpoken": ["English"],
+        "veteranStatus": false,
+        "disabilityStatus": false,
+        "citizenshipStatus": "US citizen",
+        "maritalStatus": "single",
+        "age": 34,
+        "gender": "female",
+        "race": "Black or African American",
+        "healthInsurance": "Medicaid",
+        "needsChildcare": true,
+        "needsLegalHelp": false,
+        "needsHousingHelp": true,
+        "needsUtilityHelp": true
+      },
+      "cv": {
+        "name": "Dorothy Williams",
+        "email": "dorothy.w@email.com",
+        "phone": "(334) 555-0147",
+        "location": "Montgomery, AL 36104",
+        "summary": "Dedicated and reliable worker with 6 years of customer-facing retail experience. Strong communication skills and bilingual capability. Looking for stable full-time employment with benefits to support my family.",
+        "experience": [
+          {
+            "company": "Dollar General",
+            "location": "Montgomery, AL",
+            "title": "Cashier / Sales Associate",
+            "period": "Mar 2022 – Present",
+            "duration": "3 years",
+            "bullets": [
+              "Handle 100+ customer transactions daily with 99.5% accuracy",
+              "Train new hires on POS system and store procedures",
+              "Maintain organized inventory displays and restocking schedules",
+              "Resolve customer complaints and process returns"
+            ]
+          },
+          {
+            "company": "Burger King",
+            "location": "Montgomery, AL",
+            "title": "Crew Member / Shift Lead",
+            "period": "Jun 2019 – Feb 2022",
+            "duration": "2 years 8 months",
+            "bullets": [
+              "Promoted to shift lead within 8 months",
+              "Supervised team of 5 during evening shifts",
+              "Managed food safety compliance and daily checklists",
+              "Handled cash register and nightly reconciliation"
+            ]
+          }
+        ],
+        "education": [
+          {
+            "school": "Jefferson Davis High School",
+            "location": "Montgomery, AL",
+            "degree": "High School Diploma",
+            "year": "2010"
+          }
+        ],
+        "skills": [
+          "Customer Service",
+          "Cash Handling",
+          "POS Systems",
+          "Team Leadership",
+          "Inventory Management",
+          "Food Safety",
+          "Microsoft Office",
+          "Bilingual: EN/ES",
+          "Time Management",
+          "Conflict Resolution"
+        ]
+      },
+      "goals": [
+        "Find full-time job with health benefits",
+        "Get childcare assistance for 4-year-old",
+        "Apply for Section 8 housing",
+        "Earn CNA certification for healthcare career"
+      ],
+      "barriers": [
+        "No vehicle — depends on bus routes",
+        "Needs affordable childcare before taking full-time work",
+        "Limited internet access (phone only)",
+        "Benefits cliff fear — losing Medicaid if income rises"
+      ]
+    },
+    {
+      "id": "citizen-marcus",
+      "persona": "Marcus",
+      "tagline": "Veteran seeking career transition",
+      "avatar_initials": "MJ",
+      "avatar_color": "#059669",
+      "profile": {
+        "zip": "36116",
+        "neighborhood": "Dalraida",
+        "householdSize": 2,
+        "income": 38000,
+        "incomeSource": "warehouse associate + VA disability",
+        "benefits": ["VA Healthcare"],
+        "children": 1,
+        "childrenAges": [6],
+        "housingType": "renting",
+        "monthlyRent": 950,
+        "hasVehicle": true,
+        "primaryTransport": "car",
+        "internetAccess": "home broadband",
+        "languagesSpoken": ["English"],
+        "veteranStatus": true,
+        "disabilityStatus": false,
+        "citizenshipStatus": "US citizen",
+        "maritalStatus": "divorced",
+        "age": 34,
+        "gender": "male",
+        "race": "Black or African American",
+        "healthInsurance": "VA Healthcare",
+        "needsChildcare": true,
+        "needsLegalHelp": false,
+        "needsHousingHelp": false,
+        "needsUtilityHelp": false
+      },
+      "cv": {
+        "name": "Marcus Johnson",
+        "email": "marcus.j.vet@email.com",
+        "phone": "(334) 555-0293",
+        "location": "Montgomery, AL 36116",
+        "summary": "Army veteran with 6 years of military logistics experience and 2 years of civilian warehouse operations. Strong leadership, discipline, and problem-solving skills. Seeking higher-wage career in logistics management or IT to provide better for my son.",
+        "experience": [
+          {
+            "company": "Amazon Fulfillment Center",
+            "location": "Montgomery, AL",
+            "title": "Warehouse Associate",
+            "period": "Jan 2023 – Present",
+            "duration": "2 years",
+            "bullets": [
+              "Process 200+ packages per shift with 99.8% accuracy rate",
+              "Operate forklift and pallet jack in 150,000 sq ft facility",
+              "Train new associates on safety protocols and pick/pack procedures",
+              "Maintain daily productivity above 110% of target"
+            ]
+          },
+          {
+            "company": "United States Army",
+            "location": "Fort Novosel (formerly Rucker), AL",
+            "title": "Supply Sergeant (E-5)",
+            "period": "Jun 2017 – Dec 2022",
+            "duration": "5 years 6 months",
+            "bullets": [
+              "Managed $2.4M inventory of parts and equipment for aviation battalion",
+              "Led team of 8 soldiers in supply chain operations",
+              "Implemented barcode tracking system reducing loss by 15%",
+              "Received Army Commendation Medal for logistics excellence",
+              "SECRET security clearance (active)"
+            ]
+          }
+        ],
+        "education": [
+          {
+            "school": "Trenholm State Community College",
+            "location": "Montgomery, AL",
+            "degree": "Associate of Applied Science — Logistics (In Progress)",
+            "year": "Expected 2027"
+          },
+          {
+            "school": "Robert E. Lee High School",
+            "location": "Montgomery, AL",
+            "degree": "High School Diploma",
+            "year": "2017"
+          }
+        ],
+        "skills": [
+          "Forklift Certified",
+          "Inventory Management",
+          "Supply Chain Operations",
+          "Team Leadership",
+          "Microsoft Office",
+          "Data Entry",
+          "Safety Protocols",
+          "Problem Solving",
+          "CDL Class B",
+          "SECRET Security Clearance",
+          "Barcode/RFID Systems",
+          "Basic Python"
+        ]
+      },
+      "goals": [
+        "Transition from warehouse labor to logistics management ($50K+)",
+        "Complete Associate degree at Trenholm State",
+        "Earn CompTIA A+ certification for IT backup plan",
+        "Use GI Bill benefits effectively"
+      ],
+      "barriers": [
+        "Current salary barely covers rent + childcare",
+        "Night shifts conflict with class schedule",
+        "Limited civilian network for professional referrals",
+        "VA benefits navigation is confusing"
+      ]
+    },
+    {
+      "id": "citizen-maria",
+      "persona": "Maria",
+      "tagline": "Immigrant healthcare worker upskilling",
+      "avatar_initials": "MR",
+      "avatar_color": "#D97706",
+      "profile": {
+        "zip": "36108",
+        "neighborhood": "West Montgomery",
+        "householdSize": 5,
+        "income": 31000,
+        "incomeSource": "CNA at nursing home",
+        "benefits": ["WIC", "SNAP"],
+        "children": 2,
+        "childrenAges": [2, 7],
+        "housingType": "renting",
+        "monthlyRent": 680,
+        "hasVehicle": true,
+        "primaryTransport": "car (shared with husband)",
+        "internetAccess": "phone-only",
+        "languagesSpoken": ["Spanish", "English"],
+        "veteranStatus": false,
+        "disabilityStatus": false,
+        "citizenshipStatus": "permanent resident",
+        "maritalStatus": "married",
+        "age": 29,
+        "gender": "female",
+        "race": "Hispanic or Latino",
+        "healthInsurance": "employer basic plan",
+        "needsChildcare": true,
+        "needsLegalHelp": false,
+        "needsHousingHelp": false,
+        "needsUtilityHelp": true
+      },
+      "cv": {
+        "name": "Maria Reyes",
+        "email": "maria.reyes@email.com",
+        "phone": "(334) 555-0418",
+        "location": "Montgomery, AL 36108",
+        "summary": "Compassionate CNA with 3 years of patient care experience in long-term care facilities. Bilingual English/Spanish. Pursuing LPN licensure to advance healthcare career and increase family income. CPR and First Aid certified.",
+        "experience": [
+          {
+            "company": "Diversicare of Montgomery",
+            "location": "Montgomery, AL",
+            "title": "Certified Nursing Assistant (CNA)",
+            "period": "Aug 2022 – Present",
+            "duration": "2 years 7 months",
+            "bullets": [
+              "Provide daily care for 12-15 elderly residents including bathing, feeding, and mobility assistance",
+              "Monitor and document vital signs, intake/output, and behavioral changes",
+              "Serve as Spanish interpreter for Hispanic patients and families",
+              "Received Employee of the Month recognition twice"
+            ]
+          },
+          {
+            "company": "Baptist Health",
+            "location": "Montgomery, AL",
+            "title": "Patient Care Technician (PRN)",
+            "period": "Jan 2022 – Jul 2022",
+            "duration": "7 months",
+            "bullets": [
+              "Assisted nurses on medical-surgical floor with patient care",
+              "Performed phlebotomy draws and EKG readings",
+              "Maintained sterile environment and infection control protocols"
+            ]
+          }
+        ],
+        "education": [
+          {
+            "school": "Trenholm State Community College",
+            "location": "Montgomery, AL",
+            "degree": "CNA Certification",
+            "year": "2021"
+          },
+          {
+            "school": "Escuela Secundaria Federal",
+            "location": "Puebla, Mexico",
+            "degree": "Secundaria (9th Grade Equivalent)",
+            "year": "2013"
+          }
+        ],
+        "skills": [
+          "CNA",
+          "Patient Care",
+          "Phlebotomy",
+          "First Aid",
+          "CPR",
+          "Vital Signs Monitoring",
+          "Medical Terminology",
+          "Bilingual: EN/ES",
+          "Time Management",
+          "Compassionate Care",
+          "Infection Control",
+          "Electronic Health Records"
+        ]
+      },
+      "goals": [
+        "Complete LPN bridge program at Trenholm State",
+        "Increase income from $15/hr CNA to $22/hr LPN",
+        "Get WIC benefits renewed for 2-year-old",
+        "Find affordable childcare near West Montgomery"
+      ],
+      "barriers": [
+        "LPN program requires GED — need to study and pass",
+        "One car shared with husband who works opposite shift",
+        "WIC recertification paperwork is confusing",
+        "English medical vocabulary still developing"
+      ]
+    },
+    {
+      "id": "citizen-james",
+      "persona": "James",
+      "tagline": "Recent retiree on fixed income",
+      "avatar_initials": "JC",
+      "avatar_color": "#2563EB",
+      "profile": {
+        "zip": "36105",
+        "neighborhood": "Capitol Heights",
+        "householdSize": 1,
+        "income": 19200,
+        "incomeSource": "Social Security",
+        "benefits": ["Medicare", "SNAP"],
+        "children": 0,
+        "childrenAges": [],
+        "housingType": "owns home (paid off)",
+        "monthlyRent": 0,
+        "hasVehicle": false,
+        "primaryTransport": "bus / rides from church",
+        "internetAccess": "none",
+        "languagesSpoken": ["English"],
+        "veteranStatus": true,
+        "disabilityStatus": true,
+        "citizenshipStatus": "US citizen",
+        "maritalStatus": "widowed",
+        "age": 68,
+        "gender": "male",
+        "race": "Black or African American",
+        "healthInsurance": "Medicare + VA",
+        "needsChildcare": false,
+        "needsLegalHelp": false,
+        "needsHousingHelp": false,
+        "needsUtilityHelp": true
+      },
+      "cv": {
+        "name": "James Carter",
+        "email": "",
+        "phone": "(334) 555-0562",
+        "location": "Montgomery, AL 36105",
+        "summary": "Retired city maintenance worker with 30 years of service. Vietnam-era veteran. Looking for part-time work to supplement Social Security and stay active. Experienced in facilities maintenance, groundskeeping, and basic electrical work.",
+        "experience": [
+          {
+            "company": "City of Montgomery — Public Works",
+            "location": "Montgomery, AL",
+            "title": "Senior Maintenance Worker",
+            "period": "1992 – 2024",
+            "duration": "32 years",
+            "bullets": [
+              "Maintained city parks, recreation centers, and public buildings",
+              "Performed electrical, plumbing, and HVAC repairs",
+              "Supervised seasonal work crews of 4-6 workers",
+              "Operated heavy equipment including backhoe and mowers"
+            ]
+          }
+        ],
+        "education": [
+          {
+            "school": "Carver High School",
+            "location": "Montgomery, AL",
+            "degree": "High School Diploma",
+            "year": "1976"
+          }
+        ],
+        "skills": [
+          "Electrical",
+          "Plumbing",
+          "HVAC",
+          "Groundskeeping",
+          "Heavy Equipment",
+          "Mechanical",
+          "Team Leadership",
+          "Safety Protocols",
+          "Problem Solving"
+        ]
+      },
+      "goals": [
+        "Find part-time maintenance work (15-20 hrs/week)",
+        "Apply for LIHEAP to reduce electric bills",
+        "Get help navigating Medicare Part D prescription costs",
+        "Find free transportation to VA clinic"
+      ],
+      "barriers": [
+        "No internet at home — needs in-person help",
+        "Limited mobility due to knee injury",
+        "Doesn't know about 211 helpline or available programs",
+        "Fixed income barely covers property tax + utilities"
+      ]
+    },
+    {
+      "id": "citizen-aisha",
+      "persona": "Aisha",
+      "tagline": "Young graduate entering workforce",
+      "avatar_initials": "AT",
+      "avatar_color": "#EC4899",
+      "profile": {
+        "zip": "36117",
+        "neighborhood": "Eastern Boulevard",
+        "householdSize": 2,
+        "income": 0,
+        "incomeSource": "unemployed — just graduated",
+        "benefits": [],
+        "children": 0,
+        "childrenAges": [],
+        "housingType": "living with family",
+        "monthlyRent": 0,
+        "hasVehicle": true,
+        "primaryTransport": "car",
+        "internetAccess": "home broadband",
+        "languagesSpoken": ["English"],
+        "veteranStatus": false,
+        "disabilityStatus": false,
+        "citizenshipStatus": "US citizen",
+        "maritalStatus": "single",
+        "age": 23,
+        "gender": "female",
+        "race": "Black or African American",
+        "healthInsurance": "parent's plan (until 26)",
+        "needsChildcare": false,
+        "needsLegalHelp": false,
+        "needsHousingHelp": false,
+        "needsUtilityHelp": false
+      },
+      "cv": {
+        "name": "Aisha Thompson",
+        "email": "aisha.thompson@email.com",
+        "phone": "(334) 555-0734",
+        "location": "Montgomery, AL 36117",
+        "summary": "Recent graduate from Alabama State University with a Bachelor's in Business Administration. Completed internship in healthcare administration. Strong analytical skills, proficient in Excel and data analysis. Seeking entry-level management or analyst position in Montgomery.",
+        "experience": [
+          {
+            "company": "Baptist Health",
+            "location": "Montgomery, AL",
+            "title": "Administrative Intern",
+            "period": "May 2025 – Aug 2025",
+            "duration": "4 months",
+            "bullets": [
+              "Analyzed patient scheduling data to identify bottlenecks, reducing wait times by 12%",
+              "Created weekly reports in Excel for department heads",
+              "Assisted with onboarding documentation for 15 new hires",
+              "Shadowed operations manager in budget planning meetings"
+            ]
+          },
+          {
+            "company": "Alabama State University — Student Center",
+            "location": "Montgomery, AL",
+            "title": "Student Worker — Front Desk",
+            "period": "Aug 2023 – Apr 2025",
+            "duration": "1 year 8 months",
+            "bullets": [
+              "Managed event scheduling system for 20+ campus organizations",
+              "Handled student inquiries and facility reservations",
+              "Processed purchase orders and tracked departmental budget"
+            ]
+          }
+        ],
+        "education": [
+          {
+            "school": "Alabama State University",
+            "location": "Montgomery, AL",
+            "degree": "Bachelor of Science — Business Administration",
+            "year": "2025"
+          }
+        ],
+        "skills": [
+          "Microsoft Office",
+          "Excel",
+          "Data Entry",
+          "Data Analysis",
+          "Customer Service",
+          "Communication",
+          "Problem Solving",
+          "Time Management",
+          "Project Management",
+          "SQL",
+          "PowerPoint",
+          "Organizational"
+        ]
+      },
+      "goals": [
+        "Land entry-level management or analyst role ($35K-$45K)",
+        "Build professional network in Montgomery",
+        "Earn Google Data Analytics Certificate",
+        "Move into own apartment within 6 months of employment"
+      ],
+      "barriers": [
+        "No professional experience beyond internship",
+        "Most analyst roles require 2+ years experience",
+        "Student loan payments start in 6 months",
+        "Limited professional network outside university"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Stitch-aligned Palette */
+    --background: 210 20% 97%; /* #f6f7f8 */
+    --foreground: 218 22% 16%; /* #1f2937 */
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 11%;
+
+    --primary: 214 55% 23%; /* #1a355b */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 215 55% 40%; /* #2d5a9e */
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 210 20% 94%; /* #edf1f4 */
+    --muted-foreground: 215 14% 43%; /* #64748b */
+
+    --accent: 173 78% 40%; /* #14b8a6 */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 3 71% 53%; /* #d83933 */
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 153 42% 30%; /* #2D6A4F Pine Green */
+    --success-foreground: 0 0% 100%;
+
+    --border: 214 20% 88%; /* #d8dee8 */
+    --input: 214 27% 95%; /* #eef2f7 */
+    --ring: 214 55% 23%;
+
+    --radius: 0.5rem;
+
+    /* Montgomery-specific tokens */
+    --montgomery-blue: 214 55% 23%;
+    --amber-gold: 37 63% 47%;
+    --charcoal: 0 0% 11%;
+    --pine-green: 153 42% 30%;
+    --alert-red: 3 71% 53%;
+    --input-gray: 0 0% 94%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 11%;
+    --sidebar-primary: 213 59% 30%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 37 63% 47%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 204 6% 87%;
+    --sidebar-ring: 213 59% 30%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer utilities {
+  .font-tabular {
+    font-variant-numeric: tabular-nums;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+  }
+
+  .text-caption {
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  .magnolia-bg {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 15c-3 0-8 5-8 12s5 13 8 13 8-6 8-13-5-12-8-12zm0 3c2 0 5 4 5 9s-3 10-5 10-5-5-5-10 3-9 5-9z' fill='%23ffffff' fill-opacity='0.04'/%3E%3C/svg%3E");
+  }
+
+  .pt-safe {
+    padding-top: max(env(safe-area-inset-top, 0px), 44px);
+  }
+
+  .stitch-shell {
+    @apply min-h-screen bg-background text-foreground;
+  }
+
+  .stitch-topbar {
+    @apply sticky top-0 z-50 border-b border-border/70 bg-white/85 backdrop-blur-md;
+  }
+
+  .stitch-panel {
+    @apply rounded-xl border border-border/70 bg-card shadow-sm;
+  }
+
+  .stitch-title {
+    @apply text-primary font-extrabold tracking-tight;
+  }
+
+  .stitch-subtle {
+    @apply text-muted-foreground;
+  }
+}
+
+/* Chat bubble animations */
+@keyframes bubble-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bubble-pop-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+.animate-bubble-in {
+  animation: bubble-pop-in 0.2s ease-out;
+}
+
+.animate-bubble-out {
+  animation: bubble-pop-out 0.15s ease-in forwards;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 4px;
+}

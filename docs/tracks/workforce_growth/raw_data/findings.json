@@ -1,0 +1,125 @@
+{
+  "sources_verified": "BLS OEWS May 2024, Census ACS 2023, Alabama Dept of Labor, Alabama ACCCP 2024-2025",
+  "last_pulled": "2026-03-04",
+
+  "demographics": {
+    "population_city": 195529,
+    "population_county_approx": 230000,
+    "race_black_pct": 62.8,
+    "race_white_pct": 26.6,
+    "race_hispanic_pct": 4.8,
+    "source": "Census ACS 2023 / Census QuickFacts"
+  },
+
+  "income_poverty": {
+    "median_hhi_2023": 55687,
+    "median_hhi_2022": 54166,
+    "hhi_growth_pct": 2.81,
+    "individual_poverty_rate_pct": 19.7,
+    "family_poverty_rate_pct": 17.7,
+    "alabama_state_poverty_pct": 15.6,
+    "montgomery_vs_state_poverty_pct_higher": 20.9,
+    "source": "Census ACS 2023"
+  },
+
+  "labor_market": {
+    "avg_hourly_wage_montgomery_msa": 25.83,
+    "avg_hourly_wage_national": 32.66,
+    "wage_gap_vs_national_pct": 20.9,
+    "wage_gap_annual_usd": 14200,
+    "alabama_unemployment_rate_dec2024_pct": 3.3,
+    "alabama_unemployment_rate_sept2025_pct": 2.9,
+    "us_unemployment_rate_dec2025_pct": 4.4,
+    "labor_force_participation_alabama_pct": 57.8,
+    "key_insight": "LOW unemployment + HIGH poverty = UNDEREMPLOYMENT/WAGE TRAP, not joblessness",
+    "source": "BLS OEWS May 2024 + BLS LAUS 2024-2025"
+  },
+
+  "occupation_distribution": {
+    "office_admin_pct": 12.2,
+    "production_pct": 9.8,
+    "production_national_pct": 5.7,
+    "production_vs_national_ratio": 1.72,
+    "transportation_material_moving_pct": 9.8,
+    "assemblers_vs_national_rate": 4.24,
+    "legal_pct": 1.2,
+    "life_physical_science_pct": 0.8,
+    "arts_media_pct": 1.2,
+    "production_jobs_count": 16050,
+    "production_avg_hourly_wage": 22.30,
+    "source": "BLS OEWS May 2024"
+  },
+
+  "top_paying_sectors_2023": {
+    "men": [
+      {"sector": "Finance & Insurance / Real Estate", "median_income": 61027},
+      {"sector": "Public Administration", "median_income": 60096},
+      {"sector": "Wholesale Trade", "median_income": 57500}
+    ],
+    "women": [
+      {"sector": "Information", "median_income": 60481},
+      {"sector": "Public Administration", "median_income": 48357},
+      {"sector": "Finance & Insurance / Real Estate", "median_income": 48353}
+    ],
+    "source": "Census ACS 2023 / Data USA"
+  },
+
+  "education_attainment": {
+    "hs_diploma_or_higher_pct": 90.8,
+    "bachelors_or_higher_pct": 35.9,
+    "no_college_degree_pct": 64.1,
+    "economically_disadvantaged_students_pct": 54.9,
+    "aum_degrees_awarded_2023_2024": 1343,
+    "source": "Census ACS 2023 + Alabama demographics"
+  },
+
+  "fastest_growing_jobs_alabama_2024_2025": [
+    {"occupation": "Nurse Practitioners", "annual_growth_pct": 4.15, "annual_openings": 480},
+    {"occupation": "Cooks (Restaurant)", "annual_growth_pct": 2.97, "note": "low wage"},
+    {"occupation": "Occupational Therapy Assistants", "annual_growth_pct": 2.74},
+    {"occupation": "Medical & Health Services Managers", "annual_growth_pct": 2.60},
+    {"occupation": "Physical Therapist Assistants", "annual_growth_pct": 2.56},
+    {"occupation": "Information Security Analysts", "annual_growth_pct": 2.44},
+    {"occupation": "Software Developers", "annual_growth_pct": 1.78}
+  ],
+
+  "major_employers_montgomery": [
+    "Hyundai Motor Manufacturing Alabama",
+    "Montgomery Public Schools",
+    "Alabama State University",
+    "Auburn University at Montgomery",
+    "Baptist Health System",
+    "Jackson Hospital",
+    "Alfa Mutual Insurance",
+    "Maxwell Air Force Base",
+    "State of Alabama government",
+    "City of Montgomery"
+  ],
+
+  "economic_development_2024": {
+    "new_capital_investment_alabama": "7 billion USD",
+    "new_projects": 224,
+    "new_jobs_created": 8500,
+    "montgomery_5yr_jobs_announced": 4701,
+    "montgomery_5yr_major_projects": 122,
+    "montgomery_5yr_capital_investment": "3.6 billion USD",
+    "source": "Governor of Alabama office + Montgomery Chamber"
+  },
+
+  "existing_workforce_programs": [
+    {"name": "A-RESET", "org": "United Ways of Alabama", "target": "SNAP recipients 18+", "services": "Job training, GED, OJT, work experience"},
+    {"name": "Office of Workforce and Opportunity", "org": "City of Montgomery", "target": "Job seekers", "services": "Skills, education, wraparound services"},
+    {"name": "AlabamaWorks!", "org": "State of Alabama", "target": "All workers", "services": "Job search, training connections"},
+    {"name": "AIDT", "org": "Alabama", "target": "Manufacturing workforce", "services": "Industry-specific training"}
+  ],
+
+  "gap_analysis": {
+    "core_problem": "Workers are employed but underpaid — wage mobility gap not unemployment gap",
+    "wage_gap_annual": 14200,
+    "overrepresented_in": ["Production (9.8% vs 5.7% national)", "Office/Admin (12.2%)", "Transportation (9.8%)"],
+    "underrepresented_in": ["Finance/Insurance", "Information/IT", "Professional Services"],
+    "no_college_degree_pct": 64.1,
+    "existing_program_gap": "Fragmented, bureaucratic programs with no intelligent matching between worker profile -> skill gaps -> local training -> specific employer hiring NOW",
+    "ai_specific_value": "LLM skill extraction from conversational input + O*NET matching + Bright Data live job scraping + RAG over local employer data = personalized pathway in real time"
+  }
+}

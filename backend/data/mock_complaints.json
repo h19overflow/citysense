@@ -1,0 +1,64 @@
+{
+  "metadata": {
+    "generated": "2026-03-05",
+    "source": "mock_data_for_hackathon",
+    "periods": ["2026-01", "2026-02"]
+  },
+  "complaints": [
+    {"id": "c001", "neighborhood": "Capitol Heights", "area_id": "36104", "category": "pothole", "date": "2026-01-05", "severity": "medium"},
+    {"id": "c002", "neighborhood": "Capitol Heights", "area_id": "36104", "category": "pothole", "date": "2026-01-12", "severity": "high"},
+    {"id": "c003", "neighborhood": "Capitol Heights", "area_id": "36104", "category": "streetlight", "date": "2026-01-18", "severity": "low"},
+    {"id": "c004", "neighborhood": "Capitol Heights", "area_id": "36104", "category": "trash", "date": "2026-02-02", "severity": "medium"},
+    {"id": "c005", "neighborhood": "Capitol Heights", "area_id": "36104", "category": "pothole", "date": "2026-02-10", "severity": "high"},
+    {"id": "c006", "neighborhood": "Capitol Heights", "area_id": "36104", "category": "pothole", "date": "2026-02-15", "severity": "medium"},
+    {"id": "c007", "neighborhood": "Capitol Heights", "area_id": "36104", "category": "flooding", "date": "2026-02-20", "severity": "high"},
+    {"id": "c008", "neighborhood": "Capitol Heights", "area_id": "36104", "category": "pothole", "date": "2026-02-25", "severity": "low"},
+
+    {"id": "c010", "neighborhood": "Cloverdale", "area_id": "36106", "category": "noise", "date": "2026-01-08", "severity": "low"},
+    {"id": "c011", "neighborhood": "Cloverdale", "area_id": "36106", "category": "trash", "date": "2026-01-20", "severity": "medium"},
+    {"id": "c012", "neighborhood": "Cloverdale", "area_id": "36106", "category": "streetlight", "date": "2026-02-05", "severity": "low"},
+    {"id": "c013", "neighborhood": "Cloverdale", "area_id": "36106", "category": "noise", "date": "2026-02-14", "severity": "low"},
+
+    {"id": "c020", "neighborhood": "Dalraida", "area_id": "36109", "category": "pothole", "date": "2026-01-03", "severity": "medium"},
+    {"id": "c021", "neighborhood": "Dalraida", "area_id": "36109", "category": "pothole", "date": "2026-01-10", "severity": "high"},
+    {"id": "c022", "neighborhood": "Dalraida", "area_id": "36109", "category": "flooding", "date": "2026-01-22", "severity": "high"},
+    {"id": "c023", "neighborhood": "Dalraida", "area_id": "36109", "category": "sewer", "date": "2026-01-28", "severity": "high"},
+    {"id": "c024", "neighborhood": "Dalraida", "area_id": "36109", "category": "pothole", "date": "2026-02-01", "severity": "medium"},
+    {"id": "c025", "neighborhood": "Dalraida", "area_id": "36109", "category": "flooding", "date": "2026-02-08", "severity": "high"},
+    {"id": "c026", "neighborhood": "Dalraida", "area_id": "36109", "category": "pothole", "date": "2026-02-12", "severity": "medium"},
+    {"id": "c027", "neighborhood": "Dalraida", "area_id": "36109", "category": "sewer", "date": "2026-02-18", "severity": "high"},
+    {"id": "c028", "neighborhood": "Dalraida", "area_id": "36109", "category": "flooding", "date": "2026-02-22", "severity": "high"},
+    {"id": "c029", "neighborhood": "Dalraida", "area_id": "36109", "category": "trash", "date": "2026-02-26", "severity": "medium"},
+
+    {"id": "c030", "neighborhood": "Downtown", "area_id": "36104-DT", "category": "graffiti", "date": "2026-01-06", "severity": "low"},
+    {"id": "c031", "neighborhood": "Downtown", "area_id": "36104-DT", "category": "trash", "date": "2026-01-15", "severity": "medium"},
+    {"id": "c032", "neighborhood": "Downtown", "area_id": "36104-DT", "category": "noise", "date": "2026-01-25", "severity": "low"},
+    {"id": "c033", "neighborhood": "Downtown", "area_id": "36104-DT", "category": "graffiti", "date": "2026-02-03", "severity": "low"},
+    {"id": "c034", "neighborhood": "Downtown", "area_id": "36104-DT", "category": "trash", "date": "2026-02-10", "severity": "medium"},
+    {"id": "c035", "neighborhood": "Downtown", "area_id": "36104-DT", "category": "streetlight", "date": "2026-02-17", "severity": "medium"},
+    {"id": "c036", "neighborhood": "Downtown", "area_id": "36104-DT", "category": "graffiti", "date": "2026-02-22", "severity": "low"},
+
+    {"id": "c040", "neighborhood": "Midtown", "area_id": "36107", "category": "pothole", "date": "2026-01-09", "severity": "medium"},
+    {"id": "c041", "neighborhood": "Midtown", "area_id": "36107", "category": "streetlight", "date": "2026-01-19", "severity": "low"},
+    {"id": "c042", "neighborhood": "Midtown", "area_id": "36107", "category": "pothole", "date": "2026-02-06", "severity": "medium"},
+    {"id": "c043", "neighborhood": "Midtown", "area_id": "36107", "category": "trash", "date": "2026-02-16", "severity": "low"},
+
+    {"id": "c050", "neighborhood": "Carter Hill", "area_id": "36104-CH", "category": "streetlight", "date": "2026-01-04", "severity": "high"},
+    {"id": "c051", "neighborhood": "Carter Hill", "area_id": "36104-CH", "category": "streetlight", "date": "2026-01-11", "severity": "high"},
+    {"id": "c052", "neighborhood": "Carter Hill", "area_id": "36104-CH", "category": "trash", "date": "2026-01-20", "severity": "medium"},
+    {"id": "c053", "neighborhood": "Carter Hill", "area_id": "36104-CH", "category": "streetlight", "date": "2026-02-01", "severity": "high"},
+    {"id": "c054", "neighborhood": "Carter Hill", "area_id": "36104-CH", "category": "sewer", "date": "2026-02-09", "severity": "high"},
+    {"id": "c055", "neighborhood": "Carter Hill", "area_id": "36104-CH", "category": "streetlight", "date": "2026-02-15", "severity": "high"},
+    {"id": "c056", "neighborhood": "Carter Hill", "area_id": "36104-CH", "category": "flooding", "date": "2026-02-21", "severity": "high"},
+    {"id": "c057", "neighborhood": "Carter Hill", "area_id": "36104-CH", "category": "streetlight", "date": "2026-02-27", "severity": "medium"},
+
+    {"id": "c060", "neighborhood": "Pike Road", "area_id": "36064", "category": "pothole", "date": "2026-01-14", "severity": "low"},
+    {"id": "c061", "neighborhood": "Pike Road", "area_id": "36064", "category": "noise", "date": "2026-02-11", "severity": "low"},
+
+    {"id": "c070", "neighborhood": "Bell Road", "area_id": "36117", "category": "pothole", "date": "2026-01-07", "severity": "medium"},
+    {"id": "c071", "neighborhood": "Bell Road", "area_id": "36117", "category": "trash", "date": "2026-01-17", "severity": "low"},
+    {"id": "c072", "neighborhood": "Bell Road", "area_id": "36117", "category": "pothole", "date": "2026-02-04", "severity": "medium"},
+    {"id": "c073", "neighborhood": "Bell Road", "area_id": "36117", "category": "streetlight", "date": "2026-02-19", "severity": "low"},
+    {"id": "c074", "neighborhood": "Bell Road", "area_id": "36117", "category": "pothole", "date": "2026-02-24", "severity": "high"}
+  ]
+}

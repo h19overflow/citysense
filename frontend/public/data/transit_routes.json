@@ -1,0 +1,279 @@
+{
+  "routes": [
+    {
+      "id": "mats-1",
+      "name": "Route 1 AUM Eastchase",
+      "number": "1",
+      "schedule": {
+        "weekday": {
+          "start": "5:00 AM",
+          "end": "9:00 PM",
+          "frequency_minutes": 60
+        },
+        "saturday": {
+          "start": "7:30 AM",
+          "end": "6:30 PM",
+          "frequency_minutes": 60
+        }
+      },
+      "timepoints": [],
+      "description": ""
+    },
+    {
+      "id": "mats-2",
+      "name": "Route 2 Eastdale Mall",
+      "number": "2",
+      "schedule": {
+        "weekday": {
+          "start": "5:00 AM",
+          "end": "9:00 PM",
+          "frequency_minutes": 60
+        },
+        "saturday": {
+          "start": "7:30 AM",
+          "end": "6:30 PM",
+          "frequency_minutes": 60
+        }
+      },
+      "timepoints": [],
+      "description": ""
+    },
+    {
+      "id": "mats-3",
+      "name": "Route 3 Montgomery Commons",
+      "number": "3",
+      "schedule": {
+        "weekday": {
+          "start": "5:00 AM",
+          "end": "9:00 PM",
+          "frequency_minutes": 60
+        },
+        "saturday": {
+          "start": "7:30 AM",
+          "end": "6:30 PM",
+          "frequency_minutes": 60
+        }
+      },
+      "timepoints": [],
+      "description": ""
+    },
+    {
+      "id": "mats-4",
+      "name": "Route 4 Boylston",
+      "number": "4",
+      "schedule": {
+        "weekday": {
+          "start": "5:00 AM",
+          "end": "9:00 PM",
+          "frequency_minutes": 60
+        },
+        "saturday": {
+          "start": "7:30 AM",
+          "end": "6:30 PM",
+          "frequency_minutes": 60
+        }
+      },
+      "timepoints": [],
+      "description": ""
+    },
+    {
+      "id": "mats-5",
+      "name": "Route 5 McGhee Road",
+      "number": "5",
+      "schedule": {
+        "weekday": {
+          "start": "5:00 AM",
+          "end": "9:00 PM",
+          "frequency_minutes": 60
+        },
+        "saturday": {
+          "start": "7:30 AM",
+          "end": "6:30 PM",
+          "frequency_minutes": 60
+        }
+      },
+      "timepoints": [],
+      "description": "\u2013"
+    },
+    {
+      "id": "mats-6",
+      "name": "Route 6 Southlawn Twingates",
+      "number": "6",
+      "schedule": {
+        "weekday": {
+          "start": "5:00 AM",
+          "end": "9:00 PM",
+          "frequency_minutes": 60
+        },
+        "saturday": {
+          "start": "7:30 AM",
+          "end": "6:30 PM",
+          "frequency_minutes": 60
+        }
+      },
+      "timepoints": [],
+      "description": ""
+    },
+    {
+      "id": "mats-7",
+      "name": "Route 7 Maxwell AFB",
+      "number": "7",
+      "schedule": {
+        "weekday": {
+          "start": "5:00 AM",
+          "end": "9:00 PM",
+          "frequency_minutes": 60
+        },
+        "saturday": {
+          "start": "7:30 AM",
+          "end": "6:30 PM",
+          "frequency_minutes": 60
+        }
+      },
+      "timepoints": [],
+      "description": ""
+    },
+    {
+      "id": "mats-8",
+      "name": "Route 8 Gunter Annex",
+      "number": "8",
+      "schedule": {
+        "weekday": {
+          "start": "5:00 AM",
+          "end": "9:00 PM",
+          "frequency_minutes": 60
+        },
+        "saturday": {
+          "start": "7:30 AM",
+          "end": "6:30 PM",
+          "frequency_minutes": 60
+        }
+      },
+      "timepoints": [],
+      "description": ""
+    },
+    {
+      "id": "mats-9",
+      "name": "Route 9 Virginia Loop",
+      "number": "9",
+      "schedule": {
+        "weekday": {
+          "start": "5:00 AM",
+          "end": "9:00 PM",
+          "frequency_minutes": 60
+        },
+        "saturday": {
+          "start": "7:30 AM",
+          "end": "6:30 PM",
+          "frequency_minutes": 60
+        }
+      },
+      "timepoints": [],
+      "description": ""
+    },
+    {
+      "id": "mats-10",
+      "name": "Route 10 South Court St.",
+      "number": "10",
+      "schedule": {
+        "weekday": {
+          "start": "5:00 AM",
+          "end": "9:00 PM",
+          "frequency_minutes": 60
+        },
+        "saturday": {
+          "start": "7:30 AM",
+          "end": "6:30 PM",
+          "frequency_minutes": 60
+        }
+      },
+      "timepoints": [],
+      "description": ""
+    },
+    {
+      "id": "mats-11",
+      "name": "Route 11 Rosa Parks / South Blvd.",
+      "number": "11",
+      "schedule": {
+        "weekday": {
+          "start": "5:00 AM",
+          "end": "9:00 PM",
+          "frequency_minutes": 60
+        },
+        "saturday": {
+          "start": "7:30 AM",
+          "end": "6:30 PM",
+          "frequency_minutes": 60
+        }
+      },
+      "timepoints": [],
+      "description": ""
+    },
+    {
+      "id": "mats-12",
+      "name": "Route 12 Smiley Court Gibbs Village",
+      "number": "12",
+      "schedule": {
+        "weekday": {
+          "start": "5:00 AM",
+          "end": "9:00 PM",
+          "frequency_minutes": 60
+        },
+        "saturday": {
+          "start": "7:30 AM",
+          "end": "6:30 PM",
+          "frequency_minutes": 60
+        }
+      },
+      "timepoints": [],
+      "description": ""
+    },
+    {
+      "id": "mats-16",
+      "name": "Route 16 East-West Connector",
+      "number": "16",
+      "schedule": {
+        "weekday": {
+          "start": "5:00 AM",
+          "end": "9:00 PM",
+          "frequency_minutes": 60
+        },
+        "saturday": {
+          "start": "7:30 AM",
+          "end": "6:30 PM",
+          "frequency_minutes": 60
+        }
+      },
+      "timepoints": [],
+      "description": ""
+    },
+    {
+      "id": "mats-17",
+      "name": "Route 17 Boulevard",
+      "number": "17",
+      "schedule": {
+        "weekday": {
+          "start": "5:00 AM",
+          "end": "9:00 PM",
+          "frequency_minutes": 60
+        },
+        "saturday": {
+          "start": "7:30 AM",
+          "end": "6:30 PM",
+          "frequency_minutes": 60
+        }
+      },
+      "timepoints": [],
+      "description": ""
+    }
+  ],
+  "metadata": {
+    "scraped_at": "2026-03-05T14:23:01.830230+00:00",
+    "source": "themtransit.com",
+    "total_routes": 14,
+    "operator": "Montgomery Area Transit System (MATS)",
+    "service_area": "Montgomery, AL",
+    "contact": "(334) 625-4012",
+    "website": "https://themtransit.com"
+  }
+}

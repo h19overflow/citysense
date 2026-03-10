@@ -1,0 +1,11 @@
+{
+  "news": [
+    {
+      "title": "Test Live Article",
+      "link": "https://example.com",
+      "snippet": "Live data test",
+      "source": "Test Source",
+      "date": "2026-03-06"
+    }
+  ]
+}

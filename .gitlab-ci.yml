@@ -1,0 +1,110 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  GCP_PROJECT_ID: "pegasus-489513"
+  GCP_REGION: "us-central1"
+  BACKEND_URL: "https://pegasus-backend-844382079357.us-central1.run.app"
+  REGISTRY: "us-central1-docker.pkg.dev"
+  BACKEND_IMAGE: "us-central1-docker.pkg.dev/pegasus-489513/pegasus/backend"
+  FRONTEND_IMAGE: "us-central1-docker.pkg.dev/pegasus-489513/pegasus/frontend"
+  BACKEND_SERVICE: "pegasus-backend"
+  FRONTEND_SERVICE: "pegasus-frontend"
+  DOCKER_TLS_CERTDIR: "/certs"
+
+# ── BUILD ─────────────────────────────────────────────────────────────────────
+
+build-backend:
+  stage: build
+  image: docker:24
+  services:
+    - docker:24-dind
+  before_script:
+    - echo "$GCP_SERVICE_ACCOUNT_KEY" | base64 -d | docker login -u _json_key --password-stdin "https://${REGISTRY}"
+  script:
+    - |
+      docker build \
+        -f backend/Dockerfile \
+        -t "${BACKEND_IMAGE}:${CI_COMMIT_SHORT_SHA}" \
+        -t "${BACKEND_IMAGE}:latest" \
+        .
+    - docker push "${BACKEND_IMAGE}:${CI_COMMIT_SHORT_SHA}"
+    - docker push "${BACKEND_IMAGE}:latest"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+build-frontend:
+  stage: build
+  image: docker:24
+  services:
+    - docker:24-dind
+  before_script:
+    - echo "$GCP_SERVICE_ACCOUNT_KEY" | base64 -d | docker login -u _json_key --password-stdin "https://${REGISTRY}"
+  script:
+    - |
+      docker build \
+        --build-arg VITE_API_BASE="${BACKEND_URL}" \
+        --build-arg VITE_ANALYSIS_API_BASE="${BACKEND_URL}" \
+        -t "${FRONTEND_IMAGE}:${CI_COMMIT_SHORT_SHA}" \
+        -t "${FRONTEND_IMAGE}:latest" \
+        frontend/
+    - docker push "${FRONTEND_IMAGE}:${CI_COMMIT_SHORT_SHA}"
+    - docker push "${FRONTEND_IMAGE}:latest"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+# ── DEPLOY ────────────────────────────────────────────────────────────────────
+
+deploy-backend:
+  stage: deploy
+  image: google/cloud-sdk:alpine
+  before_script:
+    - echo "$GCP_SERVICE_ACCOUNT_KEY" | base64 -d > /tmp/sa-key.json
+    - gcloud auth activate-service-account --key-file=/tmp/sa-key.json
+    - gcloud config set project "$GCP_PROJECT_ID"
+  script:
+    - |
+      gcloud run deploy "$BACKEND_SERVICE" \
+        --image "${BACKEND_IMAGE}:${CI_COMMIT_SHORT_SHA}" \
+        --region "$GCP_REGION" \
+        --platform managed \
+        --allow-unauthenticated \
+        --port 8080 \
+        --set-secrets "GEMINI_API_KEY=GEMINI_API_KEY:latest,BRIGHTDATA_API_KEY=BRIGHTDATA_API_KEY:latest" \
+        --set-env-vars "AUTO_SCRAPE=0,GEMINI_MODEL=gemini-2.0-flash,BRIGHTDATA_SERP_ZONE=serp_api1,BRIGHTDATA_BROWSER_ZONE=scraping_browser1" \
+        --min-instances 0 \
+        --max-instances 5 \
+        --memory 1Gi \
+        --cpu 1
+  needs:
+    - build-backend
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+deploy-frontend:
+  stage: deploy
+  image: google/cloud-sdk:alpine
+  before_script:
+    - echo "$GCP_SERVICE_ACCOUNT_KEY" | base64 -d > /tmp/sa-key.json
+    - gcloud auth activate-service-account --key-file=/tmp/sa-key.json
+    - gcloud config set project "$GCP_PROJECT_ID"
+  script:
+    # Use the fixed backend Cloud Run URL so nginx always proxies to the expected service
+    - |
+      gcloud run deploy "$FRONTEND_SERVICE" \
+        --image "${FRONTEND_IMAGE}:${CI_COMMIT_SHORT_SHA}" \
+        --region "$GCP_REGION" \
+        --platform managed \
+        --allow-unauthenticated \
+        --port 8080 \
+        --set-env-vars "BACKEND_URL=${BACKEND_URL}" \
+        --min-instances 0 \
+        --max-instances 20 \
+        --memory 256Mi \
+        --cpu 1
+  needs:
+    - build-frontend
+    - deploy-backend
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'

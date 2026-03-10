@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1a355b",
+                        "secondary": "#2d5a9e",
+                        "accent-teal": "#14b8a6",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#13181f",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<title>CitySense - Montgomery, Alabama</title>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+<!-- Header -->
+<header class="sticky top-0 z-50 w-full border-b border-primary/10 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="text-primary dark:text-blue-400">
+<span class="material-symbols-outlined text-3xl font-bold">domain</span>
+</div>
+<h1 class="text-xl font-extrabold tracking-tight text-primary dark:text-white">CitySense</h1>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-sm font-semibold hover:text-primary transition-colors" href="#">Explore as Citizen</a>
+<a class="text-sm font-semibold hover:text-primary transition-colors" href="#">Admin Dashboard</a>
+<div class="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="User profile avatar placeholder" src="https://lh3.googleusercontent.com/aida-public/AB6AXuATF5F1b4UTIaPWjw10cn8IgQTSg1vXI7FoQ4FILgxZK4SmNShiOX_CME90zpvsdK1OxxszoGf_UOMpqFssGomO09bFWDy7S_bw4O6ZqjevUT-IomHEpWAJBW2z5LZSlXowgDHdCbGQGvndr2Xo2BpLUwlzFkzODClaPX0erEYAQm65gjBnDNIDhtSONPpjInanKi28R5I0LbWldLAAGOjlFn-6TRbZPYpa2yUL1SVJbNqgjwNlF-uHvplZzR9pVfnNgVyepYGlv7_6"/>
+</div>
+</nav>
+<button class="md:hidden text-slate-600">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</header>
+<main>
+<!-- Hero Section -->
+<section class="relative overflow-hidden bg-primary py-24 lg:py-32">
+<div class="absolute inset-0 opacity-20" data-alt="Faint topographic map pattern of Montgomery" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAruFtL3Ek2PL3tOHqGVftf9DXSiVN8J1KeXdsmDIxJ4hDV43s6bm6tUuPxCa2rlq0doqgMxNTAetJFPyQHIvgg8Sq3hSJmO6d-zrq-ZIcl35SHXP80FN578mIhgBFEAFD4ZFhazBxm2ccsOb2QMHONz8jklwdqTYjKsBrpEx6qUFGL1D8KbZOx1Dmu2bf0rGj21JeNmeqqURklVpsJ-r92bwOnvbJwcIoTmWaZe2jIxRx0ErfF9aKcJ9ILGHGEE6lDYIVErLesBgdu");'></div>
+<div class="absolute inset-0 bg-gradient-to-b from-primary/80 to-primary"></div>
+<div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-white/90 text-xs font-medium mb-8 backdrop-blur-sm border border-white/20">
+<span class="material-symbols-outlined text-sm">location_on</span>
+                    Montgomery, Alabama
+                </div>
+<h2 class="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight leading-tight">
+                    Your AI-Powered Hub for <br class="hidden md:block"/> <span class="text-accent-teal">Civic Intelligence</span>
+</h2>
+<p class="text-lg md:text-xl text-blue-100/80 max-w-2xl mx-auto mb-12">
+                    Access local government services, real-time news analysis, and data-driven insights tailored for the residents of Montgomery.
+                </p>
+<div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+<button class="w-full sm:w-auto px-8 py-4 bg-accent-teal hover:bg-teal-500 text-white font-bold rounded-lg transition-all shadow-lg shadow-teal-900/20">
+                        Explore as Citizen
+                    </button>
+<button class="w-full sm:w-auto px-8 py-4 bg-white/10 hover:bg-white/20 text-white font-bold rounded-lg backdrop-blur-md border border-white/20 transition-all">
+                        Admin Dashboard
+                    </button>
+</div>
+</div>
+</section>
+<!-- What CitySense Does -->
+<section class="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="mb-12">
+<h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">What CitySense Does</h3>
+<div class="h-1 w-20 bg-accent-teal rounded-full"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="group p-8 rounded-xl bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 hover:border-primary/50 transition-all shadow-sm hover:shadow-xl">
+<div class="w-14 h-14 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-primary dark:text-blue-400 mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl">search_insights</span>
+</div>
+<h4 class="text-xl font-bold mb-3">Find Services</h4>
+<p class="text-slate-600 dark:text-slate-400 leading-relaxed">Instantly access local government resources, from waste management to permit applications.</p>
+</div>
+<div class="group p-8 rounded-xl bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 hover:border-accent-teal/50 transition-all shadow-sm hover:shadow-xl">
+<div class="w-14 h-14 rounded-lg bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center text-accent-teal mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl">newspaper</span>
+</div>
+<h4 class="text-xl font-bold mb-3">Stay Informed</h4>
+<p class="text-slate-600 dark:text-slate-400 leading-relaxed">Real-time local news feed with AI-driven sentiment analysis and misinformation filtering.</p>
+</div>
+<div class="group p-8 rounded-xl bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 hover:border-blue-400/50 transition-all shadow-sm hover:shadow-xl">
+<div class="w-14 h-14 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-500 mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl">forum</span>
+</div>
+<h4 class="text-xl font-bold mb-3">Get Answers</h4>
+<p class="text-slate-600 dark:text-slate-400 leading-relaxed">Ask our AI civic assistant anything about city ordinances, programs, or local events.</p>
+</div>
+</div>
+</section>
+<!-- For Citizens: Local Services (Map Layout) -->
+<section class="py-20 bg-slate-50 dark:bg-slate-900/50">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
+<div>
+<h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">For Citizens: Local Services</h3>
+<p class="text-slate-600 dark:text-slate-400">Find essential resources near you in Montgomery.</p>
+</div>
+<button class="text-primary font-bold flex items-center gap-1 hover:underline">
+                        View Interactive Map <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+<div class="lg:col-span-2 relative h-[500px] rounded-2xl overflow-hidden shadow-inner border border-slate-200 dark:border-slate-700">
+<img class="w-full h-full object-cover" data-alt="Simplified city map of Montgomery showing service pins" data-location="Montgomery, Alabama" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBeNxv7tSvbNb4_YPhRO9shoeDKm3ZzFEfrBh4YMtFrKbj9OXlFe9_NRgrQXplp2BbN9E5WBPpDRdYqgZOWrjOHUNc2BnFEdBiKDvwaEX-ccqhkRnFCC_5rJFpFYiAGVnmeIaAwQ23iTx8bwPVqzqCoHP9jkuZjL_LdCd2bV-QhcY8mm1bJGG_SCbngJK-0vf6Zjxv1II-Is6HcfhcaqQMN9zxqQXGqrJLKMi9OpOtTC8Oxhb1mOgDZMfImF5doM6QeBvSHq9q6rUHz"/>
+<!-- Simulated Map UI -->
+<div class="absolute bottom-6 left-6 right-6 p-4 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md rounded-xl shadow-lg border border-white/20 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined">map</span>
+</div>
+<div>
+<p class="text-sm font-bold">Currently Viewing</p>
+<p class="text-xs text-slate-500">Downtown Montgomery Services</p>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200"><span class="material-symbols-outlined">zoom_in</span></button>
+<button class="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200"><span class="material-symbols-outlined">zoom_out</span></button>
+</div>
+</div>
+</div>
+<div class="space-y-4">
+<div class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex gap-4 items-start">
+<div class="p-2 rounded bg-red-50 text-red-600"><span class="material-symbols-outlined">medical_services</span></div>
+<div>
+<span class="text-[10px] font-bold tracking-widest text-red-600 uppercase mb-1 block">HEALTH</span>
+<h5 class="font-bold text-slate-900 dark:text-white">Family Health Center</h5>
+<p class="text-xs text-slate-500 mt-1">301 S Lawrence St, Montgomery, AL</p>
+</div>
+</div>
+<div class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex gap-4 items-start border-l-4 border-l-primary">
+<div class="p-2 rounded bg-primary/10 text-primary"><span class="material-symbols-outlined">groups</span></div>
+<div>
+<span class="text-[10px] font-bold tracking-widest text-primary uppercase mb-1 block text-primary">COMMUNITY</span>
+<h5 class="font-bold text-slate-900 dark:text-white">Newtown Community Center</h5>
+<p class="text-xs text-slate-500 mt-1">1000 W Jeff Davis Ave, Montgomery, AL</p>
+</div>
+</div>
+<div class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex gap-4 items-start">
+<div class="p-2 rounded bg-blue-50 text-blue-600"><span class="material-symbols-outlined">library_books</span></div>
+<div>
+<span class="text-[10px] font-bold tracking-widest text-blue-600 uppercase mb-1 block">EDUCATION</span>
+<h5 class="font-bold text-slate-900 dark:text-white">Montgomery Public Library</h5>
+<p class="text-xs text-slate-500 mt-1">245 High St, Montgomery, AL</p>
+</div>
+</div>
+<div class="p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex gap-4 items-start">
+<div class="p-2 rounded bg-accent-teal/10 text-accent-teal"><span class="material-symbols-outlined">park</span></div>
+<div>
+<span class="text-[10px] font-bold tracking-widest text-accent-teal uppercase mb-1 block">RECREATION</span>
+<h5 class="font-bold text-slate-900 dark:text-white">Riverfront Park</h5>
+<p class="text-xs text-slate-500 mt-1">355 Coosa St, Montgomery, AL</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Local News Section -->
+<section class="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="mb-12">
+<h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">Local News Feed</h3>
+<p class="text-slate-600 dark:text-slate-400">AI-curated updates with community sentiment analysis.</p>
+</div>
+<div class="space-y-4">
+<!-- News Item 1 -->
+<div class="group bg-white dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col md:flex-row gap-6 hover:shadow-md transition-shadow">
+<div class="md:w-1/4">
+<div class="relative rounded-lg overflow-hidden h-32 md:h-full">
+<img class="w-full h-full object-cover" data-alt="Rendering of new city transit buses" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCM2R-ukSKCcnmk-ClM4CzVkAIakgPYZ7gYrqOcn_3ZM6zwlOOAWk6yE52-Hcet9HO9B9GahemJm_o03EoeBxXmTc43lFXeGdEYuIE2cknwpYYZYhna0IOT4G9f7PYrBuGWZD7OeMPW7cGgh9Xa6ALuHxAsoSEzkSPGQnBvhdmY1XeYub-WSJ2YtiWUPuIx4hhb36wXVckBj-5_RJpOIhntxNcTJeI5BaKVSPEoXBEp1HmRvGHW-rXzAfd7RcY8JpULz8L1SRKinZZf"/>
+<div class="absolute top-2 left-2 px-2 py-1 rounded bg-green-500 text-white text-[10px] font-bold">POSITIVE</div>
+</div>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-4 mb-2">
+<span class="text-xs font-semibold text-primary">City Planning</span>
+<span class="text-xs text-slate-400">2 hours ago</span>
+</div>
+<h4 class="text-lg font-bold mb-2 group-hover:text-primary transition-colors">City approves new transit routes for West Montgomery</h4>
+<p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 mb-4">The city council voted unanimously to expand bus services, aiming to reduce commute times by 20% for residents in the West side.</p>
+<div class="flex flex-wrap items-center gap-6">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-green-500"></div>
+<span class="text-xs font-medium text-slate-500">82% Positive Sentiment</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-blue-500">verified_user</span>
+<span class="text-xs font-medium text-slate-500">Low Misinformation Risk</span>
+</div>
+</div>
+</div>
+</div>
+<!-- News Item 2 -->
+<div class="group bg-white dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col md:flex-row gap-6 hover:shadow-md transition-shadow">
+<div class="md:w-1/4">
+<div class="relative rounded-lg overflow-hidden h-32 md:h-full">
+<img class="w-full h-full object-cover" data-alt="Local high school building facade" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLsdTAIQB_IA35nUU2ciJ9C2hpCbsscq2rp-Jm_JOle-4QYsk--aShMJuGytpAPApS0xEFBnbWClYYnYvZgODVrGJ4YOW-iAlmVvK7smBjrueoTMYEKgy0c6e_62V9GxCwhFchBA3mphFHQGhxtoOvZ5omD7TzOa1acvWkZId3NA9f3Sa_SIXf_CXWca1YOsJtnZZtYwVBLbKZy2tj3uW1GIG7RL1tAZEOnO61KqP05pqgY3Bv5D2KtPid9ygpUNt-Th0CwuCU46v8"/>
+<div class="absolute top-2 left-2 px-2 py-1 rounded bg-orange-500 text-white text-[10px] font-bold">MIXED</div>
+</div>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-4 mb-2">
+<span class="text-xs font-semibold text-primary">Education</span>
+<span class="text-xs text-slate-400">5 hours ago</span>
+</div>
+<h4 class="text-lg font-bold mb-2 group-hover:text-primary transition-colors">Community reacts to proposed school funding shifts</h4>
+<p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 mb-4">A town hall meeting saw heated debates over the redirection of capital improvement funds toward teacher retention bonuses.</p>
+<div class="flex flex-wrap items-center gap-6">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-orange-500"></div>
+<span class="text-xs font-medium text-slate-500">45% Mixed Sentiment</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-orange-500">warning</span>
+<span class="text-xs font-medium text-slate-500">Moderate News Activity</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- For City Leaders Section -->
+<section class="py-20 bg-primary/5 dark:bg-slate-900">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex items-center gap-4 mb-12">
+<div class="p-3 bg-primary text-white rounded-lg">
+<span class="material-symbols-outlined">dashboard</span>
+</div>
+<div>
+<h3 class="text-2xl font-bold text-slate-900 dark:text-white">For City Leaders</h3>
+<p class="text-slate-600 dark:text-slate-400">Internal decision-support dashboard</p>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+<div class="p-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+<p class="text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">Positive Sentiment %</p>
+<div class="flex items-end justify-between">
+<span class="text-3xl font-black text-primary dark:text-blue-400">68.4%</span>
+<span class="text-green-500 text-xs font-bold flex items-center mb-1"><span class="material-symbols-outlined text-sm">trending_up</span> 2.1%</span>
+</div>
+</div>
+<div class="p-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+<p class="text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">Active Hotspots</p>
+<div class="flex items-end justify-between">
+<span class="text-3xl font-black text-slate-900 dark:text-white">12</span>
+<span class="text-slate-400 text-xs font-bold mb-1">Locations</span>
+</div>
+</div>
+<div class="p-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+<p class="text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">Citizen Comments</p>
+<div class="flex items-end justify-between">
+<span class="text-3xl font-black text-slate-900 dark:text-white">1.2k</span>
+<span class="text-blue-500 text-xs font-bold mb-1">Last 24h</span>
+</div>
+</div>
+<div class="p-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+<p class="text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider">Articles Analyzed</p>
+<div class="flex items-end justify-between">
+<span class="text-3xl font-black text-slate-900 dark:text-white">452</span>
+<span class="text-accent-teal text-xs font-bold mb-1">Verified</span>
+</div>
+</div>
+</div>
+<div class="bg-primary/90 rounded-2xl p-8 text-white relative overflow-hidden border border-white/10">
+<div class="absolute top-0 right-0 p-12 opacity-10">
+<span class="material-symbols-outlined text-[120px]">psychology</span>
+</div>
+<div class="relative z-10 max-w-3xl">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-accent-teal">auto_awesome</span>
+<span class="text-sm font-bold uppercase tracking-widest text-accent-teal">AI-Driven Insight</span>
+</div>
+<h4 class="text-2xl font-bold mb-4">Infrastructure sentiment is trending upwards in District 4.</h4>
+<p class="text-lg text-blue-100/80 leading-relaxed">
+                            Citizens are reacting positively to the recent road paving schedule updates. However, there is a cluster of negative sentiment regarding public transport delays near the tech corridor. Recommendation: Release a status update on the new transit route expansion tonight to maintain positive momentum.
+                        </p>
+<button class="mt-8 px-6 py-2 bg-white text-primary font-bold rounded-lg hover:bg-blue-50 transition-colors">
+                            Generate Detailed Report
+                        </button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-white dark:bg-background-dark border-t border-slate-200 dark:border-slate-800 py-12">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex flex-col md:flex-row justify-between items-center gap-8">
+<div class="flex items-center gap-2">
+<div class="text-primary">
+<span class="material-symbols-outlined text-2xl font-bold">domain</span>
+</div>
+<h1 class="text-lg font-extrabold tracking-tight text-primary dark:text-white">CitySense</h1>
+</div>
+<p class="text-sm text-slate-500 font-medium">
+                    Built for Montgomery, Alabama residents. Empowering civic engagement through intelligence.
+                </p>
+<div class="flex gap-6 text-sm font-semibold">
+<a class="hover:text-primary transition-colors" href="#">Privacy</a>
+<a class="hover:text-primary transition-colors" href="#">Terms</a>
+<a class="hover:text-primary transition-colors" href="#">Contact</a>
+</div>
+</div>
+<div class="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800 text-center">
+<p class="text-xs text-slate-400">© 2024 CitySense Platform. All rights reserved.</p>
+</div>
+</div>
+</footer>
+</body></html>

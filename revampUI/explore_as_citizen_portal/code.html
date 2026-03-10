@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1a355b",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#13181f",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
+<div class="relative flex min-h-screen w-full flex-col">
+<!-- Top Navigation -->
+<header class="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md px-6 lg:px-20 py-3">
+<div class="mx-auto flex max-w-7xl items-center justify-between">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-2 text-primary dark:text-slate-100">
+<span class="material-symbols-outlined text-3xl font-bold">location_city</span>
+<h2 class="text-xl font-black tracking-tight">CitySense</h2>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-sm font-semibold hover:text-primary transition-colors" href="#">Services</a>
+<a class="text-sm font-semibold hover:text-primary transition-colors" href="#">Updates</a>
+<a class="text-sm font-semibold hover:text-primary transition-colors" href="#">Connect</a>
+<a class="text-sm font-semibold hover:text-primary transition-colors" href="#">Map</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+<input class="h-10 w-64 rounded-lg border-none bg-slate-100 dark:bg-slate-800 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary" placeholder="Search services..." type="text"/>
+</div>
+<button class="relative rounded-full p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500 border-2 border-white dark:border-background-dark"></span>
+</button>
+<div class="h-10 w-10 rounded-full bg-primary/10 border-2 border-primary/20 bg-cover bg-center" data-alt="User profile avatar circle" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDXl-jQ9M0cGZbaxSlWAT_fUseXGRJOgTjOlTws2P82vCERD2IjD8c3lN_Ltw36TdorMKScwBpPYyu4TgmJjQm95Nyjmunkhs82WYrl3o23RbJR8UTsIpJKL9-FoCMfrOzXpzihfrNLRa9Yyp3uLIXAX8yRtHizsQkU2zbgwy6XI97QiLWJ3FNd_cCbwZcXEn8XgGbJhzD7zqFzTL4MfOePqLF4rWYxIT2LeX6EVhmyr7AO2P9dPDbnTmWixv37oB5kkPEzk0cejdZD')"></div>
+</div>
+</div>
+</header>
+<main class="mx-auto w-full max-w-7xl flex-1 px-6 lg:px-20 py-8">
+<!-- Welcome Area -->
+<section class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<h1 class="text-4xl font-black text-slate-900 dark:text-white tracking-tight">Welcome back, Alex</h1>
+<p class="mt-2 text-slate-600 dark:text-slate-400 max-w-lg">Everything you need for life in <span class="font-bold text-primary dark:text-blue-400 underline decoration-2 underline-offset-4">Downtown Metropolis</span> is right here.</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-bold text-white hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-lg">report_problem</span>
+                        Report Issue
+                    </button>
+<button class="flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-5 py-2.5 text-sm font-bold hover:bg-slate-50 transition-all">
+<span class="material-symbols-outlined text-lg">settings</span>
+                        Preferences
+                    </button>
+</div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Column: Services & Map -->
+<div class="lg:col-span-8 space-y-10">
+<!-- My Services Section -->
+<section>
+<div class="mb-5 flex items-center justify-between">
+<h3 class="text-xl font-bold tracking-tight">My Services</h3>
+<a class="text-sm font-bold text-primary dark:text-blue-400 hover:underline" href="#">View All Services</a>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+<!-- Service Card 1 -->
+<div class="group flex flex-col rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-1 hover:shadow-xl transition-all cursor-pointer">
+<div class="h-32 w-full rounded-lg bg-slate-100 dark:bg-slate-700 bg-cover bg-center" data-alt="Residential solar panels on city roof" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCzS6_gVaZGo613TMRFcRksNO5Bxx3fFpwVtcuUfz3uP-dbtDbZ9yjwL1Z4F0VDQBUYUrpw8VuSoB_T5omdejnsqlH8zMijAncr6P2m4KPNp008SzIjmQluoMcHtU8XMBJY-lcWRZhQp8ME87_fAhqu61ObjUwufmD6DC85_tJmjO9fk1n-brCjDSEJVEvPc22v08Wy747tOAJLFt35ZPH5YNrjq1CgXrYBE8wpi2tklAuo-f9nR0J7CGbBBS8NYrSI18O7A-Ai23lO')"></div>
+<div class="p-4">
+<div class="flex items-center gap-2 text-primary dark:text-blue-400 mb-1">
+<span class="material-symbols-outlined text-sm">payments</span>
+<span class="text-[10px] font-black uppercase tracking-widest">Billing</span>
+</div>
+<h4 class="font-bold text-slate-900 dark:text-white">Utility Payments</h4>
+<p class="mt-1 text-xs text-slate-500 leading-relaxed">Next due: Oct 24, 2023</p>
+</div>
+</div>
+<!-- Service Card 2 -->
+<div class="group flex flex-col rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-1 hover:shadow-xl transition-all cursor-pointer">
+<div class="h-32 w-full rounded-lg bg-slate-100 dark:bg-slate-700 bg-cover bg-center" data-alt="Modern architecture blueprints and permits" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCNuqD35yb7apTQyUg7rfilC4PeYCssTXhpSq-pLOz3q9NcrZOKi8tYDSKkRq3Kw2wVxv9FNPZ-LUshjVXYOcQIlRu3ZbKZp7HxyNTv-_vNY4kn2d2Z5Vf1dkr66I1tz6sG-_0KJGC3ogKpcSKYlk6EcziEnMNJU4FBqRrO_uopc9ZKfdMhV7WG2YtqLg4-nmPaz7tOfmKTSIliJyiYbL5nvNL7XAL6NsRJTksKWD-qIxamUcnEXoP72-5icEGzikjAUCT8kNeik61O')"></div>
+<div class="p-4">
+<div class="flex items-center gap-2 text-amber-600 mb-1">
+<span class="material-symbols-outlined text-sm">pending_actions</span>
+<span class="text-[10px] font-black uppercase tracking-widest">Active</span>
+</div>
+<h4 class="font-bold text-slate-900 dark:text-white">Permit Tracking</h4>
+<p class="mt-1 text-xs text-slate-500 leading-relaxed">Renovation #2948-B</p>
+</div>
+</div>
+<!-- Service Card 3 -->
+<div class="group flex flex-col rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-1 hover:shadow-xl transition-all cursor-pointer">
+<div class="h-32 w-full rounded-lg bg-slate-100 dark:bg-slate-700 bg-cover bg-center" data-alt="Crowd of people at a local park festival" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDqHt6-4E4yUA0pfp6Zh9nWrDAW2e7lX8CC3Sgk_WjvC6Gh2uvOW_PwkFijNGE1IvT_RLJonIt5JtAaCF1hTb6KI_7QZNNItmYX6grTsINbVO_ym5ktkI2hq1xhYmD7fbJAWzmW4wjQvg6TiW_TCmpDv54Gv-KDRkn-DgJlCf2E02pG6y4yZZvGqbLbR3-zF1D2TnTU31y_HBHymJvcPF3m4doaTFI3WB3VgHGdkDnl-8eyvT--5617Qh73hBLIBrRphqGStr92VHR2')"></div>
+<div class="p-4">
+<div class="flex items-center gap-2 text-emerald-600 mb-1">
+<span class="material-symbols-outlined text-sm">event</span>
+<span class="text-[10px] font-black uppercase tracking-widest">Community</span>
+</div>
+<h4 class="font-bold text-slate-900 dark:text-white">Events</h4>
+<p class="mt-1 text-xs text-slate-500 leading-relaxed">Farmers Market Sat</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Interactive Map Section -->
+<section class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 overflow-hidden shadow-sm">
+<div class="p-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-700">
+<div>
+<h3 class="text-lg font-bold">Local Map</h3>
+<p class="text-xs text-slate-500">Service alerts and nearby amenities</p>
+</div>
+<div class="flex gap-2">
+<button class="rounded-lg bg-slate-100 dark:bg-slate-700 px-3 py-1.5 text-xs font-semibold">Layers</button>
+<button class="rounded-lg bg-slate-100 dark:bg-slate-700 px-3 py-1.5 text-xs font-semibold">Nearby</button>
+</div>
+</div>
+<div class="relative h-[300px] w-full bg-slate-200 dark:bg-slate-900 bg-cover bg-center" data-alt="Top down aerial map view of city streets" data-location="New York City" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDKi8cHcPElkmIDgPoXl4qa97EVXMZe4mc8w5QXm-mZCuQ-Da5kvLtpF18-uXIfhuaSj3XQce-35quG_1j-I9L1bcNbo09ASB-XFv1OBbZmAft7lqhk_63vDZAosEHC3e2_C3Yd_KewvXD-N3v0yZ30wbAwbk-l9UKNrTMsPsoH6jdiQVa5UW6HOKG_RZ7x1GC7a_SEt3wMbS1q_I_5ThD8aOyMG20L2vexC2RH9Si4W1fOUjBwIj2-4wocfHhLJDHnCCOZrWYU1Xjd')">
+<!-- Custom Map Markers UI elements -->
+<div class="absolute left-1/4 top-1/3 group">
+<div class="h-4 w-4 rounded-full bg-primary border-4 border-white shadow-lg animate-pulse"></div>
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-32 rounded bg-slate-900 text-[10px] text-white p-2">
+                                    Road Construction: Elm St
+                                </div>
+</div>
+<div class="absolute right-1/3 bottom-1/4">
+<div class="h-4 w-4 rounded-full bg-emerald-500 border-4 border-white shadow-lg"></div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Local Updates & Connect -->
+<div class="lg:col-span-4 space-y-8">
+<!-- Local Updates Feed -->
+<section class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-6">
+<h3 class="mb-5 text-lg font-bold tracking-tight">Local Updates</h3>
+<div class="space-y-6">
+<!-- News Item 1 -->
+<div class="relative pl-6 before:absolute before:left-0 before:top-1.5 before:h-2 before:w-2 before:rounded-full before:bg-primary">
+<div class="flex items-center justify-between mb-1">
+<span class="text-[10px] font-bold text-slate-400">2 HOURS AGO</span>
+<span class="flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+<span class="material-symbols-outlined text-[12px]">sentiment_satisfied</span> Positive
+                                    </span>
+</div>
+<h5 class="font-bold text-sm">New Green Space Approved</h5>
+<p class="mt-1 text-xs text-slate-500 line-clamp-2">City council has officially signed off on the development of Westside Park.</p>
+</div>
+<!-- News Item 2 -->
+<div class="relative pl-6 before:absolute before:left-0 before:top-1.5 before:h-2 before:w-2 before:rounded-full before:bg-amber-500">
+<div class="flex items-center justify-between mb-1">
+<span class="text-[10px] font-bold text-slate-400">5 HOURS AGO</span>
+<span class="flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+<span class="material-symbols-outlined text-[12px]">sentiment_neutral</span> Neutral
+                                    </span>
+</div>
+<h5 class="font-bold text-sm">Water Main Repair - 5th Ave</h5>
+<p class="mt-1 text-xs text-slate-500 line-clamp-2">Scheduled maintenance might affect water pressure in zone B tomorrow morning.</p>
+</div>
+<!-- News Item 3 -->
+<div class="relative pl-6 before:absolute before:left-0 before:top-1.5 before:h-2 before:w-2 before:rounded-full before:bg-slate-300">
+<div class="flex items-center justify-between mb-1">
+<span class="text-[10px] font-bold text-slate-400">YESTERDAY</span>
+<span class="flex items-center gap-1 rounded-full bg-slate-50 px-2 py-0.5 text-[10px] font-bold text-slate-600">
+<span class="material-symbols-outlined text-[12px]">info</span> Update
+                                    </span>
+</div>
+<h5 class="font-bold text-sm">Voting Registration Open</h5>
+<p class="mt-1 text-xs text-slate-500 line-clamp-2">Ensure your details are up to date for the upcoming municipal elections.</p>
+</div>
+</div>
+<button class="mt-6 w-full rounded-lg border border-slate-100 dark:border-slate-700 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 transition-all">
+                            View All Updates
+                        </button>
+</section>
+<!-- Connect Section -->
+<section class="rounded-2xl bg-primary p-6 text-white shadow-xl shadow-primary/20">
+<div class="mb-6 flex items-center gap-3">
+<div class="rounded-lg bg-white/20 p-2">
+<span class="material-symbols-outlined">chat_bubble</span>
+</div>
+<div>
+<h3 class="text-lg font-bold">Connect</h3>
+<p class="text-[11px] text-blue-200">Talk to city officials</p>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-3 rounded-xl bg-white/10 p-3 hover:bg-white/15 transition-all cursor-pointer">
+<div class="h-10 w-10 rounded-full bg-slate-200 bg-cover bg-center" data-alt="Official portrait of Sarah Jenkins" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC512sEVRap_XAvMc3eaY3qqXS581206eLAs20DdWVQdi4-OaWLbHRHgasXDs5SzlyfyLB5tylCltDr0LHz4z1OxPKALK0bbsYKFcwybbP04iO7ipFVv9HT2RA5VrJt_8L7Np6C6h9Xxhy_U01hdyniwG671RFyJQMjNOFXZoDrUfRlzQLRbn0-mYBwzAfS3xb6p-ryQvL6kqSWzf7Su309XGhDLz7z-hs8uOZqGBtK6dw5sBgBhBkuqPx1OuSDXCmBCPJ-a-zcGYFS')"></div>
+<div>
+<p class="text-xs font-bold leading-none">Sarah Jenkins</p>
+<p class="mt-1 text-[10px] text-blue-200 uppercase font-black tracking-widest">District Manager</p>
+</div>
+<span class="material-symbols-outlined ml-auto text-sm text-blue-200">send</span>
+</div>
+<div class="flex items-center gap-3 rounded-xl bg-white/10 p-3 hover:bg-white/15 transition-all cursor-pointer">
+<div class="h-10 w-10 rounded-full bg-slate-200 bg-cover bg-center" data-alt="Official portrait of Mark Thompson" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAghh0JVdPfjxjfhY7lt3YK6tRCvlX650RPdS44P3D2B1h-5p3R_oyWTIyA-g7uqQOdaS6uBNA9tIOzMeptedQsk7pKj--QtKw1Ku2Dy2otAJhrYBPnGGBqygbYTHatuqqWHQVlkdEzMrKG6thkzU5ltzElzsRiFgRf3KNEhWX43uXnGXj4A95jtSlxUvhYQu4vE26vImjRNytnYtTID8Y2sedwi5HWT3rMuKj1cey0U6Ga8pkFnrbw44kkB8pmElyOEV-_bpJ94hKs')"></div>
+<div>
+<p class="text-xs font-bold leading-none">Mark Thompson</p>
+<p class="mt-1 text-[10px] text-blue-200 uppercase font-black tracking-widest">Public Safety</p>
+</div>
+<span class="material-symbols-outlined ml-auto text-sm text-blue-200">send</span>
+</div>
+</div>
+<p class="mt-6 text-[10px] text-center text-blue-200/60 leading-relaxed italic">Typical response time: 24-48 hours</p>
+</section>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="mt-12 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark py-10 px-6 lg:px-20">
+<div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 md:flex-row">
+<div class="flex items-center gap-2 text-slate-400">
+<span class="material-symbols-outlined">location_city</span>
+<span class="text-sm font-bold tracking-tight">CitySense Citizen Portal</span>
+</div>
+<div class="flex gap-8">
+<a class="text-xs font-semibold text-slate-500 hover:text-primary" href="#">Privacy Policy</a>
+<a class="text-xs font-semibold text-slate-500 hover:text-primary" href="#">Accessibility</a>
+<a class="text-xs font-semibold text-slate-500 hover:text-primary" href="#">Terms of Service</a>
+<a class="text-xs font-semibold text-slate-500 hover:text-primary" href="#">Emergency Contact</a>
+</div>
+<p class="text-xs text-slate-400">© 2023 City of Metropolis. All Rights Reserved.</p>
+</div>
+</footer>
+</div>
+</body></html>
