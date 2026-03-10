@@ -174,8 +174,10 @@ class NewsScraper(BaseScraper):
             if specific_mentions and api_calls < max_geocode:
                 location = None
                 for mention in specific_mentions:
-                    api_calls += 1
+                    if api_calls >= max_geocode:
+                        break
                     location = geocode_serp_maps(mention)
+                    api_calls += 1
                     if location:
                         break
                     time.sleep(1)

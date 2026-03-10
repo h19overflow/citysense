@@ -4,7 +4,7 @@ import json
 import logging
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, Request
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
@@ -31,9 +31,60 @@ def save_raw_webhook(stream_type: str, data: list | dict) -> None:
         logger.warning("Could not save raw webhook payload for stream '%s'", stream_type)
 
 
+# ---------------------------------------------------------------------------
+# Background processing helpers
+# ---------------------------------------------------------------------------
+
+def _process_jobs_background(valid_jobs: list[dict]) -> None:
+    """Process job records in background (includes geocoding with sleeps)."""
+    try:
+        scraper = JobsScraper()
+        features = scraper.process(valid_jobs)
+        existing = scraper.load_existing()
+        merged = scraper.deduplicate(features, existing)
+        scraper.save(merged)
+        scraper.broadcast(features)
+        logger.info("Jobs webhook background processing complete: %d features", len(features))
+    except Exception:
+        logger.exception("Jobs webhook background processing failed")
+
+
+def _process_news_background(raw_articles: list[dict]) -> None:
+    """Process news articles in background (includes geocoding with sleeps)."""
+    try:
+        scraper = NewsScraper()
+        articles = scraper.process(raw_articles)
+        existing = scraper.load_existing()
+        merged = scraper.deduplicate(articles, existing)
+        scraper.save(merged)
+        scraper.broadcast(articles)
+        logger.info("News webhook background processing complete: %d articles", len(articles))
+    except Exception:
+        logger.exception("News webhook background processing failed")
+
+
+def _process_housing_background(raw_listings: list[dict]) -> None:
+    """Process housing listings in background (includes geocoding with sleeps)."""
+    try:
+        scraper = HousingScraper()
+        features = scraper.process(raw_listings)
+        existing = scraper.load_existing()
+        merged = scraper.deduplicate(features, existing)
+        scraper.save(merged)
+        scraper.broadcast(features)
+        logger.info("Housing webhook background processing complete: %d features", len(features))
+    except Exception:
+        logger.exception("Housing webhook background processing failed")
+
+
+# ---------------------------------------------------------------------------
+# Endpoints
+# ---------------------------------------------------------------------------
+
 @router.post("/jobs")
 async def webhook_jobs(
     request: Request,
+    background_tasks: BackgroundTasks,
     _: None = Depends(verify_webhook_secret),
 ) -> JSONResponse:
     """Receive job scraper results from Bright Data."""
@@ -49,29 +100,18 @@ async def webhook_jobs(
         logger.warning("Jobs webhook payload validation failed: %s", e)
         return JSONResponse(status_code=422, content={"error": "validation_failed", "detail": str(e)})
 
-    try:
-        save_raw_webhook("jobs", raw_jobs)
-        scraper = JobsScraper()
-        valid = [r for r in raw_jobs if r.get("job_title") and not r.get("error")]
-        for job in valid:
-            job["_source"] = "webhook"
-        features = scraper.process(valid)
-        existing = scraper.load_existing()
-        merged = scraper.deduplicate(features, existing)
-        scraper.save(merged)
-        scraper.broadcast(features)
-        return JSONResponse({"ok": True, "processed": len(features)})
-    except OSError as e:
-        logger.exception("Storage error in jobs webhook")
-        return JSONResponse(status_code=500, content={"error": "storage_failed", "detail": str(e)})
-    except (ValueError, KeyError, TypeError) as e:
-        logger.exception("Processing error in jobs webhook")
-        return JSONResponse(status_code=500, content={"error": "processing_failed", "detail": str(e)})
+    save_raw_webhook("jobs", raw_jobs)
+    valid = [r for r in raw_jobs if r.get("job_title") and not r.get("error")]
+    for job in valid:
+        job["_source"] = "webhook"
+    background_tasks.add_task(_process_jobs_background, valid)
+    return JSONResponse({"ok": True, "accepted": len(valid)})
 
 
 @router.post("/news")
 async def webhook_news(
     request: Request,
+    background_tasks: BackgroundTasks,
     _: None = Depends(verify_webhook_secret),
 ) -> JSONResponse:
     """Receive SERP news results from Bright Data."""
@@ -87,26 +127,17 @@ async def webhook_news(
         logger.warning("News webhook payload validation failed: %s", e)
         return JSONResponse(status_code=422, content={"error": "validation_failed", "detail": str(e)})
 
-    try:
-        save_raw_webhook("news", raw_data)
-        scraper = NewsScraper()
-        articles = scraper.process([raw_data])
-        existing = scraper.load_existing()
-        merged = scraper.deduplicate(articles, existing)
-        scraper.save(merged)
-        scraper.broadcast(articles)
-        return JSONResponse({"ok": True, "articles": len(articles)})
-    except OSError as e:
-        logger.exception("Storage error in news webhook")
-        return JSONResponse(status_code=500, content={"error": "storage_failed", "detail": str(e)})
-    except (ValueError, KeyError, TypeError) as e:
-        logger.exception("Processing error in news webhook")
-        return JSONResponse(status_code=500, content={"error": "processing_failed", "detail": str(e)})
+    save_raw_webhook("news", raw_data)
+    scraper = NewsScraper()
+    raw_articles = scraper._parse_serp_results(raw_data, category="general")
+    background_tasks.add_task(_process_news_background, raw_articles)
+    return JSONResponse({"ok": True, "accepted": len(raw_articles)})
 
 
 @router.post("/housing")
 async def webhook_housing(
     request: Request,
+    background_tasks: BackgroundTasks,
     _: None = Depends(verify_webhook_secret),
 ) -> JSONResponse:
     """Receive Zillow listing results from Bright Data."""
@@ -122,18 +153,6 @@ async def webhook_housing(
         logger.warning("Housing webhook payload validation failed: %s", e)
         return JSONResponse(status_code=422, content={"error": "validation_failed", "detail": str(e)})
 
-    try:
-        save_raw_webhook("housing", raw_listings)
-        scraper = HousingScraper()
-        features = scraper.process(raw_listings)
-        existing = scraper.load_existing()
-        merged = scraper.deduplicate(features, existing)
-        scraper.save(merged)
-        scraper.broadcast(features)
-        return JSONResponse({"ok": True, "listings": len(features)})
-    except OSError as e:
-        logger.exception("Storage error in housing webhook")
-        return JSONResponse(status_code=500, content={"error": "storage_failed", "detail": str(e)})
-    except (ValueError, KeyError, TypeError) as e:
-        logger.exception("Processing error in housing webhook")
-        return JSONResponse(status_code=500, content={"error": "processing_failed", "detail": str(e)})
+    save_raw_webhook("housing", raw_listings)
+    background_tasks.add_task(_process_housing_background, raw_listings)
+    return JSONResponse({"ok": True, "accepted": len(raw_listings)})

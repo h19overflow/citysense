@@ -120,7 +120,7 @@ class BaseScraper(ABC):
         """Broadcast new records to connected SSE clients."""
         try:
             broadcast_event_threadsafe(self.event_type, records)
-        except (RuntimeError, OSError) as exc:
+        except (RuntimeError, OSError, ValueError) as exc:
             logger.warning("[%s] SSE broadcast failed: %s", self.name, exc)
 
     # ------------------------------------------------------------------

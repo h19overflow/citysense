@@ -37,9 +37,10 @@ async def _run_scraper_in_thread(scraper) -> None:
         logger.error("Scraper '%s' failed:\n%s", scraper.name, traceback.format_exc())
 
 
-async def run_all_scrapers() -> None:
+async def run_all_scrapers(scrapers: list | None = None) -> None:
     """Run all registered scrapers concurrently (each in its own thread)."""
-    scrapers = _build_scraper_registry()
+    if scrapers is None:
+        scrapers = _build_scraper_registry()
     logger.info("Starting all scrapers at %s", datetime.now(timezone.utc).isoformat())
     tasks = [_run_scraper_in_thread(s) for s in scrapers]
     await asyncio.gather(*tasks)
@@ -56,6 +57,6 @@ async def start_scheduled_scraping() -> None:
     )
 
     while True:
-        await run_all_scrapers()
+        await run_all_scrapers(scrapers)
         logger.info("Next scrape in %d seconds", SCRAPE_INTERVAL_SECONDS)
         await asyncio.sleep(SCRAPE_INTERVAL_SECONDS)
