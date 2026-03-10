@@ -1,8 +1,4 @@
-"""BaseScraper — Strategy pattern base class for all data scrapers.
-
-Subclasses implement: fetch(), process(), generate_id().
-Base class provides: run(), deduplicate(), load_existing(), save(), broadcast().
-"""
+"""BaseScraper — Strategy pattern base class for all data scrapers."""
 
 import hashlib
 import json
@@ -16,15 +12,25 @@ from backend.core.sse_broadcaster import broadcast_event_threadsafe
 logger = logging.getLogger("scraper")
 
 
-class BaseScraper(ABC):
-    """Abstract base for all data scrapers.
+def _run_async(coro) -> None:
+    """Run an async coroutine from sync context, handling running event loops."""
+    import asyncio
 
-    Attributes:
-        name: Human-readable scraper name (e.g. "jobs", "news").
-        output_file: Path where processed data is saved.
-        event_type: SSE event name for frontend broadcast.
-        output_format: "geojson" or "json" — controls save/load format.
-    """
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        loop = None
+
+    if loop and loop.is_running():
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor() as pool:
+            pool.submit(asyncio.run, coro).result()
+    else:
+        asyncio.run(coro)
+
+
+class BaseScraper(ABC):
+    """Abstract base for all data scrapers."""
 
     name: str
     output_file: Path
@@ -43,12 +49,8 @@ class BaseScraper(ABC):
     def generate_id(self, record: dict) -> str:
         """Generate a stable dedup ID for a single record."""
 
-    # ------------------------------------------------------------------
-    # Template method
-    # ------------------------------------------------------------------
-
     def run(self) -> int:
-        """Execute full pipeline: fetch → process → dedup → save → broadcast."""
+        """Execute full pipeline: fetch -> process -> dedup -> save -> broadcast."""
         logger.info("[%s] Starting scrape", self.name)
 
         raw_data = self.fetch()
@@ -61,17 +63,21 @@ class BaseScraper(ABC):
             logger.info("[%s] No records after processing", self.name)
             return 0
 
-        existing = self.load_existing()
-        merged = self.deduplicate(processed, existing)
-        self.save(merged)
-        self.broadcast(processed)
+        # Save to database (primary), fall back to JSON if not implemented
+        try:
+            _run_async(self.save_to_database(processed))
+        except NotImplementedError:
+            existing = self.load_existing()
+            merged = self.deduplicate(processed, existing)
+            self.save(merged)
 
-        logger.info("[%s] Complete: %d new, %d total", self.name, len(processed), len(merged))
+        self.broadcast(processed)
+        logger.info("[%s] Complete: %d records", self.name, len(processed))
         return len(processed)
 
-    # ------------------------------------------------------------------
-    # Shared infrastructure
-    # ------------------------------------------------------------------
+    async def save_to_database(self, records: list[dict]) -> int:
+        """Override in subclasses to persist records to the database."""
+        raise NotImplementedError(f"{self.name} has not implemented save_to_database")
 
     @staticmethod
     def make_id(*parts: str) -> str:
@@ -122,10 +128,6 @@ class BaseScraper(ABC):
             broadcast_event_threadsafe(self.event_type, records)
         except (RuntimeError, OSError, ValueError) as exc:
             logger.warning("[%s] SSE broadcast failed: %s", self.name, exc)
-
-    # ------------------------------------------------------------------
-    # Internal helpers
-    # ------------------------------------------------------------------
 
     def _get_record_id(self, record: dict) -> str:
         """Extract ID from a record, handling both flat and GeoJSON formats."""

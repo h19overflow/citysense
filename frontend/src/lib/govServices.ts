@@ -4,6 +4,8 @@
  * how-to-apply steps, required documents, and direct links.
  */
 
+import { API_BASE } from "./apiConfig";
+
 export interface ServiceGuide {
   id: string;
   category: string;
@@ -66,7 +68,7 @@ let cachedGuides: ServiceGuide[] | null = null;
 export async function fetchServiceGuides(): Promise<ServiceGuide[]> {
   if (cachedGuides) return cachedGuides;
 
-  const response = await fetch("/data/gov_services.json");
+  const response = await fetch(`${API_BASE}/api/benefits`);
   if (!response.ok) {
     console.error("Failed to fetch gov_services.json:", response.status);
     return [];

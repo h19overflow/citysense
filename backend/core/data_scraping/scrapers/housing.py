@@ -81,6 +81,41 @@ class HousingScraper(BaseScraper):
             },
         }
 
+    async def save_to_database(self, records: list[dict]) -> int:
+        """Persist GeoJSON features to housing_listings table."""
+        from backend.db.session import get_session
+        from backend.db.crud.housing import bulk_upsert_housing
+
+        rows = [self._feature_to_row(f) for f in records if f.get("properties")]
+        async with get_session() as session:
+            return await bulk_upsert_housing(session, rows)
+
+    def _feature_to_row(self, feature: dict) -> dict:
+        """Convert GeoJSON Feature to DB row dict."""
+        props = feature.get("properties", {})
+        coords = feature.get("geometry", {}).get("coordinates", [None, None])
+
+        raw_price = props.get("price")
+        price = None
+        if raw_price is not None:
+            try:
+                price = int(str(raw_price).replace(",", "").replace("$", ""))
+            except (ValueError, TypeError):
+                pass
+
+        return {
+            "id": props.get("id", ""),
+            "address": props.get("address", ""),
+            "price": price,
+            "lat": coords[1] if len(coords) > 1 else None,
+            "lng": coords[0] if len(coords) > 0 else None,
+            "scraped_at": datetime.now(timezone.utc),
+            "properties": {
+                k: v for k, v in props.items()
+                if k not in ("id", "address", "price")
+            },
+        }
+
     @staticmethod
     def _format_price(price) -> str:
         if not price:

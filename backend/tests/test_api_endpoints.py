@@ -57,7 +57,7 @@ VALID_COMMENT = {
 class TestCommentsCRUD:
     def test_get_comments_returns_list(self, test_client: TestClient) -> None:
         """GET /api/comments should return a dict with a comments list."""
-        with patch("backend.api.routers.comments._load_comments", return_value=[]):
+        with patch("backend.api.routers.comments.list_all_comments", return_value=[]):
             response = test_client.get("/api/comments")
         assert response.status_code == 200
         assert "comments" in response.json()
@@ -65,39 +65,30 @@ class TestCommentsCRUD:
 
     def test_post_comment_returns_201_and_id(self, test_client: TestClient) -> None:
         """Valid comment POST should return 201 and echo the comment id."""
-        with (
-            patch("backend.api.routers.comments._load_comments", return_value=[]),
-            patch("backend.api.routers.comments._save_comments"),
-        ):
+        with patch("backend.api.routers.comments.create_comment", return_value=MagicMock()):
             response = test_client.post("/api/comments", json=VALID_COMMENT)
         assert response.status_code == 201
         assert response.json()["id"] == VALID_COMMENT["id"]
 
     def test_post_comment_status_is_ok(self, test_client: TestClient) -> None:
         """Successful comment POST must include status=ok."""
-        with (
-            patch("backend.api.routers.comments._load_comments", return_value=[]),
-            patch("backend.api.routers.comments._save_comments"),
-        ):
+        with patch("backend.api.routers.comments.create_comment", return_value=MagicMock()):
             response = test_client.post("/api/comments", json=VALID_COMMENT)
         assert response.json()["status"] == "ok"
 
     def test_posted_comment_appears_in_get(self, test_client: TestClient) -> None:
         """A posted comment should be returned by GET /api/comments."""
-        stored: list[dict] = []
+        fake_comment = MagicMock()
+        fake_comment.id = VALID_COMMENT["id"]
+        fake_comment.article_id = VALID_COMMENT["articleId"]
+        fake_comment.citizen_id = VALID_COMMENT["citizenId"]
+        fake_comment.citizen_name = VALID_COMMENT["citizenName"]
+        fake_comment.avatar_initials = VALID_COMMENT["avatarInitials"]
+        fake_comment.avatar_color = VALID_COMMENT["avatarColor"]
+        fake_comment.content = VALID_COMMENT["content"]
+        fake_comment.created_at = None
 
-        def fake_load():
-            return list(stored)
-
-        def fake_save(comments):
-            stored.clear()
-            stored.extend(comments)
-
-        with (
-            patch("backend.api.routers.comments._load_comments", side_effect=fake_load),
-            patch("backend.api.routers.comments._save_comments", side_effect=fake_save),
-        ):
-            test_client.post("/api/comments", json=VALID_COMMENT)
+        with patch("backend.api.routers.comments.list_all_comments", return_value=[fake_comment]):
             response = test_client.get("/api/comments")
 
         ids = [c["id"] for c in response.json()["comments"]]

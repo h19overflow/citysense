@@ -27,7 +27,7 @@ export function refreshNewsArticles(): void {
 export async function fetchNewsArticles(): Promise<NewsArticle[]> {
   if (cached) return cached;
 
-  const response = await fetch("/data/news_feed.json");
+  const response = await fetch(`${API_BASE}/api/news?limit=200`);
   if (!response.ok) return [];
 
   const data: NewsFeedResponse = await response.json();
