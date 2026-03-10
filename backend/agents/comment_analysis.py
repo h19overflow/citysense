@@ -20,7 +20,7 @@ from langchain_core.runnables import Runnable
 
 from backend.config import OUTPUT_FILES, REPO_ROOT
 from backend.core.data_scraping.schemas import ArticleAnalysis, AnalysisResults
-from backend.processors.redact_pii import redact_comment_text
+from backend.agents.redact_pii import redact_comment_text
 from backend.agents.prompts import BATCH_ANALYSIS_PROMPT
 
 ANALYSIS_OUTPUT = REPO_ROOT / "backend" / "data" / "analysis_results.json"
