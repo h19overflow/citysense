@@ -1,14 +1,14 @@
 """Comments endpoints: serve and accept citizen comments."""
 
-import json
-from pathlib import Path
+from datetime import datetime, timezone
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from pydantic import BaseModel
 
-router = APIRouter(tags=["comments"])
+from backend.db.crud.news import create_comment, list_all_comments, list_comments_by_article
+from backend.db.session import get_session
 
-COMMENTS_PATH = Path(__file__).parent.parent.parent / "data" / "exported_comments.json"
+router = APIRouter(tags=["comments"])
 
 
 class CommentPayload(BaseModel):
@@ -22,36 +22,48 @@ class CommentPayload(BaseModel):
     createdAt: str
 
 
-def _load_comments() -> list[dict]:
-    """Load existing comments from the JSON file."""
-    if not COMMENTS_PATH.exists():
-        return []
-    try:
-        data = json.loads(COMMENTS_PATH.read_text(encoding="utf-8"))
-        return data.get("comments", [])
-    except (json.JSONDecodeError, KeyError):
-        return []
-
-
-def _save_comments(comments: list[dict]) -> None:
-    """Persist comments list back to the JSON file."""
-    COMMENTS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    COMMENTS_PATH.write_text(
-        json.dumps({"comments": comments}, indent=2, ensure_ascii=False),
-        encoding="utf-8",
-    )
+def _comment_to_dict(comment) -> dict:
+    """Convert NewsComment ORM object to frontend-compatible camelCase dict."""
+    return {
+        "id": comment.id,
+        "articleId": comment.article_id,
+        "citizenId": comment.citizen_id,
+        "citizenName": comment.citizen_name,
+        "avatarInitials": comment.avatar_initials,
+        "avatarColor": comment.avatar_color,
+        "content": comment.content,
+        "createdAt": comment.created_at.isoformat() if comment.created_at else "",
+    }
 
 
 @router.get("/comments")
-async def get_comments() -> dict:
-    """Return all seed comments from exported_comments.json."""
-    return {"comments": _load_comments()}
+async def get_comments(article_id: str | None = Query(None)) -> dict:
+    async with get_session() as session:
+        if article_id:
+            comments = await list_comments_by_article(session, article_id)
+        else:
+            comments = await list_all_comments(session)
+    return {"comments": [_comment_to_dict(c) for c in comments]}
 
 
 @router.post("/comments", status_code=201)
 async def post_comment(payload: CommentPayload) -> dict:
-    """Append a new citizen comment to exported_comments.json."""
-    comments = _load_comments()
-    comments.append(payload.model_dump())
-    _save_comments(comments)
+    created_at = datetime.now(timezone.utc)
+    try:
+        created_at = datetime.fromisoformat(payload.createdAt)
+    except (ValueError, TypeError):
+        pass
+
+    async with get_session() as session:
+        await create_comment(
+            session,
+            id=payload.id,
+            article_id=payload.articleId,
+            citizen_id=payload.citizenId,
+            citizen_name=payload.citizenName,
+            avatar_initials=payload.avatarInitials,
+            avatar_color=payload.avatarColor,
+            content=payload.content,
+            created_at=created_at,
+        )
     return {"status": "ok", "id": payload.id}
