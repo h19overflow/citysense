@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from backend.models import TrendResult
+from backend.core.predictive.models import TrendResult
 from backend.core.predictive.mock_data import load_complaints
 
 
