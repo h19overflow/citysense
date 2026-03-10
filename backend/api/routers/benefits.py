@@ -3,6 +3,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.core.redis_client import cache
 from backend.db.crud.benefits import list_benefits
 from backend.db.models import BenefitService
 from backend.db.session import get_db
@@ -39,7 +40,12 @@ async def get_benefits(
     session: AsyncSession = Depends(get_db),
     category: str | None = Query(None),
 ) -> dict:
+    cache_key = f"benefits:list:{category}"
+    cached = cache.fetch(cache_key)
+    if cached is not None:
+        return cached
+
     services = await list_benefits(session, category=category)
-    return {
-        "services": [_benefit_to_dict(s) for s in services],
-    }
+    result = {"services": [_benefit_to_dict(s) for s in services]}
+    cache.store(cache_key, result, ttl=300)
+    return result

@@ -93,7 +93,8 @@ class HousingScraper(BaseScraper):
     def _feature_to_row(self, feature: dict) -> dict:
         """Convert GeoJSON Feature to DB row dict."""
         props = feature.get("properties", {})
-        coords = feature.get("geometry", {}).get("coordinates", [None, None])
+        geometry = feature.get("geometry") or {}
+        coords = geometry.get("coordinates", [None, None])
 
         raw_price = props.get("price")
         price = None

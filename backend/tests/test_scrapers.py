@@ -3,7 +3,9 @@
 import pytest
 
 from backend.core.data_scraping.scrapers.jobs import JobsScraper
+from backend.core.data_scraping.scrapers.jobs_helpers import extract_skills, build_geojson_feature
 from backend.core.data_scraping.scrapers.news import NewsScraper
+from backend.core.data_scraping.scrapers.news_helpers import parse_serp_results
 from backend.core.data_scraping.scrapers.housing import HousingScraper
 from backend.core.data_scraping.base import BaseScraper
 from backend.core.data_scraping.sentiment_rules import score_sentiment, score_misinfo_risk, build_summary
@@ -42,7 +44,7 @@ def test_generate_article_id_returns_twelve_char_hex():
 def test_parse_news_results_returns_articles_from_news_key():
     scraper = NewsScraper()
     body = {"news": [{"title": "Big Story", "link": "https://example.com/story"}]}
-    articles = scraper._parse_serp_results(body, "general")
+    articles = parse_serp_results(scraper.make_id, body, "general")
     assert len(articles) == 1
     assert articles[0]["title"] == "Big Story"
     assert articles[0]["sourceUrl"] == "https://example.com/story"
@@ -53,7 +55,7 @@ def test_parse_news_results_returns_articles_from_news_key():
 def test_parse_news_results_falls_back_to_organic_key():
     scraper = NewsScraper()
     body = {"organic": [{"title": "Organic Story", "link": "https://example.com/organic"}]}
-    articles = scraper._parse_serp_results(body, "general")
+    articles = parse_serp_results(scraper.make_id, body, "general")
     assert len(articles) == 1
     assert articles[0]["title"] == "Organic Story"
 
@@ -62,7 +64,7 @@ def test_parse_news_results_falls_back_to_organic_key():
 def test_parse_news_results_skips_item_missing_title():
     scraper = NewsScraper()
     body = {"news": [{"link": "https://example.com/notitle"}]}
-    articles = scraper._parse_serp_results(body, "general")
+    articles = parse_serp_results(scraper.make_id, body, "general")
     assert articles == []
 
 
@@ -70,14 +72,14 @@ def test_parse_news_results_skips_item_missing_title():
 def test_parse_news_results_skips_item_missing_url():
     scraper = NewsScraper()
     body = {"news": [{"title": "No URL Article"}]}
-    articles = scraper._parse_serp_results(body, "general")
+    articles = parse_serp_results(scraper.make_id, body, "general")
     assert articles == []
 
 
 @pytest.mark.unit
 def test_parse_news_results_with_empty_body_returns_empty_list():
     scraper = NewsScraper()
-    articles = scraper._parse_serp_results({}, "general")
+    articles = parse_serp_results(scraper.make_id, {}, "general")
     assert articles == []
 
 
@@ -85,7 +87,7 @@ def test_parse_news_results_with_empty_body_returns_empty_list():
 def test_parse_news_results_article_has_required_fields():
     scraper = NewsScraper()
     body = {"news": [{"title": "T", "link": "https://x.com", "snippet": "S", "source": "Source"}]}
-    article = scraper._parse_serp_results(body, "events")[0]
+    article = parse_serp_results(scraper.make_id, body, "events")[0]
     required_keys = {"id", "title", "excerpt", "body", "source", "sourceUrl",
                      "imageUrl", "category", "publishedAt", "scrapedAt",
                      "upvotes", "downvotes", "commentCount"}
@@ -96,7 +98,7 @@ def test_parse_news_results_article_has_required_fields():
 def test_parse_news_results_sets_image_url_to_none_when_absent():
     scraper = NewsScraper()
     body = {"news": [{"title": "T", "link": "https://x.com"}]}
-    article = scraper._parse_serp_results(body, "general")[0]
+    article = parse_serp_results(scraper.make_id, body, "general")[0]
     assert article["imageUrl"] is None
 
 
@@ -178,7 +180,7 @@ def test_generate_job_id_returns_twelve_chars():
 def test_extract_skills_finds_known_keywords():
     scraper = JobsScraper()
     job = {"description_text": "Must have forklift certification and CDL license"}
-    scraper._extract_skills(job)
+    extract_skills(job)
     assert "technical" in job["skills"]
     assert "cdl" in job["skills"]["technical"]
 
@@ -187,7 +189,7 @@ def test_extract_skills_finds_known_keywords():
 def test_extract_skills_returns_empty_dict_for_empty_description():
     scraper = JobsScraper()
     job = {"description_text": ""}
-    scraper._extract_skills(job)
+    extract_skills(job)
     assert job["skills"] == {}
 
 
@@ -195,7 +197,7 @@ def test_extract_skills_returns_empty_dict_for_empty_description():
 def test_extract_skills_returns_empty_dict_for_none():
     scraper = JobsScraper()
     job = {}
-    scraper._extract_skills(job)
+    extract_skills(job)
     assert job["skills"] == {}
 
 
@@ -208,7 +210,7 @@ def test_build_geojson_feature_returns_valid_geojson():
     scraper = JobsScraper()
     job = {"lat": 32.36, "lng": -86.30, "job_title": "Engineer", "_id": "abc123",
            "company_name": "ACME", "_source": "indeed", "_scraped_at": "2026-01-01"}
-    feature = scraper._build_geojson_feature(job)
+    feature = build_geojson_feature(job)
     assert feature["type"] == "Feature"
     assert feature["geometry"]["type"] == "Point"
     assert feature["geometry"]["coordinates"] == [-86.30, 32.36]
@@ -219,7 +221,7 @@ def test_build_geojson_feature_returns_valid_geojson():
 def test_build_geojson_feature_returns_none_when_lat_missing():
     scraper = JobsScraper()
     job = {"lng": -86.30, "job_title": "Engineer"}
-    assert scraper._build_geojson_feature(job) is None
+    assert build_geojson_feature(job) is None
 
 
 # ---------------------------------------------------------------------------
