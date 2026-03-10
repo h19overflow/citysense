@@ -24,7 +24,7 @@ async def lifespan(application: FastAPI):
     has_api_key = bool(os.environ.get("BRIGHTDATA_API_KEY"))
 
     if auto_scrape and has_api_key:
-        from backend.core.scrape_scheduler import start_scheduled_scraping
+        from backend.core.data_scraping.scheduler import start_scheduled_scraping
         scraper_task = asyncio.create_task(start_scheduled_scraping())
 
     yield

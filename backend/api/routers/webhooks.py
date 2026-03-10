@@ -11,17 +11,9 @@ from pydantic import ValidationError
 from backend.api.deps import verify_webhook_secret
 from backend.api.schemas.webhook_schemas import JobRecord, NewsWebhookBody, ZillowListing
 from backend.config import RAW_DIR
-from backend.core.sse_broadcaster import broadcast_event
-from backend.processors.process_jobs import (
-    detect_source, process_jobs, build_geojson_feature, save_job_results,
-)
-from backend.processors.process_news import (
-    parse_news_results, enrich_article, deduplicate_articles,
-    load_existing_articles, save_news_articles,
-)
-from backend.processors.process_housing import (
-    process_zillow_listings, save_housing_results,
-)
+from backend.core.data_scraping.scrapers.jobs import JobsScraper
+from backend.core.data_scraping.scrapers.news import NewsScraper
+from backend.core.data_scraping.scrapers.housing import HousingScraper
 
 router = APIRouter(prefix="/webhook", tags=["webhooks"])
 logger = logging.getLogger(__name__)
@@ -37,14 +29,6 @@ def save_raw_webhook(stream_type: str, data: list | dict) -> None:
             json.dump(data, f, indent=2)
     except OSError:
         logger.warning("Could not save raw webhook payload for stream '%s'", stream_type)
-
-
-def broadcast_event_safe(event_type: str, data: list | dict) -> None:
-    """Broadcast SSE event, logging any failure without propagating it."""
-    try:
-        broadcast_event(event_type, data)
-    except (RuntimeError, OSError, ValueError) as e:
-        logger.warning("SSE broadcast failed for event type '%s': %s", event_type, e)
 
 
 @router.post("/jobs")
@@ -67,12 +51,15 @@ async def webhook_jobs(
 
     try:
         save_raw_webhook("jobs", raw_jobs)
-        source = detect_source(raw_jobs)
+        scraper = JobsScraper()
         valid = [r for r in raw_jobs if r.get("job_title") and not r.get("error")]
-        processed = process_jobs(valid, source)
-        features = [f for f in (build_geojson_feature(j) for j in processed) if f is not None]
-        save_job_results(features)
-        broadcast_event_safe("jobs", features)
+        for job in valid:
+            job["_source"] = "webhook"
+        features = scraper.process(valid)
+        existing = scraper.load_existing()
+        merged = scraper.deduplicate(features, existing)
+        scraper.save(merged)
+        scraper.broadcast(features)
         return JSONResponse({"ok": True, "processed": len(features)})
     except OSError as e:
         logger.exception("Storage error in jobs webhook")
@@ -102,13 +89,12 @@ async def webhook_news(
 
     try:
         save_raw_webhook("news", raw_data)
-        articles = parse_news_results(raw_data, category="general")
-        for article in articles:
-            enrich_article(article)
-        existing = load_existing_articles()
-        unique = deduplicate_articles(articles + existing)
-        save_news_articles(unique)
-        broadcast_event_safe("news", articles)
+        scraper = NewsScraper()
+        articles = scraper.process([raw_data])
+        existing = scraper.load_existing()
+        merged = scraper.deduplicate(articles, existing)
+        scraper.save(merged)
+        scraper.broadcast(articles)
         return JSONResponse({"ok": True, "articles": len(articles)})
     except OSError as e:
         logger.exception("Storage error in news webhook")
@@ -138,9 +124,12 @@ async def webhook_housing(
 
     try:
         save_raw_webhook("housing", raw_listings)
-        features = process_zillow_listings(raw_listings)
-        save_housing_results(features)
-        broadcast_event_safe("housing", features)
+        scraper = HousingScraper()
+        features = scraper.process(raw_listings)
+        existing = scraper.load_existing()
+        merged = scraper.deduplicate(features, existing)
+        scraper.save(merged)
+        scraper.broadcast(features)
         return JSONResponse({"ok": True, "listings": len(features)})
     except OSError as e:
         logger.exception("Storage error in housing webhook")
