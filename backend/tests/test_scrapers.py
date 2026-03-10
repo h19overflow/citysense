@@ -3,6 +3,7 @@
 import pytest
 
 from backend.core.data_scraping.scrapers.jobs import JobsScraper
+from backend.core.data_scraping.scrapers.jobs_helpers import extract_skills, build_geojson_feature
 from backend.core.data_scraping.scrapers.news import NewsScraper
 from backend.core.data_scraping.scrapers.news_helpers import parse_serp_results
 from backend.core.data_scraping.scrapers.housing import HousingScraper
@@ -179,7 +180,7 @@ def test_generate_job_id_returns_twelve_chars():
 def test_extract_skills_finds_known_keywords():
     scraper = JobsScraper()
     job = {"description_text": "Must have forklift certification and CDL license"}
-    scraper._extract_skills(job)
+    extract_skills(job)
     assert "technical" in job["skills"]
     assert "cdl" in job["skills"]["technical"]
 
@@ -188,7 +189,7 @@ def test_extract_skills_finds_known_keywords():
 def test_extract_skills_returns_empty_dict_for_empty_description():
     scraper = JobsScraper()
     job = {"description_text": ""}
-    scraper._extract_skills(job)
+    extract_skills(job)
     assert job["skills"] == {}
 
 
@@ -196,7 +197,7 @@ def test_extract_skills_returns_empty_dict_for_empty_description():
 def test_extract_skills_returns_empty_dict_for_none():
     scraper = JobsScraper()
     job = {}
-    scraper._extract_skills(job)
+    extract_skills(job)
     assert job["skills"] == {}
 
 
@@ -209,7 +210,7 @@ def test_build_geojson_feature_returns_valid_geojson():
     scraper = JobsScraper()
     job = {"lat": 32.36, "lng": -86.30, "job_title": "Engineer", "_id": "abc123",
            "company_name": "ACME", "_source": "indeed", "_scraped_at": "2026-01-01"}
-    feature = scraper._build_geojson_feature(job)
+    feature = build_geojson_feature(job)
     assert feature["type"] == "Feature"
     assert feature["geometry"]["type"] == "Point"
     assert feature["geometry"]["coordinates"] == [-86.30, 32.36]
@@ -220,7 +221,7 @@ def test_build_geojson_feature_returns_valid_geojson():
 def test_build_geojson_feature_returns_none_when_lat_missing():
     scraper = JobsScraper()
     job = {"lng": -86.30, "job_title": "Engineer"}
-    assert scraper._build_geojson_feature(job) is None
+    assert build_geojson_feature(job) is None
 
 
 # ---------------------------------------------------------------------------
