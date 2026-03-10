@@ -19,8 +19,16 @@ async def upsert_job(session: AsyncSession, **kwargs: Any) -> None:
 
 
 async def bulk_upsert_jobs(session: AsyncSession, jobs: list[dict]) -> int:
-    for job in jobs:
-        await upsert_job(session, **job)
+    """Upsert a batch of jobs in a single statement. Returns count."""
+    if not jobs:
+        return 0
+    columns = {k for j in jobs for k in j.keys()}
+    stmt = pg_insert(JobListing).values(jobs)
+    stmt = stmt.on_conflict_do_update(
+        index_elements=["id"],
+        set_={col: stmt.excluded[col] for col in columns if col != "id"},
+    )
+    await session.execute(stmt)
     await session.flush()
     return len(jobs)
 

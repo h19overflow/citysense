@@ -20,8 +20,16 @@ async def upsert_benefit(session: AsyncSession, **kwargs: Any) -> None:
 
 
 async def bulk_upsert_benefits(session: AsyncSession, services: list[dict]) -> int:
-    for svc in services:
-        await upsert_benefit(session, **svc)
+    """Upsert a batch of benefit services in a single statement. Returns count."""
+    if not services:
+        return 0
+    columns = {k for s in services for k in s.keys()}
+    stmt = pg_insert(BenefitService).values(services)
+    stmt = stmt.on_conflict_do_update(
+        index_elements=["id"],
+        set_={col: stmt.excluded[col] for col in columns if col != "id"},
+    )
+    await session.execute(stmt)
     await session.flush()
     return len(services)
 

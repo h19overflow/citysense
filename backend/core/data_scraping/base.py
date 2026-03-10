@@ -65,7 +65,17 @@ class BaseScraper(ABC):
 
         # Save to database (primary), fall back to JSON if not implemented
         try:
-            asyncio.run(self.save_to_database(processed))
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                loop = None
+
+            if loop and loop.is_running():
+                import concurrent.futures
+                with concurrent.futures.ThreadPoolExecutor() as pool:
+                    pool.submit(asyncio.run, self.save_to_database(processed)).result()
+            else:
+                asyncio.run(self.save_to_database(processed))
         except NotImplementedError:
             existing = self.load_existing()
             merged = self.deduplicate(processed, existing)

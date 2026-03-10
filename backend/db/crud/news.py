@@ -21,9 +21,16 @@ async def upsert_article(session: AsyncSession, **kwargs: Any) -> None:
 
 
 async def bulk_upsert_articles(session: AsyncSession, articles: list[dict]) -> int:
-    """Upsert a batch of articles. Returns count."""
-    for article in articles:
-        await upsert_article(session, **article)
+    """Upsert a batch of articles in a single statement. Returns count."""
+    if not articles:
+        return 0
+    columns = {k for a in articles for k in a.keys()}
+    stmt = pg_insert(NewsArticle).values(articles)
+    stmt = stmt.on_conflict_do_update(
+        index_elements=["id"],
+        set_={col: stmt.excluded[col] for col in columns if col != "id"},
+    )
+    await session.execute(stmt)
     await session.flush()
     return len(articles)
 

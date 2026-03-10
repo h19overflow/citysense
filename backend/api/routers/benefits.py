@@ -23,7 +23,7 @@ def _benefit_to_dict(svc) -> dict:
         "income_limits": details.get("income_limits", {}),
         "url": svc.url,
         "phone": svc.phone,
-        "scraped_at": svc.scraped_at.isoformat() if svc.scraped_at else "",
+        "scrapedAt": svc.scraped_at.isoformat() if svc.scraped_at else "",
     }
 
 
@@ -34,6 +34,6 @@ async def get_benefits(
     async with get_session() as session:
         services = await list_benefits(session, category=category)
     return {
-        "total_services": len(services),
+        "totalServices": len(services),
         "services": [_benefit_to_dict(s) for s in services],
     }

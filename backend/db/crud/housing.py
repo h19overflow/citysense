@@ -19,8 +19,16 @@ async def upsert_housing(session: AsyncSession, **kwargs: Any) -> None:
 
 
 async def bulk_upsert_housing(session: AsyncSession, listings: list[dict]) -> int:
-    for listing in listings:
-        await upsert_housing(session, **listing)
+    """Upsert a batch of housing listings in a single statement. Returns count."""
+    if not listings:
+        return 0
+    columns = {k for l in listings for k in l.keys()}
+    stmt = pg_insert(HousingListing).values(listings)
+    stmt = stmt.on_conflict_do_update(
+        index_elements=["id"],
+        set_={col: stmt.excluded[col] for col in columns if col != "id"},
+    )
+    await session.execute(stmt)
     await session.flush()
     return len(listings)
 
