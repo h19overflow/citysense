@@ -53,3 +53,25 @@ def get_optional_user(
         return verify_clerk_token(credentials.credentials)
     except pyjwt.PyJWTError:
         return None
+
+
+async def require_admin(
+    user: ClerkUser = Depends(get_current_user),
+) -> ClerkUser:
+    """Verify the authenticated user exists in admin_profiles and is active."""
+    from backend.db.crud import get_admin_by_email
+    from backend.db.session import get_session
+
+    if not user.email:
+        raise HTTPException(status_code=403, detail="No email in token")
+
+    async with get_session() as session:
+        admin = await get_admin_by_email(session, user.email)
+
+    if not admin:
+        raise HTTPException(status_code=403, detail="Not an admin")
+
+    if not admin.is_active:
+        raise HTTPException(status_code=403, detail="Admin account is deactivated")
+
+    return user

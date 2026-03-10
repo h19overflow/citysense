@@ -12,7 +12,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from backend.api.routers import analysis, chat, citizen_chat, comments, misinfo, roadmap, stream, webhooks
+from backend.api.routers import analysis, auth, chat, citizen_chat, comments, misinfo, roadmap, stream, webhooks
 from backend.core.exceptions import AppException
 
 
@@ -59,6 +59,7 @@ async def handle_app_exception(request: Request, exc: AppException) -> JSONRespo
     )
 
 
+app.include_router(auth.router, prefix="/api")
 app.include_router(analysis.router, prefix="/api")
 app.include_router(chat.router, prefix="/api")
 app.include_router(citizen_chat.router, prefix="/api")
