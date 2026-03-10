@@ -2,7 +2,6 @@
 
 import time
 from datetime import datetime, timezone
-from pathlib import Path
 
 from backend.config import DATASETS, OUTPUT_FILES
 from backend.core.data_scraping.base import BaseScraper

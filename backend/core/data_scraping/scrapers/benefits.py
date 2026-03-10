@@ -1,9 +1,9 @@
 """Benefits scraper — Government eligibility pages via Bright Data Web Unlocker."""
 
+import json
 import re
 import time
 from datetime import datetime, timezone
-from pathlib import Path
 
 from backend.config import OUTPUT_FILES
 from backend.core.data_scraping.base import BaseScraper
@@ -39,7 +39,6 @@ class BenefitsScraper(BaseScraper):
 
     def save(self, records: list[dict]) -> None:
         """Override for benefits-specific JSON structure."""
-        import json
         self.output_file.parent.mkdir(parents=True, exist_ok=True)
         output = {
             "generated_at": datetime.now(timezone.utc).isoformat(),

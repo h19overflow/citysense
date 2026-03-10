@@ -1,9 +1,9 @@
 """News scraper — SERP discovery + sentiment enrichment + 3-tier geocoding."""
 
+import json
 import logging
 import time
 from datetime import datetime, timezone
-from pathlib import Path
 
 from backend.config import OUTPUT_FILES
 from backend.core.data_scraping.base import BaseScraper
@@ -11,7 +11,6 @@ from backend.core.data_scraping.geo import (
     geocode_serp_maps,
     build_jittered_city_center,
     extract_location_mentions,
-    has_city_level_mention,
 )
 from backend.core.bright_data_client import serp_search, fetch_with_unlocker
 from backend.core.payloads import NEWS_QUERIES
@@ -66,7 +65,6 @@ class NewsScraper(BaseScraper):
             "totalArticles": len(records),
             "articles": records,
         }
-        import json
         with open(self.output_file, "w", encoding="utf-8") as f:
             json.dump(output, f, indent=2, ensure_ascii=False)
         logger.info("[%s] Saved %d articles to %s", self.name, len(records), self.output_file)
