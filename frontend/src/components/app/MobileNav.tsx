@@ -1,4 +1,6 @@
+import { useMemo } from "react";
 import { Layers, LayoutDashboard, Newspaper, UserCircle } from "lucide-react";
+import { useAuthMe } from "@/lib/useAuth";
 
 export type MobileTab = "services" | "admin" | "news" | "profile";
 
@@ -23,12 +25,22 @@ const BadgeDot = ({ count }: { count: number }) => {
 };
 
 export const AppNav = ({ activeTab, onTabChange, actionItemCount }: AppNavProps) => {
-  const tabs: TabConfig[] = [
-    { id: "services", label: "Services", icon: Layers, badgeCount: actionItemCount },
-    { id: "news", label: "News", icon: Newspaper },
-    { id: "admin", label: "Admin", icon: LayoutDashboard },
-    { id: "profile", label: "Profile", icon: UserCircle },
-  ];
+  const { data } = useAuthMe();
+  const isAdmin = data?.is_admin ?? false;
+
+  const tabs = useMemo<TabConfig[]>(() => {
+    const base: TabConfig[] = [
+      { id: "services", label: "Services", icon: Layers, badgeCount: actionItemCount },
+      { id: "news", label: "News", icon: Newspaper },
+    ];
+
+    if (isAdmin) {
+      base.push({ id: "admin", label: "Admin", icon: LayoutDashboard });
+    }
+
+    base.push({ id: "profile", label: "Profile", icon: UserCircle });
+    return base;
+  }, [actionItemCount, isAdmin]);
 
   return (
     <nav className="flex items-center justify-around border-t border-border/70 bg-white/95 backdrop-blur-sm px-2 py-2 relative z-50">
