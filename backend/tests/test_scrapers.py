@@ -4,6 +4,7 @@ import pytest
 
 from backend.core.data_scraping.scrapers.jobs import JobsScraper
 from backend.core.data_scraping.scrapers.news import NewsScraper
+from backend.core.data_scraping.scrapers.news_helpers import parse_serp_results
 from backend.core.data_scraping.scrapers.housing import HousingScraper
 from backend.core.data_scraping.base import BaseScraper
 from backend.core.data_scraping.sentiment_rules import score_sentiment, score_misinfo_risk, build_summary
@@ -42,7 +43,7 @@ def test_generate_article_id_returns_twelve_char_hex():
 def test_parse_news_results_returns_articles_from_news_key():
     scraper = NewsScraper()
     body = {"news": [{"title": "Big Story", "link": "https://example.com/story"}]}
-    articles = scraper._parse_serp_results(body, "general")
+    articles = parse_serp_results(scraper.make_id, body, "general")
     assert len(articles) == 1
     assert articles[0]["title"] == "Big Story"
     assert articles[0]["sourceUrl"] == "https://example.com/story"
@@ -53,7 +54,7 @@ def test_parse_news_results_returns_articles_from_news_key():
 def test_parse_news_results_falls_back_to_organic_key():
     scraper = NewsScraper()
     body = {"organic": [{"title": "Organic Story", "link": "https://example.com/organic"}]}
-    articles = scraper._parse_serp_results(body, "general")
+    articles = parse_serp_results(scraper.make_id, body, "general")
     assert len(articles) == 1
     assert articles[0]["title"] == "Organic Story"
 
@@ -62,7 +63,7 @@ def test_parse_news_results_falls_back_to_organic_key():
 def test_parse_news_results_skips_item_missing_title():
     scraper = NewsScraper()
     body = {"news": [{"link": "https://example.com/notitle"}]}
-    articles = scraper._parse_serp_results(body, "general")
+    articles = parse_serp_results(scraper.make_id, body, "general")
     assert articles == []
 
 
@@ -70,14 +71,14 @@ def test_parse_news_results_skips_item_missing_title():
 def test_parse_news_results_skips_item_missing_url():
     scraper = NewsScraper()
     body = {"news": [{"title": "No URL Article"}]}
-    articles = scraper._parse_serp_results(body, "general")
+    articles = parse_serp_results(scraper.make_id, body, "general")
     assert articles == []
 
 
 @pytest.mark.unit
 def test_parse_news_results_with_empty_body_returns_empty_list():
     scraper = NewsScraper()
-    articles = scraper._parse_serp_results({}, "general")
+    articles = parse_serp_results(scraper.make_id, {}, "general")
     assert articles == []
 
 
@@ -85,7 +86,7 @@ def test_parse_news_results_with_empty_body_returns_empty_list():
 def test_parse_news_results_article_has_required_fields():
     scraper = NewsScraper()
     body = {"news": [{"title": "T", "link": "https://x.com", "snippet": "S", "source": "Source"}]}
-    article = scraper._parse_serp_results(body, "events")[0]
+    article = parse_serp_results(scraper.make_id, body, "events")[0]
     required_keys = {"id", "title", "excerpt", "body", "source", "sourceUrl",
                      "imageUrl", "category", "publishedAt", "scrapedAt",
                      "upvotes", "downvotes", "commentCount"}
@@ -96,7 +97,7 @@ def test_parse_news_results_article_has_required_fields():
 def test_parse_news_results_sets_image_url_to_none_when_absent():
     scraper = NewsScraper()
     body = {"news": [{"title": "T", "link": "https://x.com"}]}
-    article = scraper._parse_serp_results(body, "general")[0]
+    article = parse_serp_results(scraper.make_id, body, "general")[0]
     assert article["imageUrl"] is None
 
 
