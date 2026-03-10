@@ -4,6 +4,7 @@
  * In prod: fetched from API endpoint backed by job_scraper_service.py
  */
 import type { JobListing, JobSkills } from "./types";
+import { API_BASE } from "./apiConfig";
 
 export interface GeoJsonFeature {
   type: "Feature";
@@ -65,7 +66,7 @@ export function parseFeatureToJob(feature: GeoJsonFeature): JobListing {
 }
 
 export async function fetchJobListings(): Promise<JobListing[]> {
-  const response = await fetch("/data/jobs.geojson");
+  const response = await fetch(`${API_BASE}/api/jobs`);
   if (!response.ok) {
     console.error("Failed to fetch jobs:", response.status);
     return [];

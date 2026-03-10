@@ -55,6 +55,17 @@ export function useDataStream(): void {
   const dispatchRef = useRef(dispatch);
   dispatchRef.current = dispatch;
 
+  // Initial housing data load from API
+  useEffect(() => {
+    fetch(`${API_BASE}/api/housing`)
+      .then((r) => (r.ok ? r.json() : { features: [] }))
+      .then((geojson: { features: HousingGeoJsonFeature[] }) => {
+        const listings = geojson.features.map(parseFeatureToHousingListing);
+        dispatchRef.current({ type: "MERGE_HOUSING_LISTINGS", listings });
+      })
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
     const cleanup = connectSseStream({
       url: `${API_BASE}/api/stream`,
