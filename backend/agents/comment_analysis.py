@@ -6,6 +6,7 @@ saves results to analysis_results.json.
 
 import asyncio
 import json
+import logging
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -19,9 +20,11 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable
 
 from backend.config import OUTPUT_FILES, REPO_ROOT
-from backend.processors.schemas import ArticleAnalysis, AnalysisResults
-from backend.processors.redact_pii import redact_comment_text
+from backend.core.data_scraping.schemas import ArticleAnalysis, AnalysisResults
+from backend.agents.redact_pii import redact_comment_text
 from backend.agents.prompts import BATCH_ANALYSIS_PROMPT
+
+logger = logging.getLogger("agents.comment_analysis")
 
 ANALYSIS_OUTPUT = REPO_ROOT / "backend" / "data" / "analysis_results.json"
 METRICS_OUTPUT = REPO_ROOT / "backend" / "data" / "analysis_metrics.jsonl"
@@ -37,7 +40,7 @@ def build_llm() -> ChatGoogleGenerativeAI:
     )
 
 
-def build_analysis_chain(llm: ChatGoogleGenerativeAI) -> Runnable:
+def _build_analysis_chain(llm: ChatGoogleGenerativeAI) -> Runnable:
     prompt = ChatPromptTemplate.from_messages([
         ("system", BATCH_ANALYSIS_PROMPT),
         ("human", (
@@ -53,7 +56,7 @@ def load_comments_for_article(article_id: str, all_comments: list[dict]) -> list
     return [c for c in all_comments if c.get("articleId") == article_id]
 
 
-def format_comments_for_prompt(comments: list[dict]) -> str:
+def _format_comments_for_prompt(comments: list[dict]) -> str:
     lines = []
     for i, c in enumerate(comments, 1):
         redacted = redact_comment_text(c.get("content", ""))
@@ -61,11 +64,11 @@ def format_comments_for_prompt(comments: list[dict]) -> str:
     return "\n".join(lines) if lines else "(no comments)"
 
 
-async def analyze_single_article(
+async def _analyze_single_article(
     chain, article: dict, comments: list[dict]
 ) -> ArticleAnalysis | None:
     """Run analysis chain on one article. Returns None on failure."""
-    comments_text = format_comments_for_prompt(comments)
+    comments_text = _format_comments_for_prompt(comments)
     try:
         result: ArticleAnalysis = await chain.ainvoke({
             "article_title": article["title"],
@@ -87,7 +90,7 @@ async def _analyze_and_track(
     async with semaphore:
         print(f"  Analyzing: {article['title'][:60]}... ({len(article_comments)} comments)")
         start = time.time()
-        result = await analyze_single_article(chain, article, article_comments)
+        result = await _analyze_single_article(chain, article, article_comments)
         elapsed = time.time() - start
         return result, len(article_comments), elapsed
 
@@ -101,7 +104,7 @@ async def run_batch_analysis(
 ) -> AnalysisResults:
     """Run parallel analysis on articles that have comments (up to 10 concurrent)."""
     llm = build_llm()
-    chain = build_analysis_chain(llm)
+    chain = _build_analysis_chain(llm)
     semaphore = asyncio.Semaphore(MAX_CONCURRENCY)
 
     # Build tasks only for articles that have comments
@@ -131,7 +134,7 @@ async def run_batch_analysis(
         if result:
             results.append(result)
             total_comments += comment_count
-            log_metrics(result.article_id, comment_count, elapsed)
+            _log_metrics(result.article_id, comment_count, elapsed)
 
     return AnalysisResults(
         analyzed_at=datetime.now(timezone.utc).isoformat(),
@@ -153,7 +156,7 @@ def save_analysis_results(results: AnalysisResults) -> Path:
     return ANALYSIS_OUTPUT
 
 
-def log_metrics(article_id: str, comment_count: int, latency: float) -> None:
+def _log_metrics(article_id: str, comment_count: int, latency: float) -> None:
     entry = {
         "article_id": article_id,
         "comment_count": comment_count,
@@ -164,3 +167,65 @@ def log_metrics(article_id: str, comment_count: int, latency: float) -> None:
     }
     with open(METRICS_OUTPUT, "a") as f:
         f.write(json.dumps(entry) + "\n")
+
+
+def merge_community_sentiment(results: AnalysisResults) -> None:
+    """Merge AI sentiment scores back into the news_feed.json file."""
+    news_feed_path = OUTPUT_FILES.get("news")
+    if not news_feed_path or not Path(news_feed_path).exists():
+        print("merge_community_sentiment: news_feed.json not found, skipping")
+        return
+
+    feed = json.loads(Path(news_feed_path).read_text(encoding="utf-8"))
+    articles = feed if isinstance(feed, list) else feed.get("articles", [])
+
+    sentiment_map = {
+        a.article_id: a.model_dump() for a in results.articles
+    }
+
+    for article in articles:
+        analysis = sentiment_map.get(article.get("id"))
+        if analysis:
+            article["community_sentiment"] = {
+                "overall_sentiment": analysis["overall_sentiment"],
+                "sentiment_score": analysis["sentiment_score"],
+                "top_concerns": analysis.get("top_concerns", []),
+                "analyzed_at": results.analyzed_at,
+            }
+
+    Path(news_feed_path).write_text(
+        json.dumps(feed, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    print(f"Merged sentiment for {len(sentiment_map)} articles into news feed")
+
+
+def run_comment_analysis_pipeline() -> None:
+    """Full pipeline: load comments + articles → analyze → merge back."""
+    from backend.api.routers.comments import COMMENTS_PATH
+
+    if not COMMENTS_PATH.exists():
+        return
+    try:
+        comments = json.loads(COMMENTS_PATH.read_text(encoding="utf-8")).get("comments", [])
+    except (json.JSONDecodeError, KeyError):
+        return
+
+    if not comments:
+        return
+
+    news_path = OUTPUT_FILES["news"]
+    if not news_path.exists():
+        return
+    articles = json.loads(news_path.read_text(encoding="utf-8")).get("articles", [])
+
+    commented_ids = {c["articleId"] for c in comments}
+    articles_with_comments = [a for a in articles if a["id"] in commented_ids]
+    if not articles_with_comments:
+        return
+
+    logger.info("Analyzing %d articles with %d comments", len(articles_with_comments), len(comments))
+    results = asyncio.run(run_batch_analysis(articles_with_comments, comments))
+    save_analysis_results(results)
+    merge_community_sentiment(results)
+    logger.info("Comment analysis complete — %d articles analyzed", results.total_articles)
