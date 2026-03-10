@@ -1,4 +1,4 @@
-const DEFAULT_BACKEND_URL = "https://pegasus-backend-844382079357.us-central1.run.app";
+const DEFAULT_BACKEND_URL = "http://localhost:8082";
 
 function trimTrailingSlash(value: string): string {
   return value.replace(/\/+$/, "");

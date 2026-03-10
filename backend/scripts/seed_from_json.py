@@ -28,6 +28,14 @@ from backend.scripts.seed_converters import (
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
 
+
+def deduplicate_by_id(rows: list[dict]) -> list[dict]:
+    """Remove duplicate rows by 'id', keeping the last occurrence."""
+    seen: dict[str, dict] = {}
+    for row in rows:
+        seen[row["id"]] = row
+    return list(seen.values())
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 NEWS_PATH = PROJECT_ROOT / "frontend/public/data/news_feed.json"
 JOBS_PATH = PROJECT_ROOT / "frontend/public/data/jobs.geojson"
@@ -37,7 +45,7 @@ BENEFITS_PATH = PROJECT_ROOT / "frontend/public/data/gov_services.json"
 
 async def seed_articles() -> None:
     raw = json.loads(NEWS_PATH.read_text(encoding="utf-8"))
-    rows = [article_to_row(a) for a in raw.get("articles", [])]
+    rows = deduplicate_by_id([article_to_row(a) for a in raw.get("articles", [])])
     async with get_session() as session:
         count = await bulk_upsert_articles(session, rows)
     logger.info("articles seeded: %d", count)
@@ -45,7 +53,7 @@ async def seed_articles() -> None:
 
 async def seed_jobs() -> None:
     raw = json.loads(JOBS_PATH.read_text(encoding="utf-8"))
-    rows = [feature_to_job_row(f) for f in raw.get("features", [])]
+    rows = deduplicate_by_id([feature_to_job_row(f) for f in raw.get("features", [])])
     async with get_session() as session:
         count = await bulk_upsert_jobs(session, rows)
     logger.info("jobs seeded: %d", count)
@@ -53,7 +61,7 @@ async def seed_jobs() -> None:
 
 async def seed_housing() -> None:
     raw = json.loads(HOUSING_PATH.read_text(encoding="utf-8"))
-    rows = [feature_to_housing_row(f) for f in raw.get("features", [])]
+    rows = deduplicate_by_id([feature_to_housing_row(f) for f in raw.get("features", [])])
     async with get_session() as session:
         count = await bulk_upsert_housing(session, rows)
     logger.info("housing listings seeded: %d", count)
@@ -61,7 +69,7 @@ async def seed_housing() -> None:
 
 async def seed_benefits() -> None:
     raw = json.loads(BENEFITS_PATH.read_text(encoding="utf-8"))
-    rows = [service_to_row(s) for s in raw.get("services", [])]
+    rows = deduplicate_by_id([service_to_row(s) for s in raw.get("services", [])])
     async with get_session() as session:
         count = await bulk_upsert_benefits(session, rows)
     logger.info("benefits seeded: %d", count)
