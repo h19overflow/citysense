@@ -12,7 +12,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from backend.api.routers import analysis, auth, chat, citizen_chat, comments, misinfo, roadmap, stream, webhooks
+from backend.api.routers import analysis, auth, chat, citizen_chat, citizen_profile, comments, misinfo, roadmap, stream, webhooks
 from backend.core.exceptions import AppException
 
 
@@ -68,6 +68,7 @@ app.include_router(webhooks.router, prefix="/api")
 app.include_router(roadmap.router, prefix="/api")
 app.include_router(misinfo.router, prefix="/api")
 app.include_router(stream.router, prefix="/api")
+app.include_router(citizen_profile.router, prefix="/api")
 
 
 @app.get("/health")
