@@ -6,7 +6,7 @@ export function SettingsSection({ title, children }: { title: string; children: 
       <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 px-1">
         {title}
       </h3>
-      <div className="rounded-xl border border-border/50 bg-white divide-y divide-border/30 overflow-hidden">
+      <div className="rounded-xl border border-border/50 bg-card divide-y divide-border/30 overflow-hidden">
         {children}
       </div>
     </section>

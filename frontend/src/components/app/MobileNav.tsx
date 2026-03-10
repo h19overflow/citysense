@@ -43,7 +43,7 @@ export const AppNav = ({ activeTab, onTabChange, actionItemCount }: AppNavProps)
   }, [actionItemCount, isAdmin]);
 
   return (
-    <nav className="flex items-center justify-around border-t border-border/70 bg-white/95 backdrop-blur-sm px-2 py-2 relative z-50">
+    <nav className="flex items-center justify-around border-t border-border/70 bg-background/95 backdrop-blur-sm px-2 py-2 relative z-50">
       {tabs.map(({ id, label, icon: Icon, badgeCount = 0 }) => (
         <button
           key={id}
