@@ -35,3 +35,6 @@ app.conf.update(
 )
 
 app.autodiscover_tasks(["backend.workers.tasks"])
+
+# Explicit imports to ensure tasks are registered on Windows
+import backend.workers.tasks.cv_analysis  # noqa: F401, E402

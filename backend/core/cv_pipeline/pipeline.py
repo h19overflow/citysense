@@ -117,7 +117,7 @@ async def run_cv_pipeline(
         detail = "New version saved" if is_new else "Duplicate — skipped"
         yield build_pipeline_event(job, JobStatus.COMPLETED, "Analysis complete", detail=detail)
 
-    except (FileNotFoundError, ValueError, OSError) as exc:
+    except (FileNotFoundError, ValueError, OSError, RuntimeError) as exc:
         logger.exception("CV pipeline failed for job %s", job.job_id)
         job.status = JobStatus.FAILED
         job.error = str(exc)
