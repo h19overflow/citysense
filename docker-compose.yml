@@ -37,6 +37,9 @@ services:
       DATABASE_URL: postgresql+asyncpg://citysense:citysense_dev@postgres:5432/citysense
       REDIS_URL: redis://redis:6379/0
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      CV_UPLOAD_DIR: /app/data/cv_uploads
+    volumes:
+      - ./data/cv_uploads:/app/data/cv_uploads
     depends_on:
       postgres:
         condition: service_healthy

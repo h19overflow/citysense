@@ -9,7 +9,7 @@ import uuid
 from pathlib import Path
 
 from fastapi import APIRouter, Form, HTTPException, UploadFile
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response, StreamingResponse
 
 from backend.api.routers.cv_stream import stream_job_events
 from backend.api.schemas.cv_schemas import CVJobStatusResponse, CVUploadResponse
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 REDIS_URL: str = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
 CV_UPLOAD_DIR = Path(__file__).resolve().parents[3] / "data" / "cv_uploads"
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
-ALLOWED_EXTENSIONS = [".pdf", ".docx"]
+ALLOWED_EXTENSIONS = {".pdf", ".docx"}
 
 router = APIRouter(prefix="/cv", tags=["cv"])
 
@@ -48,7 +48,7 @@ def _validate_file_type(filename: str) -> None:
 @router.post("/upload", response_model=CVUploadResponse)
 async def upload_cv(
     file: UploadFile,
-    citizen_id: str = Form(...),
+    citizen_id: str = Form(default=""),
 ) -> CVUploadResponse:
     """Accept a CV file, persist it to disk and DB, then queue analysis."""
     _validate_file_type(file.filename or "")
@@ -57,13 +57,15 @@ async def upload_cv(
     if len(contents) > MAX_UPLOAD_BYTES:
         raise HTTPException(status_code=413, detail="File exceeds 10 MB limit")
 
+    resolved_citizen_id = citizen_id if citizen_id else None
+
     destination = _resolve_upload_path(file.filename or "cv.pdf")
     await asyncio.to_thread(destination.write_bytes, contents)
 
     async with AsyncSessionLocal() as session:
         cv_upload = await create_cv_upload(
             session,
-            citizen_id=citizen_id,
+            citizen_id=resolved_citizen_id,
             file_name=file.filename or destination.name,
             file_url=str(destination),
         )
@@ -75,7 +77,10 @@ async def upload_cv(
         cv_upload_id=cv_upload_id,
         file_path=str(destination),
     )
-    await worker.submit_job(job)
+    try:
+        await worker.submit_job(job)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
 
     return CVUploadResponse(job_id=job.job_id, cv_upload_id=cv_upload_id)
 
@@ -107,8 +112,30 @@ async def stream_job_progress(job_id: str) -> StreamingResponse:
     if not is_available:
         raise HTTPException(status_code=503, detail="Redis unavailable")
 
+    # Diagnostic: log the job's current state when the SSE request arrives.
+    # This reveals whether the client connected before or after the job finished.
+    current_state = await job_tracker.load_job_state(job_id)
+    if current_state is None:
+        logger.warning("[SSE:%s] SSE request for unknown job — job state not found in Redis", job_id)
+    else:
+        logger.info(
+            "[SSE:%s] SSE request received. Current job status='%s', progress=%d%%, "
+            "analyzed_pages=%d, total_pages=%d",
+            job_id,
+            current_state.status,
+            job_tracker.compute_progress(
+                current_state.status,
+                current_state.analyzed_pages,
+                current_state.total_pages or 1,
+            ),
+            current_state.analyzed_pages,
+            current_state.total_pages or 0,
+        )
+
     return StreamingResponse(
         stream_job_events(REDIS_URL, job_id),
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
+
+

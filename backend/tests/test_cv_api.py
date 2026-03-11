@@ -14,7 +14,7 @@ from fastapi.testclient import TestClient
 
 from backend.tests.cv_test_helpers import (
     FAKE_JOB_ID, FAKE_CITIZEN_ID, VALID_PDF,
-    cv_client, post_valid_upload,  # noqa: F401 — re-exported fixtures/helpers
+    cv_client, post_valid_upload, post_anonymous_upload,  # noqa: F401 — re-exported fixtures/helpers
 )
 
 
@@ -42,9 +42,9 @@ class TestUploadCVSuccess:
 
 @pytest.mark.unit
 class TestUploadCVValidation:
-    def test_missing_citizen_id_returns_422(self, cv_client: TestClient) -> None:
-        """Upload without citizen_id form field must return 422."""
-        assert cv_client.post("/api/cv/upload", files={"file": VALID_PDF}).status_code == 422
+    def test_missing_citizen_id_returns_200_as_anonymous(self, cv_client: TestClient) -> None:
+        """Upload without citizen_id is accepted as an anonymous upload (citizen_id is optional)."""
+        assert post_anonymous_upload(cv_client).status_code == 200
 
     def test_missing_file_returns_422(self, cv_client: TestClient) -> None:
         """Upload without a file must return 422."""
