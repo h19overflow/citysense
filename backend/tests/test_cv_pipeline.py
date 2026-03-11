@@ -535,20 +535,24 @@ class TestPublishEvent:
     async def test_publishes_json_payload_when_redis_available(self):
         from backend.core.cv_pipeline import job_tracker
 
-        mock_client = MagicMock()
         mock_cache = MagicMock()
         mock_cache.is_available = MagicMock(return_value=True)
-        mock_cache._client = mock_client
+        mock_cache.publish = MagicMock()
 
         event = PipelineEvent(
             job_id="j2", status=JobStatus.ANALYZING, stage="Analyzing", page=1, total_pages=3
         )
 
-        with patch.object(job_tracker, "cache", mock_cache):
+        async def fake_to_thread(fn, *args):
+            return fn(*args)
+
+        with patch.object(job_tracker, "cache", mock_cache), \
+             patch("backend.core.cv_pipeline.job_tracker.asyncio") as mock_asyncio:
+            mock_asyncio.to_thread = fake_to_thread
             await job_tracker.publish_event(event)
 
-        mock_client.publish.assert_called_once()
-        channel, payload_str = mock_client.publish.call_args.args
+        mock_cache.publish.assert_called_once()
+        channel, payload_str = mock_cache.publish.call_args.args
         assert channel == "cv_progress:j2"
         payload = json.loads(payload_str)
         assert payload["job_id"] == "j2"

@@ -7,6 +7,7 @@ subscriber (SSE endpoint, WebSocket) can stream updates.
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 
@@ -29,43 +30,41 @@ def _channel_key(job_id: str) -> str:
 
 
 async def save_job_state(state: JobState) -> None:
-    """Persist job state to Redis."""
-    cache.store(
+    """Persist job state to Redis (offloaded to thread pool)."""
+    await asyncio.to_thread(
+        cache.store,
         _job_key(state.job_id),
         state.model_dump(mode="json"),
-        ttl=JOB_TTL_SECONDS,
+        JOB_TTL_SECONDS,
     )
 
 
 async def load_job_state(job_id: str) -> JobState | None:
     """Load job state from Redis. Returns None if missing."""
-    data = cache.fetch(_job_key(job_id))
+    data = await asyncio.to_thread(cache.fetch, _job_key(job_id))
     if data is None:
         return None
     return JobState.model_validate(data)
 
 
 async def publish_event(event: PipelineEvent) -> None:
-    """Publish a progress event to the job's Redis channel.
-
-    Also updates the job state in Redis to keep it in sync.
-    """
+    """Publish a progress event to the job's Redis pub/sub channel."""
     channel = _channel_key(event.job_id)
-    payload = event.model_dump(mode="json")
+    payload = json.dumps(event.model_dump(mode="json"))
 
     if not cache.is_available():
         logger.debug("Redis unavailable, skipping event publish: %s", event.stage)
         return
 
     try:
-        cache._client.publish(channel, json.dumps(payload))  # type: ignore[union-attr]
+        await asyncio.to_thread(cache.publish, channel, payload)
     except Exception:
         logger.warning("Failed to publish event for job %s", event.job_id)
 
 
 async def delete_job_state(job_id: str) -> None:
     """Remove job state from Redis."""
-    cache.delete(_job_key(job_id))
+    await asyncio.to_thread(cache.delete, _job_key(job_id))
 
 
 def compute_progress(

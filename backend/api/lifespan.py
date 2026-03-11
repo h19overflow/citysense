@@ -21,8 +21,8 @@ logger = logging.getLogger(__name__)
 async def lifespan(application: FastAPI) -> AsyncGenerator[None, None]:
     """Run startup tasks, yield, then run shutdown tasks."""
     scraper_task = _start_scraper_if_enabled()
-    _verify_redis_connection()
-    _verify_celery_broker()
+    await asyncio.to_thread(_verify_redis_connection)
+    await asyncio.to_thread(_verify_celery_broker)
 
     yield
 
@@ -45,7 +45,7 @@ def _start_scraper_if_enabled() -> asyncio.Task | None:
 
 
 def _verify_redis_connection() -> None:
-    """Log Redis connectivity status on startup."""
+    """Log Redis connectivity status on startup (runs in thread pool)."""
     from backend.core.redis_client import cache
 
     if cache.is_available():
@@ -55,7 +55,7 @@ def _verify_redis_connection() -> None:
 
 
 def _verify_celery_broker() -> None:
-    """Verify the Celery broker is reachable on startup."""
+    """Verify the Celery broker is reachable (runs in thread pool)."""
     try:
         from backend.workers.celery_app import app as celery_app
 
