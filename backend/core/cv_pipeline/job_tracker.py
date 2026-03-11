@@ -32,7 +32,16 @@ def _channel_key(job_id: str) -> str:
 
 
 async def save_job_state(state: JobState) -> None:
-    """Persist job state to Redis (offloaded to thread pool)."""
+    """Persist job state to Redis (offloaded to thread pool).
+
+    Degrades gracefully if Redis is unavailable — logs a warning and returns.
+    """
+    if not cache.is_available():
+        logger.warning(
+            "[JobTracker:%s] Redis unavailable — cannot persist job state",
+            state.job_id,
+        )
+        return
     await asyncio.to_thread(
         cache.store,
         _job_key(state.job_id),
@@ -63,7 +72,7 @@ async def publish_event(event: PipelineEvent) -> None:
         return
 
     try:
-        logger.info(
+        logger.debug(
             "[JobTracker:%s] Publishing event stage='%s' status='%s' to channel '%s'",
             event.job_id,
             event.stage,

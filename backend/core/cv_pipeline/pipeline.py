@@ -13,6 +13,7 @@ from collections.abc import AsyncGenerator
 from pathlib import Path
 
 from backend.agents.cv_analyzers.agent import analyze_cv_page
+from backend.agents.cv_analyzers.synthesizer import synthesize_cv_roles
 from backend.core.cv_pipeline.components.aggregator import aggregate_page_results
 from backend.core.cv_pipeline.components.ingestor import (
     extract_page_contents,
@@ -122,6 +123,7 @@ async def run_cv_pipeline(
         yield await emit_pipeline_event(job, JobStatus.AGGREGATING, "Aggregating results")
 
         final_result = await aggregate_page_results(page_results)
+        final_result.roles = await synthesize_cv_roles(final_result)
         job.result = final_result
 
         # --- Stage 4: Persist to DB (with hash dedup) ---
@@ -134,7 +136,6 @@ async def run_cv_pipeline(
 
         # --- Done ---
         job.status = JobStatus.COMPLETED
-        await save_job_state(job)
         detail = "New version saved" if is_new else "Duplicate — skipped"
         logger.info(
             "[Pipeline:%s] Pipeline complete (%s) — publishing COMPLETED event to Redis pub/sub",
@@ -157,10 +158,7 @@ async def run_cv_pipeline(
         job.status = JobStatus.FAILED
         job.error = f"{exc_type}: {exc}"
         await save_job_state(job)
-        await publish_event(
-            build_pipeline_event(job, JobStatus.FAILED, "Pipeline failed", detail=job.error)
-        )
-        yield build_pipeline_event(
-            job, JobStatus.FAILED, "Pipeline failed", detail=job.error
-        )
+        failed_event = build_pipeline_event(job, JobStatus.FAILED, "Pipeline failed", detail=job.error)
+        await publish_event(failed_event)
+        yield failed_event
         raise
