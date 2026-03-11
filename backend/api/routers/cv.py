@@ -77,7 +77,10 @@ async def upload_cv(
         cv_upload_id=cv_upload_id,
         file_path=str(destination),
     )
-    await worker.submit_job(job)
+    try:
+        await worker.submit_job(job)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
 
     return CVUploadResponse(job_id=job.job_id, cv_upload_id=cv_upload_id)
 
