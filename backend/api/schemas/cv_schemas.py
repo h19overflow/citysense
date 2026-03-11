@@ -3,6 +3,13 @@
 from pydantic import BaseModel
 
 
+class ProjectEntry(BaseModel):
+    """A single personal, academic, or open-source project."""
+
+    name: str
+    description: str = ""
+
+
 class CVUploadResponse(BaseModel):
     """Returned after a successful CV file upload."""
 

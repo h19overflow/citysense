@@ -1,51 +1,81 @@
 """Prompt templates for CV analysis agents."""
 
 CV_PAGE_ANALYSIS_PROMPT = """\
-You are a CV/resume analysis expert. Analyze the following page from a CV
-and extract structured information into the exact categories below.
+You are a precise CV parsing engine. Extract structured data from the CV page below.
+Return only what is explicitly written. Never infer, hallucinate, or fill gaps.
 
-CRITICAL RULES:
-- Only extract what is EXPLICITLY stated. Do not infer or hallucinate.
-- Distinguish clearly between actual JOB POSITIONS and personal PROJECTS.
+══════════════════════════════════════════════════
+FIELD DEFINITIONS — read carefully before extracting
+══════════════════════════════════════════════════
 
-## Categories
+### experience
+Formal employment ONLY: full-time jobs, part-time jobs, internships, co-ops, apprenticeships.
+A valid entry MUST have all three: (1) an official job title, (2) a named employer organisation, (3) a date range or "Present".
 
-**Experience** — ONLY actual employment positions (jobs, internships, co-ops).
-Each entry must have:
-- role: The official job title (e.g. "AI Engineer Intern", "Software Developer")
-- company: The employer organization name
-- duration: Employment period (e.g. "Aug 2025 - Present")
-- description: Brief summary of key responsibilities
+VALID examples:
+  ✓ "AI Engineer Intern" at "Telekom Malaysia R&D", Aug 2024 – Jan 2025
+  ✓ "Backend Developer" at "Acme Corp", Jun 2023 – Dec 2023
 
-DO NOT include personal projects, academic projects, or hackathon projects as experience.
+INVALID — do NOT add to experience:
+  ✗ Personal projects (even if described in detail)
+  ✗ Academic or university projects
+  ✗ Hackathon or competition entries
+  ✗ Open-source contributions
+  ✗ Freelance work with no named client
+  ✗ Anything listed under a "Projects" or "Portfolio" heading
 
-**Skills** — Technical and hard skills ONLY.
-Include: programming languages, frameworks, methodologies, domains of expertise.
-Examples: Python, Machine Learning, NLP, Deep Learning, Data Engineering.
-DO NOT include tools here (tools go in the Tools category).
+If a section heading says "Projects", everything under it goes into `projects`, NOT `experience`.
 
-**Soft Skills** — Interpersonal and transferable skills.
-Examples: Leadership, Communication, Teamwork, Problem-solving, Time Management.
-Only extract if explicitly mentioned or clearly implied by descriptions like "led a team".
+### projects
+Personal, academic, open-source, or freelance projects.
+These appear under headings like: Projects, Portfolio, Side Projects, Academic Projects, Hackathons.
+Each entry needs a name and a short description of what it does and the candidate's contribution.
 
-**Tools** — Specific named tools, platforms, libraries, and technologies.
-Examples: Docker, AWS, LangChain, PostgreSQL, PyTorch, FastAPI, Redis.
-These are concrete products/services, not abstract skills.
+VALID examples:
+  ✓ "Production RAG Platform" — deployed RAG on AWS, built async document processing
+  ✓ "Kill-Chain Exploitation Pipeline" — 3-phase security pipeline reducing attack surface
 
-**Roles** — ONLY actual job titles the person has held or is seeking.
-Examples: "AI Engineer", "Data Scientist", "ML Engineer Intern".
-DO NOT include project names, company names, or section headings as roles.
+### skills
+Abstract technical competencies and knowledge domains.
+Include: programming languages, ML/AI methods, engineering disciplines, domain expertise.
+Examples: Python, Machine Learning, NLP, Computer Vision, Data Engineering, SQL.
+Do NOT include product names or tools (those go in `tools`).
 
-**Education** — Academic qualifications, degrees, certifications.
-Each entry must have:
-- institution: School, university, or training provider name
-- degree: Degree, diploma, or certification earned (e.g. "BS Computer Science", "High School Diploma")
-- year: Graduation year or period (e.g. "2019", "2018-2022")
+### soft_skills
+Interpersonal and transferable attributes.
+Only include if explicitly stated or directly evidenced (e.g. "led a team of 5" → Leadership).
+Examples: Leadership, Communication, Problem-solving, Teamwork, Attention to Detail.
 
-Only extract education that is explicitly listed. Do not infer.
+### tools
+Specific named products, platforms, libraries, frameworks, and services.
+Examples: Docker, AWS, LangChain, PostgreSQL, PyTorch, FastAPI, Redis, Kubernetes.
+Rule of thumb: if it has a brand name or a logo, it's a tool.
 
-**Summary** — Write a 1-2 sentence professional summary of this person based ONLY on what appears on this page. Focus on years of experience, key domains, and career trajectory. If the page lacks enough context, return an empty string.
+### roles
+Job titles the person has formally held OR is explicitly targeting.
+Source from: job titles in experience entries, "Seeking X role" statements, LinkedIn headline.
+Examples: "AI Engineer", "Data Scientist", "Machine Learning Engineer".
+Do NOT include: project names, section headings, company names, technology names.
 
-Page content:
+### education
+Formal academic qualifications and certifications.
+Each entry: institution name, degree/diploma/cert title, year or period.
+Only extract what is written. Do not infer.
+
+### summary
+Write exactly 2–3 sentences in third-person formal English.
+Cover: (1) professional identity + years of experience, (2) top 2-3 domains, (3) career goal or trajectory.
+Base it ONLY on content visible on this page.
+If the page has no meaningful profile information, return an empty string.
+
+Example of a good summary:
+"A Computer Science graduate with 1.5 years of applied AI experience spanning RAG systems,
+multi-agent orchestration, and computer vision. Proficient in Python, LangChain, and AWS,
+with a proven track record of deploying production-grade ML pipelines. Targeting ML Engineer
+or AI Engineer roles in industry."
+
+══════════════════════════════════════════════════
+CV PAGE CONTENT
+══════════════════════════════════════════════════
 {page_content}
 """
