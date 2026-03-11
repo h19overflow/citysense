@@ -489,22 +489,20 @@ class TestStartScraperIfEnabled:
         assert result is None
 
     @pytest.mark.unit
-    async def test_returns_asyncio_task_when_enabled_and_api_key_set(self):
+    def test_returns_asyncio_task_when_enabled_and_api_key_set(self):
         """When AUTO_SCRAPE=1 and API key present, returns a running asyncio.Task."""
         from backend.api.lifespan import _start_scraper_if_enabled
 
         env = {"AUTO_SCRAPE": "1", "BRIGHTDATA_API_KEY": "test-key"}
         mock_task = MagicMock(spec=asyncio.Task)
-
-        # Use a completed future so there is no unawaited coroutine leak
-        completed_future: asyncio.Future = asyncio.get_event_loop().create_future()
-        completed_future.set_result(None)
+        # A sentinel non-coroutine object to pass to asyncio.create_task (also mocked)
+        sentinel_coro = object()
 
         with (
             patch.dict("os.environ", env, clear=False),
             patch(
                 "backend.core.data_scraping.scheduler.start_scheduled_scraping",
-                return_value=completed_future,
+                new=MagicMock(return_value=sentinel_coro),
             ),
             patch("asyncio.create_task", return_value=mock_task),
         ):
