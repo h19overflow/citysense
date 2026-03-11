@@ -76,6 +76,8 @@ async def persist_cv_result(
                 soft_skills=result.soft_skills,
                 tools=result.tools,
                 roles=result.roles,
+                education=[e.model_dump() for e in result.education],
+                summary=result.summary,
                 page_count=result.page_count,
             )
             logger.info(
