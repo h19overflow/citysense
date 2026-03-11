@@ -16,6 +16,14 @@ class ExperienceEntry(BaseModel):
     description: str = Field(default="", description="Brief summary of responsibilities")
 
 
+class EducationEntry(BaseModel):
+    """A single education entry."""
+
+    institution: str = Field(description="School or university name")
+    degree: str = Field(default="", description="Degree or certificate earned")
+    year: str = Field(default="", description="Graduation year or period")
+
+
 class PageAnalysis(BaseModel):
     """Extracted sections from a single CV page."""
 
@@ -24,6 +32,8 @@ class PageAnalysis(BaseModel):
     soft_skills: list[str] = Field(default_factory=list, description="Soft skills")
     tools: list[str] = Field(default_factory=list, description="Tools and technologies")
     roles: list[str] = Field(default_factory=list, description="Job roles / titles found")
+    education: list[EducationEntry] = Field(default_factory=list, description="Education entries")
+    summary: str = Field(default="", description="Brief professional summary if found on this page")
     raw_text: str = Field(default="", description="Original page text for reference")
 
 
@@ -35,6 +45,8 @@ class CVAnalysisResult(BaseModel):
     soft_skills: list[str] = Field(default_factory=list)
     tools: list[str] = Field(default_factory=list)
     roles: list[str] = Field(default_factory=list)
+    education: list[EducationEntry] = Field(default_factory=list)
+    summary: str = Field(default="")
     page_count: int = Field(default=0)
 
 
