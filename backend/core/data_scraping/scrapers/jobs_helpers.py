@@ -8,6 +8,20 @@ from backend.core.data_scraping.geo import geocode_nominatim, geocode_arcgis_bus
 from backend.core.data_scraping.payloads import SKILL_CATEGORIES
 
 
+# Keywords short enough to produce false positives via substring match.
+# These require whole-word matching (e.g. "rn" inside "learn" must not match).
+_WORD_BOUNDARY_KEYWORDS: frozenset[str] = frozenset([
+    "rn", "lpn", "cna", "emt", "cdl", "cnc", "ged", "sql",
+])
+
+
+def _keyword_matches(keyword: str, text: str) -> bool:
+    """Return True if keyword appears in text as a whole word (not as part of another word)."""
+    if keyword in _WORD_BOUNDARY_KEYWORDS:
+        return bool(re.search(rf"\b{re.escape(keyword)}\b", text))
+    return keyword in text
+
+
 def extract_skills(job: dict) -> None:
     """Scan job description for skill keywords and write results back onto the job dict."""
     desc = (
@@ -19,7 +33,7 @@ def extract_skills(job: dict) -> None:
     desc_clean = re.sub(r"<[^>]+>", " ", desc).lower()
     found: dict[str, list[str]] = {}
     for category, keywords in SKILL_CATEGORIES.items():
-        matches = [kw for kw in keywords if kw in desc_clean]
+        matches = [kw for kw in keywords if _keyword_matches(kw, desc_clean)]
         if matches:
             found[category] = matches
     job["skills"] = found
