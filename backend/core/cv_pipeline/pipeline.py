@@ -43,6 +43,7 @@ async def _analyze_single_page(
     """Analyze one page and collect completion events."""
     result = await analyze_cv_page(text)
 
+    # Safe: asyncio is single-threaded, += happens between awaits.
     job.analyzed_pages += 1
     event = await _emit(
         job,
@@ -131,6 +132,7 @@ async def run_cv_pipeline(
         yield _build_event(
             job, JobStatus.FAILED, "Pipeline failed", detail=str(exc)
         )
+        raise
 
 
 async def _emit(

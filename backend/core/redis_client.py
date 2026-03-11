@@ -73,5 +73,14 @@ class RedisCache:
         except redis.RedisError as exc:
             logger.warning("Redis delete failed for %s: %s", key, exc)
 
+    def publish(self, channel: str, message: str) -> None:
+        """Publish a message to a Redis pub/sub channel."""
+        if not self.is_available():
+            return
+        try:
+            self._client.publish(channel, message)
+        except redis.RedisError as exc:
+            logger.warning("Redis publish failed for %s: %s", channel, exc)
+
 
 cache = RedisCache()
