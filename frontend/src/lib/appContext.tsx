@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useReducer, type ReactNode } from "react";
+import { createContext, useContext, useReducer, type ReactNode } from "react";
 import type { AppState } from "./types";
 import type { AppAction } from "./context/types";
 import { appReducer } from "./context/reducer";
@@ -50,15 +50,25 @@ function saveSession(state: AppState): void {
   }
 }
 
+function persistingReducer(state: AppState, action: AppAction): AppState {
+  const next = appReducer(state, action);
+  // Save synchronously after every action that touches persisted fields.
+  // Synchronous write ensures data is saved even if the tab closes immediately.
+  if (
+    next.citizenMeta !== state.citizenMeta ||
+    next.cvResult !== state.cvResult ||
+    next.cvFileName !== state.cvFileName
+  ) {
+    saveSession(next);
+  }
+  return next;
+}
+
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(appReducer, {
+  const [state, dispatch] = useReducer(persistingReducer, {
     ...initialState,
     ...loadPersistedSession(),
   });
-
-  useEffect(() => {
-    saveSession(state);
-  }, [state.citizenMeta, state.cvResult, state.cvFileName]);
 
   return (
     <AppContext.Provider value={{ state, dispatch }}>
