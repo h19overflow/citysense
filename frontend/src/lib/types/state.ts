@@ -1,6 +1,6 @@
 import type { Language, AppView, ActionItem, ProcessingStep, FlowMeta, Artifact } from "./common";
 import type { ProfileData } from "./profile";
-import type { CvData } from "./cv";
+import type { CVAnalysisResult } from "./cv";
 import type { ServicePoint, ServiceCategory, GuideMessage } from "./services";
 import type { ChatMessage } from "./chat";
 import type { JobListing, JobMatch, TrendingSkill, UpskillingSummary, TransitRoute, CommuteEstimate } from "./jobs";
@@ -21,9 +21,12 @@ export interface AppState {
   actionItems: ActionItem[];
   isTyping: boolean;
   processingSteps: ProcessingStep[];
-  cvData: CvData | null;
+  cvResult: CVAnalysisResult | null;
   cvFileName: string | null;
   cvAnalyzing: boolean;
+  cvJobId: string | null;
+  cvProgress: number;
+  cvStage: string;
   selectedPin: ServicePoint | null;
   activeCategories: ServiceCategory[];
   servicePoints: ServicePoint[];
