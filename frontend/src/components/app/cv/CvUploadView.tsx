@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Briefcase, TrendingUp } from "lucide-react";
 import { useApp } from "@/lib/appContext";
+import { fetchLatestCv } from "@/lib/cvService";
 import JobMatchPanel from "./JobMatchPanel";
 import UpskillingPanel from "./UpskillingPanel";
 import CommutePanel from "./CommutePanel";
 import CitizenProfileBar from "./CitizenProfileBar";
 import CvOnboardingHero from "./CvOnboardingHero";
+import CvResultsPanel from "./CvResultsPanel";
 import BusinessGrowth from "./BusinessGrowth";
 
 type CareerTab = "market" | "growth";
@@ -33,9 +35,18 @@ function PageHeader() {
 }
 
 const CvUploadView = () => {
-  const { state } = useApp();
+  const { state, dispatch } = useApp();
   const [activeTab, setActiveTab] = useState<CareerTab>("market");
-  const hasCv = !!state.cvData;
+  const hasCv = !!state.cvResult;
+
+  useEffect(() => {
+    if (state.cvResult || !state.citizenMeta?.id) return;
+    fetchLatestCv(state.citizenMeta.id).then((data) => {
+      if (!data) return;
+      dispatch({ type: "SET_CV_RESULT", result: data.result });
+      dispatch({ type: "SET_CV_FILE", fileName: data.file_name });
+    });
+  }, [state.citizenMeta?.id]);
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -74,6 +85,7 @@ const CvUploadView = () => {
             <div className="px-5 pt-4 pb-0">
               <PageHeader />
             </div>
+            <CvResultsPanel result={state.cvResult!} />
             <JobMatchPanel />
           </div>
         )}

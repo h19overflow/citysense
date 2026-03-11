@@ -10,17 +10,17 @@ const UpskillingPanel = () => {
   const { state, dispatch } = useApp();
 
   useEffect(() => {
-    if (!state.cvData || state.jobMatches.length === 0) {
+    if (!state.cvResult || state.jobMatches.length === 0) {
       dispatch({ type: "SET_UPSKILLING_SUMMARY", summary: null });
       return;
     }
     const summary = computeUpskillingSummary(
-      state.cvData,
+      state.cvResult,
       state.jobMatches,
       state.trendingSkills,
     );
     dispatch({ type: "SET_UPSKILLING_SUMMARY", summary });
-  }, [state.cvData, state.jobMatches, state.trendingSkills]);
+  }, [state.cvResult, state.jobMatches, state.trendingSkills]);
 
   const summary = state.upskillingSummary;
   if (!summary) {

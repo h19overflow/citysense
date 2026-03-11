@@ -1,8 +1,8 @@
 import { GraduationCap } from "lucide-react";
-import type { CvData } from "@/lib/types";
+import type { EducationEntry } from "@/lib/types";
 
 interface EducationCardProps {
-  education: CvData["education"];
+  education: EducationEntry[];
 }
 
 const EducationCard = ({ education }: EducationCardProps) => (
@@ -13,15 +13,12 @@ const EducationCard = ({ education }: EducationCardProps) => (
     </h3>
     <div className="space-y-3">
       {education.map((entry) => (
-        <div key={`${entry.school}-${entry.year}`}>
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <p className="text-sm font-semibold text-foreground">{entry.school}</p>
-              <p className="text-xs text-muted-foreground">{entry.location}</p>
-            </div>
-            <span className="text-xs text-muted-foreground shrink-0">{entry.year}</span>
+        <div key={`${entry.institution}-${entry.degree}`} className="flex items-start justify-between gap-2">
+          <div>
+            <p className="text-sm font-semibold text-foreground">{entry.institution}</p>
+            <p className="text-sm text-foreground/80 mt-0.5">{entry.degree}</p>
           </div>
-          <p className="text-sm text-foreground/80 mt-1">{entry.degree}</p>
+          <span className="text-xs text-muted-foreground shrink-0">{entry.year}</span>
         </div>
       ))}
     </div>

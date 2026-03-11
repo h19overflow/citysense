@@ -1,5 +1,4 @@
 import {
-  User,
   Briefcase,
   Star,
   RefreshCw,
@@ -8,34 +7,18 @@ import { useApp } from "@/lib/appContext";
 
 const CitizenProfileBar = () => {
   const { state, dispatch } = useApp();
-  const cv = state.cvData;
+  const cv = state.cvResult;
 
   if (!cv) return null;
 
   const matchedJobs = state.jobMatches.filter((m) => m.matchPercent >= 40).length;
   const totalJobs = state.jobListings.length;
+  const totalSkills = cv.skills.length + cv.soft_skills.length + cv.tools.length;
 
   return (
     <div className="flex items-center gap-4 px-5 py-3 bg-white border-b border-border/50">
-      {/* Avatar + identity */}
-      <div className="flex items-center gap-3 min-w-0">
-        <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-          <User className="w-4.5 h-4.5 text-primary" />
-        </div>
-        <div className="min-w-0">
-          <h3 className="text-sm font-bold text-foreground truncate">{cv.name}</h3>
-          <p className="text-xs text-muted-foreground truncate">
-            {cv.experience[0]?.title ?? "Job Seeker"}
-          </p>
-        </div>
-      </div>
-
-      {/* Divider */}
-      <div className="w-px h-8 bg-border/50 shrink-0" />
-
-      {/* Quick stats */}
       <div className="flex items-center gap-4 text-xs">
-        <ProfileStat icon={Star} label="Skills" value={String(cv.skills.length)} />
+        <ProfileStat icon={Star} label="Skills" value={String(totalSkills)} />
         <ProfileStat icon={Briefcase} label="Experience" value={`${cv.experience.length} roles`} />
         <ProfileStat
           icon={Briefcase}
@@ -45,10 +28,8 @@ const CitizenProfileBar = () => {
         />
       </div>
 
-      {/* Spacer */}
       <div className="flex-1" />
 
-      {/* Re-upload */}
       <button
         onClick={() => dispatch({ type: "CLEAR_CV" })}
         className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-muted-foreground border border-border/50 rounded-lg hover:bg-muted/50 transition-colors shrink-0"

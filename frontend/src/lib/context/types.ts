@@ -6,7 +6,7 @@ import type {
   Artifact,
   Language,
   ProcessingStep,
-  CvData,
+  CVAnalysisResult,
   AppView,
   ServicePoint,
   ServiceCategory,
@@ -39,9 +39,11 @@ export type AppAction =
   | { type: "TOGGLE_ACTION_ITEM"; id: string }
   | { type: "SET_TYPING"; isTyping: boolean }
   | { type: "SET_PROCESSING_STEPS"; steps: ProcessingStep[] }
-  | { type: "SET_CV_DATA"; data: CvData }
+  | { type: "SET_CV_RESULT"; result: CVAnalysisResult }
   | { type: "SET_CV_FILE"; fileName: string | null }
   | { type: "SET_CV_ANALYZING"; analyzing: boolean }
+  | { type: "SET_CV_JOB"; jobId: string }
+  | { type: "SET_CV_PROGRESS"; progress: number; stage: string }
   | { type: "CLEAR_CV" }
   | { type: "SET_SELECTED_PIN"; pin: ServicePoint | null }
   | { type: "TOGGLE_CATEGORY"; category: ServiceCategory }

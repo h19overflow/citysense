@@ -20,7 +20,7 @@ const JobMatchPanel = () => {
   const [filters, setFilters] = useState<JobFilterState>(createDefaultFilters);
   const [expandedJobId, setExpandedJobId] = useState<string | null>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
-  const hasCv = !!state.cvData;
+  const hasCv = !!state.cvResult;
 
   const scrollToResults = useCallback(() => {
     setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
