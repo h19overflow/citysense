@@ -3,25 +3,27 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
 import os
 import uuid
 from pathlib import Path
 
-import redis
 from fastapi import APIRouter, Form, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
 
+from backend.api.routers.cv_stream import stream_job_events
 from backend.api.schemas.cv_schemas import CVJobStatusResponse, CVUploadResponse
 from backend.core.cv_pipeline import job_tracker, worker
+from backend.core.redis_client import cache
 from backend.db.crud.cv import create_cv_upload
 from backend.db.session import AsyncSessionLocal
 
 logger = logging.getLogger(__name__)
 
 REDIS_URL: str = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
-CV_UPLOAD_DIR = Path("backend/data/cv_uploads")
+CV_UPLOAD_DIR = Path(__file__).resolve().parents[3] / "data" / "cv_uploads"
+MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
+ALLOWED_EXTENSIONS = {".pdf", ".docx"}
 
 router = APIRouter(prefix="/cv", tags=["cv"])
 
@@ -29,14 +31,18 @@ router = APIRouter(prefix="/cv", tags=["cv"])
 def _resolve_upload_path(filename: str) -> Path:
     """Return a unique destination path inside the CV uploads directory."""
     CV_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-    suffix = Path(filename).suffix
+    suffix = Path(filename).suffix.lower()
     return CV_UPLOAD_DIR / f"{uuid.uuid4()}{suffix}"
 
 
-async def _save_uploaded_file(upload: UploadFile, destination: Path) -> None:
-    """Write the uploaded file bytes to disk."""
-    contents = await upload.read()
-    destination.write_bytes(contents)
+def _validate_file_type(filename: str) -> None:
+    """Reject files that are not PDF or DOCX."""
+    suffix = Path(filename).suffix.lower()
+    if suffix not in ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Unsupported file type '{suffix}'. Allowed: {', '.join(ALLOWED_EXTENSIONS)}",
+        )
 
 
 @router.post("/upload", response_model=CVUploadResponse)
@@ -45,8 +51,14 @@ async def upload_cv(
     citizen_id: str = Form(...),
 ) -> CVUploadResponse:
     """Accept a CV file, persist it to disk and DB, then queue analysis."""
-    destination = _resolve_upload_path(file.filename or "cv")
-    await _save_uploaded_file(file, destination)
+    _validate_file_type(file.filename or "")
+
+    contents = await file.read()
+    if len(contents) > MAX_UPLOAD_BYTES:
+        raise HTTPException(status_code=413, detail="File exceeds 10 MB limit")
+
+    destination = _resolve_upload_path(file.filename or "cv.pdf")
+    await asyncio.to_thread(destination.write_bytes, contents)
 
     async with AsyncSessionLocal() as session:
         cv_upload = await create_cv_upload(
@@ -83,68 +95,20 @@ async def get_job_status(job_id: str) -> CVJobStatusResponse:
             state.status, state.analyzed_pages, state.total_pages or 1
         ),
         total_pages=state.total_pages or None,
-        error=state.error,
+        error=state.error or None,
         result=state.result.model_dump() if state.result else None,
     )
-
-
-def _subscribe_and_feed_queue(
-    job_id: str,
-    queue: asyncio.Queue,
-    loop: asyncio.AbstractEventLoop,
-) -> None:
-    """Blocking Redis pub/sub loop — runs in a thread via asyncio.to_thread."""
-    client = redis.from_url(REDIS_URL, decode_responses=True)
-    pubsub = client.pubsub()
-    pubsub.subscribe(f"cv_progress:{job_id}")
-
-    try:
-        for raw_message in pubsub.listen():
-            if raw_message["type"] != "message":
-                continue
-            payload = raw_message["data"]
-            asyncio.run_coroutine_threadsafe(queue.put(payload), loop)
-            try:
-                event = json.loads(payload)
-            except json.JSONDecodeError:
-                continue
-            if event.get("status") in {"completed", "failed"}:
-                break
-    finally:
-        pubsub.unsubscribe()
-        client.close()
-        asyncio.run_coroutine_threadsafe(queue.put(None), loop)
-
-
-async def _stream_job_events(job_id: str):
-    """Async generator that yields SSE-formatted events from Redis pub/sub."""
-    loop = asyncio.get_running_loop()
-    queue: asyncio.Queue[str | None] = asyncio.Queue()
-
-    asyncio.create_task(
-        asyncio.to_thread(_subscribe_and_feed_queue, job_id, queue, loop)
-    )
-
-    while True:
-        payload = await queue.get()
-        if payload is None:
-            break
-        yield f"data: {payload}\n\n"
 
 
 @router.get("/jobs/{job_id}/stream")
 async def stream_job_progress(job_id: str) -> StreamingResponse:
     """SSE endpoint — streams CV analysis progress events for a job."""
-    try:
-        client = redis.from_url(REDIS_URL, decode_responses=True)
-        client.ping()
-        client.close()
-    except redis.RedisError as exc:
-        logger.warning("Redis unavailable for SSE stream: %s", exc)
+    is_available = await asyncio.to_thread(cache.is_available)
+    if not is_available:
         raise HTTPException(status_code=503, detail="Redis unavailable")
 
     return StreamingResponse(
-        _stream_job_events(job_id),
+        stream_job_events(REDIS_URL, job_id),
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )

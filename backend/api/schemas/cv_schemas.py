@@ -18,5 +18,5 @@ class CVJobStatusResponse(BaseModel):
     stage: str
     progress_pct: int
     total_pages: int | None
-    error: str
-    result: dict | None
+    error: str | None = None
+    result: dict | None = None
