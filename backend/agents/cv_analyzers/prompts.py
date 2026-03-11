@@ -36,6 +36,16 @@ These are concrete products/services, not abstract skills.
 Examples: "AI Engineer", "Data Scientist", "ML Engineer Intern".
 DO NOT include project names, company names, or section headings as roles.
 
+**Education** — Academic qualifications, degrees, certifications.
+Each entry must have:
+- institution: School, university, or training provider name
+- degree: Degree, diploma, or certification earned (e.g. "BS Computer Science", "High School Diploma")
+- year: Graduation year or period (e.g. "2019", "2018-2022")
+
+Only extract education that is explicitly listed. Do not infer.
+
+**Summary** — Write a 1-2 sentence professional summary of this person based ONLY on what appears on this page. Focus on years of experience, key domains, and career trajectory. If the page lacks enough context, return an empty string.
+
 Page content:
 {page_content}
 """
