@@ -41,9 +41,16 @@ async def submit_job(job: JobState) -> str:
     """
     await save_job_state(job)
 
+    from celery.exceptions import CeleryError
+    from kombu.exceptions import OperationalError
     from backend.workers.tasks.cv_analysis import run_cv_analysis
 
-    celery_result = run_cv_analysis.delay(job.model_dump(mode="json"))
+    try:
+        celery_result = run_cv_analysis.delay(job.model_dump(mode="json"))
+    except (CeleryError, OperationalError) as exc:
+        logger.warning("Failed to dispatch CV analysis job %s: %s", job.job_id, exc)
+        raise RuntimeError("Background processing temporarily unavailable") from exc
+
     logger.info(
         "Dispatched CV analysis job %s as Celery task %s",
         job.job_id,
