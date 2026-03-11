@@ -54,6 +54,14 @@ def run_cv_analysis(self, job_state_dict: dict) -> dict:
     except RETRYABLE_EXCEPTIONS as exc:
         logger.warning("Retryable failure for job %s: %s", job.job_id, exc)
         raise self.retry(exc=exc)
+    except Exception as exc:
+        logger.exception(
+            "[CeleryTask:%s] Non-retryable failure — exception type=%s, message=%s",
+            job.job_id,
+            type(exc).__name__,
+            exc,
+        )
+        raise
 
 
 async def _execute_pipeline(job) -> "JobState":
