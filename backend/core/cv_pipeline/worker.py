@@ -1,7 +1,7 @@
-"""Background worker to run CV pipeline jobs.
+"""Job creation and submission for the CV pipeline.
 
-Accepts a JobState, executes the pipeline, and drains all events.
-Designed to be called from a BackgroundTask or task queue.
+Creates JobState instances and submits them to the Celery task queue.
+The actual pipeline execution happens in backend.workers.tasks.cv_analysis.
 """
 
 from __future__ import annotations
@@ -10,7 +10,6 @@ import logging
 import uuid
 
 from backend.core.cv_pipeline.job_tracker import save_job_state
-from backend.core.cv_pipeline.pipeline import run_cv_pipeline
 from backend.core.cv_pipeline.schemas import JobState, JobStatus
 
 logger = logging.getLogger(__name__)
@@ -31,25 +30,23 @@ def create_job(
     )
 
 
-async def execute_job(job: JobState) -> JobState:
-    """Run the pipeline to completion, draining all events.
+async def submit_job(job: JobState) -> str:
+    """Save job state to Redis and dispatch to Celery.
 
     Args:
         job: A queued JobState (from create_job).
 
     Returns:
-        The final JobState after pipeline completes or fails.
+        The Celery task ID for tracking.
     """
     await save_job_state(job)
-    logger.info("Starting CV pipeline job %s", job.job_id)
 
-    async for event in run_cv_pipeline(job):
-        logger.info(
-            "[%s] %s — %d%%",
-            event.status,
-            event.stage,
-            event.progress_pct,
-        )
+    from backend.workers.tasks.cv_analysis import run_cv_analysis
 
-    logger.info("Job %s finished with status: %s", job.job_id, job.status)
-    return job
+    celery_result = run_cv_analysis.delay(job.model_dump(mode="json"))
+    logger.info(
+        "Dispatched CV analysis job %s as Celery task %s",
+        job.job_id,
+        celery_result.id,
+    )
+    return celery_result.id
