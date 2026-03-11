@@ -17,7 +17,7 @@ async def aggregate_page_results(
 ) -> CVAnalysisResult:
     """Merge per-page extractions into a unified CV analysis.
 
-    Deduplicates skills, soft_skills, tools, roles, and education across pages.
+    Deduplicates skills, soft_skills, tools, and education across pages.
     Preserves all experience entries in order.
     Picks the longest summary from any page.
 
@@ -37,7 +37,6 @@ def _aggregate_sync(page_results: list[PageAnalysis]) -> CVAnalysisResult:
     skills_map: dict[str, str] = {}
     soft_skills_map: dict[str, str] = {}
     tools_map: dict[str, str] = {}
-    roles_map: dict[str, str] = {}
     education_map: dict[str, EducationEntry] = {}
     best_summary = ""
 
@@ -47,7 +46,6 @@ def _aggregate_sync(page_results: list[PageAnalysis]) -> CVAnalysisResult:
         _merge_items(skills_map, page.skills)
         _merge_items(soft_skills_map, page.soft_skills)
         _merge_items(tools_map, page.tools)
-        _merge_items(roles_map, page.roles)
         _merge_education(education_map, page.education)
         if len(page.summary) > len(best_summary):
             best_summary = page.summary
@@ -58,7 +56,6 @@ def _aggregate_sync(page_results: list[PageAnalysis]) -> CVAnalysisResult:
         skills=sorted(skills_map.values()),
         soft_skills=sorted(soft_skills_map.values()),
         tools=sorted(tools_map.values()),
-        roles=sorted(roles_map.values()),
         education=list(education_map.values()),
         summary=best_summary,
         page_count=len(page_results),
