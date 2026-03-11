@@ -100,6 +100,7 @@ def _decode_token(token: str) -> dict:
         algorithms=["RS256"],
         issuer=_CLERK_ISSUER,
         options={"verify_aud": False},
+        leeway=30,
     )
 
 
