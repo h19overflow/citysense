@@ -1,8 +1,8 @@
 import { useMemo } from "react";
-import { Layers, LayoutDashboard, Newspaper, UserCircle } from "lucide-react";
+import { Layers, LayoutDashboard, Newspaper, UserCircle, FileText } from "lucide-react";
 import { useAuthMe } from "@/lib/useAuth";
 
-export type MobileTab = "services" | "admin" | "news" | "profile";
+export type MobileTab = "services" | "admin" | "news" | "career" | "profile";
 
 interface AppNavProps {
   activeTab: MobileTab;
@@ -32,6 +32,7 @@ export const AppNav = ({ activeTab, onTabChange, actionItemCount }: AppNavProps)
     const base: TabConfig[] = [
       { id: "services", label: "Services", icon: Layers, badgeCount: actionItemCount },
       { id: "news", label: "News", icon: Newspaper },
+      { id: "career", label: "Career", icon: FileText },
     ];
 
     if (isAdmin) {

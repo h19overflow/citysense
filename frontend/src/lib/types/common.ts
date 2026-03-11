@@ -1,6 +1,6 @@
 export type FlowId = "U1" | "U2" | "U3" | "U4" | "U5" | "U6";
 export type Language = "EN" | "ES";
-export type AppView = "cv" | "services" | "profile" | "admin" | "news";
+export type AppView = "cv" | "services" | "profile" | "admin" | "news" | "career";
 export type MessageType =
   | "text"
   | "benefits-cliff"

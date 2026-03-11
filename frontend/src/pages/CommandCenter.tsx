@@ -4,6 +4,7 @@ import TopBar from "@/components/app/TopBar";
 import { AppNav, type MobileTab } from "@/components/app/MobileNav";
 import { ServicesView } from "@/components/app/services/ServicesView";
 import ProfileView from "@/components/app/ProfileView";
+import CvUploadView from "@/components/app/cv/CvUploadView";
 import { NewsPage } from "@/components/app/news/NewsPage";
 import FloatingChatBubble from "@/components/app/FloatingChatBubble";
 import { useApp } from "@/lib/appContext";
@@ -15,7 +16,7 @@ import {
 } from "@/lib/chatHelpers";
 import type { AppView, Language, ServiceCategory } from "@/lib/types";
 
-const VALID_VIEWS = new Set<string>(["services", "admin", "profile", "news"]);
+const VALID_VIEWS = new Set<string>(["services", "admin", "profile", "news", "career"]);
 
 export default function CommandCenter() {
   const { state, dispatch } = useApp();
@@ -119,6 +120,8 @@ export default function CommandCenter() {
         );
       case "profile":
         return <ProfileView />;
+      case "career":
+        return <CvUploadView />;
       case "news":
         return <NewsPage />;
       default:
