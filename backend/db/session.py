@@ -7,18 +7,21 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
+from sqlalchemy.pool import NullPool
 
 DATABASE_URL: str = os.getenv(
     "DATABASE_URL",
     "postgresql+asyncpg://citysense:citysense_dev@localhost:5432/citysense",
 )
 
+# NullPool disables connection pooling entirely. Each connection is opened
+# and closed per-use, which is required for Celery workers that call
+# asyncio.run() per task (each call creates a new event loop). A pooled
+# engine created in one loop cannot be reused in another loop without this.
 engine = create_async_engine(
     DATABASE_URL,
-    pool_size=10,
-    max_overflow=20,
+    poolclass=NullPool,
     pool_pre_ping=True,
-    pool_recycle=3600,
 )
 
 AsyncSessionLocal = async_sessionmaker(
