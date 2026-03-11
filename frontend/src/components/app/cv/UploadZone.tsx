@@ -1,11 +1,11 @@
 import { useRef, useState } from "react";
 import { CheckCircle } from "lucide-react";
 import { useApp } from "@/lib/appContext";
-import { MOCK_CV_DATA } from "@/lib/mockCvData";
-import { ANALYSIS_STEPS, AnalyzingSteps } from "./AnalysisProgress";
+import { uploadCv, fetchJobStatus, streamJobProgress } from "@/lib/cvService";
+import type { PipelineEvent } from "@/lib/types";
 import { DropZoneArea } from "./DropZoneArea";
 
-type UploadState = "idle" | "dragging" | "uploading" | "analyzing" | "complete";
+type UploadState = "idle" | "dragging" | "uploading" | "analyzing" | "complete" | "error";
 
 const formatFileSize = (bytes: number): string => {
   if (bytes < 1024) return `${bytes} B`;
@@ -16,30 +16,57 @@ const formatFileSize = (bytes: number): string => {
 export default function UploadZone({ compact = false }: { compact?: boolean }) {
   const { state, dispatch } = useApp();
   const [uploadState, setUploadState] = useState<UploadState>(
-    state.cvData ? "complete" : "idle"
+    state.cvResult ? "complete" : "idle"
   );
-  const [completedStepCount, setCompletedStepCount] = useState(0);
-  const [fileSize, setFileSize] = useState<string>("");
+  const [fileSize, setFileSize] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cleanupRef = useRef<(() => void) | null>(null);
 
-  const startAnalysis = (file: File) => {
+  const handlePipelineEvent = (event: PipelineEvent) => {
+    dispatch({ type: "SET_CV_PROGRESS", progress: event.progress_pct, stage: event.stage });
+
+    if (event.status === "completed" && state.cvJobId) {
+      fetchJobStatus(state.cvJobId).then((job) => {
+        if (job.result) {
+          dispatch({ type: "SET_CV_RESULT", result: job.result });
+          setUploadState("complete");
+        }
+      });
+      cleanupRef.current?.();
+    }
+
+    if (event.status === "failed") {
+      setErrorMessage(event.detail || "Analysis failed");
+      setUploadState("error");
+      dispatch({ type: "SET_CV_ANALYZING", analyzing: false });
+      cleanupRef.current?.();
+    }
+  };
+
+  const startAnalysis = async (file: File) => {
     setFileSize(formatFileSize(file.size));
     dispatch({ type: "SET_CV_FILE", fileName: file.name });
     setUploadState("uploading");
+    setErrorMessage("");
 
-    setTimeout(() => {
+    const citizenId = state.citizenMeta?.id ?? "";
+
+    try {
+      const { job_id } = await uploadCv(file, citizenId);
+      dispatch({ type: "SET_CV_JOB", jobId: job_id });
       setUploadState("analyzing");
       dispatch({ type: "SET_CV_ANALYZING", analyzing: true });
 
-      ANALYSIS_STEPS.forEach((step, index) => {
-        setTimeout(() => setCompletedStepCount(index + 1), step.completeAfterMs);
+      cleanupRef.current = streamJobProgress(job_id, handlePipelineEvent, (err) => {
+        setErrorMessage(err);
+        setUploadState("error");
       });
-
-      setTimeout(() => {
-        dispatch({ type: "SET_CV_DATA", data: MOCK_CV_DATA });
-        setUploadState("complete");
-      }, 2000);
-    }, 600);
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : "Upload failed");
+      setUploadState("error");
+      dispatch({ type: "SET_CV_ANALYZING", analyzing: false });
+    }
   };
 
   const handleFileSelected = (file: File | undefined) => {
@@ -65,9 +92,10 @@ export default function UploadZone({ compact = false }: { compact?: boolean }) {
   };
 
   const handleClearForReupload = () => {
+    cleanupRef.current?.();
     dispatch({ type: "CLEAR_CV" });
     setUploadState("idle");
-    setCompletedStepCount(0);
+    setErrorMessage("");
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -107,9 +135,16 @@ export default function UploadZone({ compact = false }: { compact?: boolean }) {
       )}
 
       {uploadState === "analyzing" && (
-        <div className="flex flex-col items-center">
-          <p className="text-xs font-medium text-foreground mb-1">Analyzing your CV...</p>
-          <AnalyzingSteps completedCount={completedStepCount} />
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-xs font-medium text-foreground">Analyzing your CV...</p>
+          <div className="w-48 h-1.5 bg-muted rounded-full overflow-hidden">
+            <div
+              className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
+              style={{ width: `${state.cvProgress}%` }}
+            />
+          </div>
+          <p className="text-[10px] text-muted-foreground">{state.cvStage || "Starting..."}</p>
         </div>
       )}
 
@@ -123,6 +158,18 @@ export default function UploadZone({ compact = false }: { compact?: boolean }) {
             className="text-xs text-primary underline underline-offset-2 hover:text-primary/80 transition-colors"
           >
             Upload a different CV
+          </button>
+        </div>
+      )}
+
+      {uploadState === "error" && (
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-xs text-destructive font-medium">{errorMessage}</p>
+          <button
+            onClick={handleClearForReupload}
+            className="text-xs text-primary underline underline-offset-2 hover:text-primary/80 transition-colors"
+          >
+            Try again
           </button>
         </div>
       )}
