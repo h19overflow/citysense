@@ -39,6 +39,8 @@ class RedisCache:
 
     def is_available(self) -> bool:
         if not self._client:
+            self._init_client()
+        if not self._client:
             return False
         try:
             return bool(self._client.ping())
