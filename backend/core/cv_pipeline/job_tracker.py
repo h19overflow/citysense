@@ -55,13 +55,25 @@ async def publish_event(event: PipelineEvent) -> None:
     payload = json.dumps(event.model_dump(mode="json"))
 
     if not cache.is_available():
-        logger.debug("Redis unavailable, skipping event publish: %s", event.stage)
+        logger.warning(
+            "[JobTracker:%s] Redis unavailable — cannot publish event stage='%s'",
+            event.job_id,
+            event.stage,
+        )
         return
 
     try:
+        logger.info(
+            "[JobTracker:%s] Publishing event stage='%s' status='%s' to channel '%s'",
+            event.job_id,
+            event.stage,
+            event.status,
+            channel,
+        )
         await asyncio.to_thread(cache.publish, channel, payload)
-    except redis.RedisError:
-        logger.warning("Failed to publish event for job %s", event.job_id)
+        logger.debug("[JobTracker:%s] Published successfully to '%s'", event.job_id, channel)
+    except redis.RedisError as exc:
+        logger.warning("Failed to publish event for job %s: %s", event.job_id, exc)
 
 
 async def delete_job_state(job_id: str) -> None:

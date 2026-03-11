@@ -9,7 +9,7 @@ import uuid
 from pathlib import Path
 
 from fastapi import APIRouter, Form, HTTPException, UploadFile
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response, StreamingResponse
 
 from backend.api.routers.cv_stream import stream_job_events
 from backend.api.schemas.cv_schemas import CVJobStatusResponse, CVUploadResponse
@@ -109,8 +109,30 @@ async def stream_job_progress(job_id: str) -> StreamingResponse:
     if not is_available:
         raise HTTPException(status_code=503, detail="Redis unavailable")
 
+    # Diagnostic: log the job's current state when the SSE request arrives.
+    # This reveals whether the client connected before or after the job finished.
+    current_state = await job_tracker.load_job_state(job_id)
+    if current_state is None:
+        logger.warning("[SSE:%s] SSE request for unknown job — job state not found in Redis", job_id)
+    else:
+        logger.info(
+            "[SSE:%s] SSE request received. Current job status='%s', progress=%d%%, "
+            "analyzed_pages=%d, total_pages=%d",
+            job_id,
+            current_state.status,
+            job_tracker.compute_progress(
+                current_state.status,
+                current_state.analyzed_pages,
+                current_state.total_pages or 1,
+            ),
+            current_state.analyzed_pages,
+            current_state.total_pages or 0,
+        )
+
     return StreamingResponse(
         stream_job_events(REDIS_URL, job_id),
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
+
+
