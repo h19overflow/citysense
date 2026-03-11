@@ -78,12 +78,12 @@ export function useJobFiltering({
   }, []);
 
   useEffect(() => {
-    if (!state.cvData || state.jobListings.length === 0) {
+    if (!state.cvResult || state.jobListings.length === 0) {
       dispatch({ type: "SET_JOB_MATCHES", matches: [] });
       return;
     }
-    dispatch({ type: "SET_JOB_MATCHES", matches: matchJobsToProfile(state.jobListings, state.cvData) });
-  }, [state.cvData, state.jobListings]);
+    dispatch({ type: "SET_JOB_MATCHES", matches: matchJobsToProfile(state.jobListings, state.cvResult) });
+  }, [state.cvResult, state.jobListings]);
 
   const industries = useMemo(() => {
     const set = new Set(state.jobListings.map((j) => j.industry).filter(Boolean));

@@ -25,7 +25,7 @@ export function NewsCommentSection({ articleId }: NewsCommentSectionProps) {
       id: `cmt-${Date.now()}`,
       articleId,
       citizenId: citizen?.id ?? "guest",
-      citizenName: citizen ? (state.cvData?.name ?? citizen.persona) : "Resident",
+      citizenName: citizen ? citizen.persona : "Resident",
       avatarInitials: citizen?.avatarInitials ?? "R",
       avatarColor: citizen?.avatarColor ?? "#6b7280",
       content: trimmed,

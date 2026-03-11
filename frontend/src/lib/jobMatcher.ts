@@ -2,7 +2,8 @@
  * Job matching engine: compares user CV skills against job requirements.
  * Separates actual skills from requirements (clearance, physical, experience).
  */
-import type { CvData, JobListing, JobMatch, TrendingSkill } from "./types";
+import type { JobListing, JobMatch, TrendingSkill } from "./types";
+import type { CVAnalysisResult } from "./types/cv";
 import {
   SKILL_CATEGORIES,
   HEALTHCARE_ONLY_SKILLS,
@@ -34,9 +35,9 @@ export function jobMatchesSkillFilter(job: JobListing, rawSkillKey: string): boo
 
 export function matchJobsToProfile(
   jobs: JobListing[],
-  cvData: CvData,
+  cvResult: CVAnalysisResult,
 ): JobMatch[] {
-  const userSkills = normalizeCvSkills(cvData.skills);
+  const userSkills = normalizeCvSkills(cvResult.skills);
 
   const matches: JobMatch[] = jobs.map((job) => {
     const requiredSkills = flattenSkillCategories(job.skills);

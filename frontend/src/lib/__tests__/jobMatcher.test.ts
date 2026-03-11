@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { matchJobsToProfile, computeTrendingSkills, jobMatchesSkillFilter } from "../jobMatcher";
-import type { CvData, JobListing } from "../types";
+import type { JobListing } from "../types";
+import type { CVAnalysisResult } from "../types/cv";
 
 // ------------------------------------------------------------------
 // Fixtures
@@ -31,16 +32,16 @@ function makeJob(overrides: Partial<JobListing> = {}): JobListing {
   };
 }
 
-function makeCv(skills: string[]): CvData {
+function makeCv(skills: string[]): CVAnalysisResult {
   return {
-    name: "Jane Doe",
-    email: "jane@example.com",
-    phone: "334-555-0000",
-    location: "Montgomery, AL",
     experience: [],
-    education: [],
     skills,
+    soft_skills: [],
+    tools: [],
+    roles: [],
+    education: [],
     summary: "",
+    page_count: 0,
   };
 }
 
