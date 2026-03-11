@@ -72,6 +72,7 @@ async def persist_cv_result(
                 version_number=version_number,
                 content_hash=content_hash,
                 experience=[e.model_dump() for e in result.experience],
+                projects=[p.model_dump() for p in result.projects],
                 skills=result.skills,
                 soft_skills=result.soft_skills,
                 tools=result.tools,
