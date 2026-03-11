@@ -27,6 +27,9 @@ wheels/
 # Legacy directory (renamed to frontend/)
 montgomery-navigator/
 
+# PDFs (CV test files, etc.)
+*.pdf
+
 # OS / Editor files
 .DS_Store
 .vscode/
@@ -34,3 +37,4 @@ montgomery-navigator/
 # Local resolutions log
 resolutions.md
 docs/
+CLAUDE.md
