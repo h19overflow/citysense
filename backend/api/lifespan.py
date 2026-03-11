@@ -12,6 +12,7 @@ import os
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
+import kombu.exceptions
 from fastapi import FastAPI
 
 logger = logging.getLogger(__name__)
@@ -63,5 +64,5 @@ def _verify_celery_broker() -> None:
         conn.ensure_connection(max_retries=1, timeout=3)
         conn.close()
         logger.info("Celery broker connection verified")
-    except (ConnectionError, OSError, ConnectionRefusedError) as exc:
+    except (ConnectionError, OSError, ConnectionRefusedError, kombu.exceptions.OperationalError) as exc:
         logger.warning("Celery broker unreachable — background tasks disabled: %s", exc)
