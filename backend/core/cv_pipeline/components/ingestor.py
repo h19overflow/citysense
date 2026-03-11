@@ -1,7 +1,7 @@
-"""Document ingestion via langchain-docling.
+"""Document ingestion via PyMuPDF (fitz).
 
-Converts PDF/DOCX into a list of chunked Document objects,
-preserving page metadata from docling's dl_meta.
+Extracts text per page from PDF and DOCX files.
+Returns a list of page dicts compatible with extract_page_contents().
 """
 
 from __future__ import annotations
@@ -9,18 +9,17 @@ from __future__ import annotations
 import asyncio
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from langchain_core.documents import Document
 
 logger = logging.getLogger(__name__)
 
 SUPPORTED_EXTENSIONS = {".pdf", ".docx"}
 
+# Internal page representation — only used within this module.
+type _PageDict = dict[str, int | str]
+
 
 def _validate_file(file_path: Path) -> None:
-    """Raise ValueError if the file is missing or unsupported."""
+    """Raise if the file is missing or unsupported."""
     if not file_path.exists():
         raise FileNotFoundError(f"CV file not found: {file_path}")
     if file_path.suffix.lower() not in SUPPORTED_EXTENSIONS:
@@ -30,94 +29,79 @@ def _validate_file(file_path: Path) -> None:
         )
 
 
-def _load_documents_sync(file_path: Path) -> list[Document]:
-    """Run the blocking DoclingLoader in a sync context.
+def _extract_pages_sync(file_path: Path) -> list[_PageDict]:
+    """Extract text per page using PyMuPDF (blocking — run in thread)."""
+    import fitz  # PyMuPDF
 
-    Imports are deferred here to avoid heavy torch/transformers
-    load at module import time.
+    suffix = file_path.suffix.lower()
+    pages: list[_PageDict] = []
+
+    if suffix == ".pdf":
+        with fitz.open(str(file_path)) as doc:
+            for page_index, page in enumerate(doc, start=1):
+                text = page.get_text()
+                pages.append({"page_no": page_index, "text": text})
+    elif suffix == ".docx":
+        pages = _extract_docx_pages(file_path)
+
+    return pages
+
+
+def _extract_docx_pages(file_path: Path) -> list[_PageDict]:
+    """Extract text from DOCX, splitting on page breaks where present.
+
+    DOCX has no true page concept — we split on rendered page breaks
+    (w:lastRenderedPageBreak / w:pageBreak) and treat the whole document
+    as page 1 if no breaks exist.
     """
-    from langchain_docling.loader import DoclingLoader
+    from docx import Document as DocxDocument
 
-    loader = DoclingLoader(
-        file_path=[str(file_path)],
-        export_type="doc_chunks",
-    )
-    return loader.load()
+    doc = DocxDocument(str(file_path))
+    current_page = 1
+    page_texts: dict[int, list[str]] = {1: []}
+
+    for paragraph in doc.paragraphs:
+        for run in paragraph.runs:
+            if run._element.xml.find("w:lastRenderedPageBreak") != -1 or \
+               run._element.xml.find("w:pageBreak") != -1:
+                current_page += 1
+                page_texts[current_page] = []
+        if paragraph.text.strip():
+            page_texts[current_page].append(paragraph.text)
+
+    return [
+        {"page_no": page_no, "text": "\n".join(lines)}
+        for page_no, lines in page_texts.items()
+    ]
 
 
-async def ingest_cv(file_path: Path) -> list[Document]:
-    """Ingest a CV file and return chunked documents.
+async def ingest_cv(file_path: Path) -> list[_PageDict]:
+    """Ingest a CV file and return a list of per-page dicts.
 
-    Uses DoclingLoader with DOC_CHUNKS export to split the document
-    into structural chunks. Each Document carries dl_meta with page
-    numbers, bounding boxes, and hierarchy info.
+    Each dict has keys: page_no (int, 1-based), text (str).
 
     Args:
         file_path: Path to the CV file (PDF or DOCX).
 
     Returns:
-        List of langchain Document objects (one per chunk).
+        List of page dicts, one per page.
     """
     _validate_file(file_path)
     logger.info("Ingesting CV: %s", file_path.name)
 
-    documents = await asyncio.to_thread(_load_documents_sync, file_path)
+    pages = await asyncio.to_thread(_extract_pages_sync, file_path)
 
-    logger.info(
-        "Ingested %d chunks from %s", len(documents), file_path.name
-    )
-    return documents
+    logger.info("Ingested %d pages from %s", len(pages), file_path.name)
+    return pages
 
 
-async def extract_page_contents(
-    documents: list[Document],
-) -> dict[int, str]:
-    """Group document chunks by page number.
-
-    Reads the dl_meta field from each chunk's metadata and
-    concatenates chunk text per page.
+async def extract_page_contents(pages: list[_PageDict]) -> dict[int, str]:
+    """Convert the page list into a page_number → text mapping.
 
     Args:
-        documents: Chunks returned by ingest_cv().
+        pages: List returned by ingest_cv().
 
     Returns:
-        Dict mapping page number (1-based) to concatenated text.
+        Dict mapping page number (1-based) to page text.
     """
-    pages: dict[int, list[str]] = {}
-
-    for doc in documents:
-        page_number = _extract_page_number(doc)
-        pages.setdefault(page_number, []).append(doc.page_content)
-
-    return {page: "\n\n".join(chunks) for page, chunks in pages.items()}
-
-
-def _extract_page_number(doc: Document) -> int:
-    """Pull the page number from docling metadata, default to 1.
-
-    dl_meta structure: {doc_items: [{prov: [{page_no: int}]}]}
-    The first doc_item's first prov entry gives the primary page.
-    dl_meta may be a dict or a string repr of a dict.
-    """
-    dl_meta = doc.metadata.get("dl_meta", {})
-
-    if isinstance(dl_meta, str):
-        try:
-            import ast
-            dl_meta = ast.literal_eval(dl_meta)
-        except (ValueError, SyntaxError):
-            return 1
-
-    if not isinstance(dl_meta, dict):
-        return 1
-
-    doc_items = dl_meta.get("doc_items", [])
-    if doc_items and isinstance(doc_items, list):
-        first_item = doc_items[0]
-        prov_list = first_item.get("prov", [])
-        if prov_list and isinstance(prov_list, list):
-            page_no = prov_list[0].get("page_no")
-            if isinstance(page_no, int):
-                return page_no
-
-    return 1
+    return {int(page["page_no"]): str(page["text"]) for page in pages}

@@ -62,10 +62,13 @@ class CVVersion(Base):
         comment="SHA-256 of serialized analysis — skips insert if duplicate",
     )
     experience: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    projects: Mapped[list | None] = mapped_column(JSONB, nullable=True)
     skills: Mapped[list | None] = mapped_column(JSONB, nullable=True)
     soft_skills: Mapped[list | None] = mapped_column(JSONB, nullable=True)
     tools: Mapped[list | None] = mapped_column(JSONB, nullable=True)
     roles: Mapped[list | None] = mapped_column(JSONB, nullable=True)
+    education: Mapped[list | None] = mapped_column(JSONB, nullable=True)
+    summary: Mapped[str | None] = mapped_column(Text, nullable=True, default="")
     page_count: Mapped[int] = mapped_column(Integer, default=0)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False

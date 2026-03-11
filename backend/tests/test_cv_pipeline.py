@@ -79,7 +79,6 @@ class TestPageAnalysis:
         assert page.soft_skills == []
         assert page.experience == []
         assert page.tools == []
-        assert page.roles == []
 
     @pytest.mark.unit
     def test_raw_text_defaults_to_empty_string(self):

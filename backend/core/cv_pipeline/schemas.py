@@ -8,22 +8,39 @@ from pydantic import BaseModel, Field
 
 
 class ExperienceEntry(BaseModel):
-    """A single work experience entry."""
+    """A single formal work experience entry (employment only)."""
 
-    role: str = Field(description="Job title / role name")
-    company: str = Field(default="", description="Company or organization")
-    duration: str = Field(default="", description="Time period (e.g. '2020-2023')")
-    description: str = Field(default="", description="Brief summary of responsibilities")
+    role: str = Field(description="Official job title (e.g. 'Software Engineer Intern')")
+    company: str = Field(default="", description="Employer organisation name")
+    duration: str = Field(default="", description="Employment period (e.g. 'Jun 2024 – Aug 2024')")
+    description: str = Field(default="", description="Key responsibilities in 1-2 sentences")
+
+
+class ProjectEntry(BaseModel):
+    """A single personal, academic, or open-source project."""
+
+    name: str = Field(description="Project name or title")
+    description: str = Field(default="", description="What the project does and the candidate's contribution")
+
+
+class EducationEntry(BaseModel):
+    """A single education entry."""
+
+    institution: str = Field(description="School or university name")
+    degree: str = Field(default="", description="Degree or certificate earned")
+    year: str = Field(default="", description="Graduation year or period")
 
 
 class PageAnalysis(BaseModel):
     """Extracted sections from a single CV page."""
 
     experience: list[ExperienceEntry] = Field(default_factory=list)
+    projects: list[ProjectEntry] = Field(default_factory=list, description="Personal/academic/open-source projects")
     skills: list[str] = Field(default_factory=list, description="Technical / hard skills")
     soft_skills: list[str] = Field(default_factory=list, description="Soft skills")
     tools: list[str] = Field(default_factory=list, description="Tools and technologies")
-    roles: list[str] = Field(default_factory=list, description="Job roles / titles found")
+    education: list[EducationEntry] = Field(default_factory=list, description="Education entries")
+    summary: str = Field(default="", description="Brief professional summary if found on this page")
     raw_text: str = Field(default="", description="Original page text for reference")
 
 
@@ -31,10 +48,13 @@ class CVAnalysisResult(BaseModel):
     """Aggregated analysis across all CV pages."""
 
     experience: list[ExperienceEntry] = Field(default_factory=list)
+    projects: list[ProjectEntry] = Field(default_factory=list)
     skills: list[str] = Field(default_factory=list)
     soft_skills: list[str] = Field(default_factory=list)
     tools: list[str] = Field(default_factory=list)
     roles: list[str] = Field(default_factory=list)
+    education: list[EducationEntry] = Field(default_factory=list)
+    summary: str = Field(default="")
     page_count: int = Field(default=0)
 
 
