@@ -19,10 +19,10 @@ class CVUpload(Base):
         primary_key=True,
         server_default=func.gen_random_uuid(),
     )
-    citizen_id: Mapped[str] = mapped_column(
+    citizen_id: Mapped[str | None] = mapped_column(
         UUID(as_uuid=False),
         ForeignKey("citizen_profiles.id", ondelete="CASCADE"),
-        nullable=False,
+        nullable=True,
         index=True,
     )
     file_name: Mapped[str] = mapped_column(String(500), nullable=False)
