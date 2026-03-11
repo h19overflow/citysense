@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 REDIS_URL: str = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
 CV_UPLOAD_DIR = Path(__file__).resolve().parents[3] / "data" / "cv_uploads"
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
-ALLOWED_EXTENSIONS = {".pdf", ".docx"}
+ALLOWED_EXTENSIONS = [".pdf", ".docx"]
 
 router = APIRouter(prefix="/cv", tags=["cv"])
 
