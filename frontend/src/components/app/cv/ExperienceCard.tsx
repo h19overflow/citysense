@@ -1,43 +1,27 @@
 import { Briefcase } from "lucide-react";
-import type { CvData } from "@/lib/types";
+import type { ExperienceEntry } from "@/lib/types";
 
 interface ExperienceCardProps {
-  experience: CvData["experience"];
+  experience: ExperienceEntry[];
 }
 
-const ExperienceEntry = ({
-  entry,
-  isLast,
-}: {
-  entry: CvData["experience"][number];
-  isLast: boolean;
-}) => (
-  <div>
-    <div className="flex items-start justify-between gap-2 mb-1">
-      <div>
-        <p className="text-sm font-semibold text-foreground">{entry.company}</p>
-        <p className="text-xs text-muted-foreground">{entry.location}</p>
+function ExperienceRow({ entry, isLast }: { entry: ExperienceEntry; isLast: boolean }) {
+  return (
+    <div>
+      <div className="flex items-start justify-between gap-2 mb-1">
+        <p className="text-sm font-semibold text-foreground">{entry.role}</p>
+        <span className="inline-block px-2 py-0.5 rounded-full bg-secondary/10 text-secondary text-xs border border-secondary/20 shrink-0">
+          {entry.duration}
+        </span>
       </div>
+      <p className="text-xs text-muted-foreground mb-2">{entry.company}</p>
+      {entry.description && (
+        <p className="text-sm text-foreground/80 leading-relaxed">{entry.description}</p>
+      )}
+      {!isLast && <div className="border-t border-border/50 mt-4" />}
     </div>
-    <div className="flex items-center gap-2 mb-2">
-      <p className="text-sm text-foreground">{entry.title}</p>
-      <span className="text-xs text-muted-foreground">·</span>
-      <p className="text-xs text-muted-foreground">{entry.period}</p>
-      <span className="inline-block px-2 py-0.5 rounded-full bg-secondary/10 text-secondary text-xs border border-secondary/20">
-        {entry.duration}
-      </span>
-    </div>
-    <ul className="space-y-1">
-      {entry.bullets.map((bullet) => (
-        <li key={bullet} className="text-sm text-foreground/80 flex gap-2">
-          <span className="text-primary mt-1 shrink-0">·</span>
-          {bullet}
-        </li>
-      ))}
-    </ul>
-    {!isLast && <div className="border-t border-border/50 mt-4" />}
-  </div>
-);
+  );
+}
 
 const ExperienceCard = ({ experience }: ExperienceCardProps) => (
   <div className="rounded-xl border border-border/50 bg-white px-5 py-4">
@@ -47,8 +31,8 @@ const ExperienceCard = ({ experience }: ExperienceCardProps) => (
     </h3>
     <div className="space-y-4">
       {experience.map((entry, index) => (
-        <ExperienceEntry
-          key={`${entry.company}-${entry.period}`}
+        <ExperienceRow
+          key={`${entry.company}-${entry.role}`}
           entry={entry}
           isLast={index === experience.length - 1}
         />
