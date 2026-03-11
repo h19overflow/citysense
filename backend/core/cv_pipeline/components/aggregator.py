@@ -27,33 +27,34 @@ async def aggregate_page_results(
 def _aggregate_sync(page_results: list[PageAnalysis]) -> CVAnalysisResult:
     """Synchronous aggregation logic."""
     all_experience = []
-    skills_seen: set[str] = set()
-    soft_skills_seen: set[str] = set()
-    tools_seen: set[str] = set()
-    roles_seen: set[str] = set()
+    skills_map: dict[str, str] = {}
+    soft_skills_map: dict[str, str] = {}
+    tools_map: dict[str, str] = {}
+    roles_map: dict[str, str] = {}
 
     for page in page_results:
         all_experience.extend(page.experience)
-        skills_seen.update(_normalize_items(page.skills))
-        soft_skills_seen.update(_normalize_items(page.soft_skills))
-        tools_seen.update(_normalize_items(page.tools))
-        roles_seen.update(_normalize_items(page.roles))
+        _merge_items(skills_map, page.skills)
+        _merge_items(soft_skills_map, page.soft_skills)
+        _merge_items(tools_map, page.tools)
+        _merge_items(roles_map, page.roles)
 
     return CVAnalysisResult(
         experience=all_experience,
-        skills=sorted(skills_seen),
-        soft_skills=sorted(soft_skills_seen),
-        tools=sorted(tools_seen),
-        roles=sorted(roles_seen),
+        skills=sorted(skills_map.values()),
+        soft_skills=sorted(soft_skills_map.values()),
+        tools=sorted(tools_map.values()),
+        roles=sorted(roles_map.values()),
         page_count=len(page_results),
     )
 
 
-def _normalize_items(items: list[str]) -> list[str]:
-    """Lowercase-strip for dedup, return originals."""
-    seen: dict[str, str] = {}
+def _merge_items(target: dict[str, str], items: list[str]) -> None:
+    """Merge items into target dict using lowercase keys for dedup.
+
+    Preserves the first-seen casing of each item.
+    """
     for item in items:
         key = item.strip().lower()
-        if key and key not in seen:
-            seen[key] = item.strip()
-    return list(seen.values())
+        if key and key not in target:
+            target[key] = item.strip()
