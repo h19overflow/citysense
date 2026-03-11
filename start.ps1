@@ -17,10 +17,10 @@ bash -c "ps aux | grep 'npm run dev\|vite' | grep -v grep | awk '{print \$1}' | 
 Start-Sleep -Seconds 1
 
 Write-Host "Starting backend and frontend..." -ForegroundColor Cyan
-$backend = Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$root'; .\.venv\Scripts\python.exe -m uvicorn backend.api.main:app --reload --port 8082" -PassThru
+$backend = Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$root'; .\.venv\Scripts\python.exe -m uvicorn backend.api.main:app --reload --port 8085" -PassThru
 $frontend = Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$root\frontend'; npm run dev" -PassThru
 
-Write-Host "Backend  (PID: $($backend.Id))  -> http://localhost:8082" -ForegroundColor Green
+Write-Host "Backend  (PID: $($backend.Id))  -> http://localhost:8085" -ForegroundColor Green
 Write-Host "Frontend (PID: $($frontend.Id))  -> http://localhost:5173" -ForegroundColor Green
 Write-Host ""
 Write-Host "Press Ctrl+C to stop frontend/backend. Run 'docker compose down' to stop Docker services." -ForegroundColor Yellow

@@ -23,7 +23,7 @@ ALLOWED_ORIGINS = ["*"] if os.getenv("CORS_ALLOW_ALL", "1") == "1" else [
     "http://localhost:5173",
     "http://localhost:8080",
     "http://localhost:8081",
-    "http://localhost:8082",
+    "http://localhost:8085",
 ] + ([o.strip() for o in _extra.split(",") if o.strip()] if _extra else [])
 
 app = FastAPI(title="MontgomeryAI", lifespan=lifespan)
