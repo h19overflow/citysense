@@ -8,6 +8,7 @@ from backend.core.cv_pipeline.schemas import (
     CVAnalysisResult,
     EducationEntry,
     PageAnalysis,
+    ProjectEntry,
 )
 
 
@@ -32,6 +33,7 @@ async def aggregate_page_results(
 def _aggregate_sync(page_results: list[PageAnalysis]) -> CVAnalysisResult:
     """Synchronous aggregation logic."""
     all_experience = []
+    projects_map: dict[str, ProjectEntry] = {}
     skills_map: dict[str, str] = {}
     soft_skills_map: dict[str, str] = {}
     tools_map: dict[str, str] = {}
@@ -41,6 +43,7 @@ def _aggregate_sync(page_results: list[PageAnalysis]) -> CVAnalysisResult:
 
     for page in page_results:
         all_experience.extend(page.experience)
+        _merge_projects(projects_map, page.projects)
         _merge_items(skills_map, page.skills)
         _merge_items(soft_skills_map, page.soft_skills)
         _merge_items(tools_map, page.tools)
@@ -51,6 +54,7 @@ def _aggregate_sync(page_results: list[PageAnalysis]) -> CVAnalysisResult:
 
     return CVAnalysisResult(
         experience=all_experience,
+        projects=list(projects_map.values()),
         skills=sorted(skills_map.values()),
         soft_skills=sorted(soft_skills_map.values()),
         tools=sorted(tools_map.values()),
@@ -70,6 +74,16 @@ def _merge_items(target: dict[str, str], items: list[str]) -> None:
         key = item.strip().lower()
         if key and key not in target:
             target[key] = item.strip()
+
+
+def _merge_projects(
+    target: dict[str, ProjectEntry], entries: list[ProjectEntry]
+) -> None:
+    """Dedup projects by name (case-insensitive)."""
+    for entry in entries:
+        key = entry.name.strip().lower()
+        if key and key not in target:
+            target[key] = entry
 
 
 def _merge_education(

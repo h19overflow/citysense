@@ -62,6 +62,7 @@ class CVVersion(Base):
         comment="SHA-256 of serialized analysis — skips insert if duplicate",
     )
     experience: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    projects: Mapped[list | None] = mapped_column(JSONB, nullable=True)
     skills: Mapped[list | None] = mapped_column(JSONB, nullable=True)
     soft_skills: Mapped[list | None] = mapped_column(JSONB, nullable=True)
     tools: Mapped[list | None] = mapped_column(JSONB, nullable=True)
