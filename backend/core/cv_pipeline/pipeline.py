@@ -13,6 +13,7 @@ from collections.abc import AsyncGenerator
 from pathlib import Path
 
 from backend.agents.cv_analyzers.agent import analyze_cv_page
+from backend.agents.cv_analyzers.synthesizer import synthesize_cv_roles
 from backend.core.cv_pipeline.components.aggregator import aggregate_page_results
 from backend.core.cv_pipeline.components.ingestor import (
     extract_page_contents,
@@ -122,6 +123,7 @@ async def run_cv_pipeline(
         yield await emit_pipeline_event(job, JobStatus.AGGREGATING, "Aggregating results")
 
         final_result = await aggregate_page_results(page_results)
+        final_result.roles = await synthesize_cv_roles(final_result)
         job.result = final_result
 
         # --- Stage 4: Persist to DB (with hash dedup) ---
