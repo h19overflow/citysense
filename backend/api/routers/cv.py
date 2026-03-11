@@ -48,7 +48,7 @@ def _validate_file_type(filename: str) -> None:
 @router.post("/upload", response_model=CVUploadResponse)
 async def upload_cv(
     file: UploadFile,
-    citizen_id: str = Form(default=""),
+    citizen_id: str = Form(...),
 ) -> CVUploadResponse:
     """Accept a CV file, persist it to disk and DB, then queue analysis."""
     _validate_file_type(file.filename or "")
@@ -57,15 +57,13 @@ async def upload_cv(
     if len(contents) > MAX_UPLOAD_BYTES:
         raise HTTPException(status_code=413, detail="File exceeds 10 MB limit")
 
-    resolved_citizen_id = citizen_id if citizen_id else None
-
     destination = _resolve_upload_path(file.filename or "cv.pdf")
     await asyncio.to_thread(destination.write_bytes, contents)
 
     async with AsyncSessionLocal() as session:
         cv_upload = await create_cv_upload(
             session,
-            citizen_id=resolved_citizen_id,
+            citizen_id=citizen_id,
             file_name=file.filename or destination.name,
             file_url=str(destination),
         )
