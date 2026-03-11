@@ -27,6 +27,9 @@ wheels/
 # Legacy directory (renamed to frontend/)
 montgomery-navigator/
 
+# PDFs (CV test files, etc.)
+*.pdf
+
 # OS / Editor files
 .DS_Store
 .vscode/
