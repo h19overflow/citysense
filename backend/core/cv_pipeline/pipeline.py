@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
 from collections.abc import AsyncGenerator
 from pathlib import Path
 
@@ -21,6 +22,7 @@ from backend.core.cv_pipeline.db_persist import persist_cv_result
 from backend.core.cv_pipeline.job_tracker import (
     build_pipeline_event,
     emit_pipeline_event,
+    publish_event,
     save_job_state,
 )
 from backend.core.cv_pipeline.schemas import (
@@ -54,6 +56,25 @@ async def _analyze_single_page(
     return result
 
 
+def _resolve_file_path(stored_path: str) -> Path:
+    """Resolve the stored file path to the actual location on this host.
+
+    When the Celery worker runs inside Docker, CV_UPLOAD_DIR is set to the
+    container-side mount (e.g. /app/data/cv_uploads). We use just the filename
+    from the stored path and re-anchor it to CV_UPLOAD_DIR so the file can be
+    found regardless of where the stored absolute path was written.
+    """
+    upload_dir = os.environ.get("CV_UPLOAD_DIR")
+    if upload_dir:
+        # stored_path may be a Windows path (e.g. C:\...\file.pdf) running on Linux.
+        # Split on both separators to reliably extract just the filename.
+        filename = stored_path.replace("\\", "/").split("/")[-1]
+        resolved = Path(upload_dir) / filename
+        logger.info("Resolved file path: %s → %s", stored_path, resolved)
+        return resolved
+    return Path(stored_path)
+
+
 async def run_cv_pipeline(
     job: JobState,
 ) -> AsyncGenerator[PipelineEvent, None]:
@@ -62,7 +83,7 @@ async def run_cv_pipeline(
     Page analysis runs in parallel via asyncio.gather for speed.
     Each yield is a PipelineEvent published to Redis for SSE/WebSocket.
     """
-    file_path = Path(job.file_path)
+    file_path = _resolve_file_path(job.file_path)
 
     try:
         # --- Stage 1: Ingestion ---
@@ -115,14 +136,31 @@ async def run_cv_pipeline(
         job.status = JobStatus.COMPLETED
         await save_job_state(job)
         detail = "New version saved" if is_new else "Duplicate — skipped"
-        yield build_pipeline_event(job, JobStatus.COMPLETED, "Analysis complete", detail=detail)
+        logger.info(
+            "[Pipeline:%s] Pipeline complete (%s) — publishing COMPLETED event to Redis pub/sub",
+            job.job_id,
+            detail,
+        )
+        completed_event = await emit_pipeline_event(
+            job, JobStatus.COMPLETED, "Analysis complete", detail=detail
+        )
+        yield completed_event
 
-    except (FileNotFoundError, ValueError, OSError, RuntimeError) as exc:
-        logger.exception("CV pipeline failed for job %s", job.job_id)
+    except Exception as exc:
+        exc_type = type(exc).__name__
+        logger.exception(
+            "[Pipeline:%s] Pipeline failed — exception type=%s, message=%s",
+            job.job_id,
+            exc_type,
+            exc,
+        )
         job.status = JobStatus.FAILED
-        job.error = str(exc)
+        job.error = f"{exc_type}: {exc}"
         await save_job_state(job)
+        await publish_event(
+            build_pipeline_event(job, JobStatus.FAILED, "Pipeline failed", detail=job.error)
+        )
         yield build_pipeline_event(
-            job, JobStatus.FAILED, "Pipeline failed", detail=str(exc)
+            job, JobStatus.FAILED, "Pipeline failed", detail=job.error
         )
         raise
