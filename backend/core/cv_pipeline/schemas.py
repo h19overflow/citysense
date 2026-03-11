@@ -39,7 +39,6 @@ class PageAnalysis(BaseModel):
     skills: list[str] = Field(default_factory=list, description="Technical / hard skills")
     soft_skills: list[str] = Field(default_factory=list, description="Soft skills")
     tools: list[str] = Field(default_factory=list, description="Tools and technologies")
-    roles: list[str] = Field(default_factory=list, description="Job roles / titles found")
     education: list[EducationEntry] = Field(default_factory=list, description="Education entries")
     summary: str = Field(default="", description="Brief professional summary if found on this page")
     raw_text: str = Field(default="", description="Original page text for reference")

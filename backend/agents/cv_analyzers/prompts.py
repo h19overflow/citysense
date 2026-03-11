@@ -51,12 +51,6 @@ Specific named products, platforms, libraries, frameworks, and services.
 Examples: Docker, AWS, LangChain, PostgreSQL, PyTorch, FastAPI, Redis, Kubernetes.
 Rule of thumb: if it has a brand name or a logo, it's a tool.
 
-### roles
-Job titles the person has formally held OR is explicitly targeting.
-Source from: job titles in experience entries, "Seeking X role" statements, LinkedIn headline.
-Examples: "AI Engineer", "Data Scientist", "Machine Learning Engineer".
-Do NOT include: project names, section headings, company names, technology names.
-
 ### education
 Formal academic qualifications and certifications.
 Each entry: institution name, degree/diploma/cert title, year or period.
