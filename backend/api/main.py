@@ -1,10 +1,12 @@
 """Unified FastAPI app — comment analysis, mayor chat, webhooks, and SSE."""
 
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv()
+# Resolve .env relative to the project root regardless of working directory
+load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
