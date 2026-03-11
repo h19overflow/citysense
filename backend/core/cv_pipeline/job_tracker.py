@@ -11,6 +11,8 @@ import asyncio
 import json
 import logging
 
+import redis
+
 from backend.core.cv_pipeline.schemas import JobState, JobStatus, PipelineEvent
 from backend.core.redis_client import cache
 
@@ -58,13 +60,51 @@ async def publish_event(event: PipelineEvent) -> None:
 
     try:
         await asyncio.to_thread(cache.publish, channel, payload)
-    except Exception:
+    except redis.RedisError:
         logger.warning("Failed to publish event for job %s", event.job_id)
 
 
 async def delete_job_state(job_id: str) -> None:
     """Remove job state from Redis."""
     await asyncio.to_thread(cache.delete, _job_key(job_id))
+
+
+async def emit_pipeline_event(
+    job: JobState,
+    status: JobStatus,
+    stage: str,
+    *,
+    page: int | None = None,
+    detail: str = "",
+) -> PipelineEvent:
+    """Build an event, update job state, persist to Redis, and publish."""
+    job.status = status
+    event = build_pipeline_event(job, status, stage, page=page, detail=detail)
+    await save_job_state(job)
+    await publish_event(event)
+    return event
+
+
+def build_pipeline_event(
+    job: JobState,
+    status: JobStatus,
+    stage: str,
+    *,
+    page: int | None = None,
+    detail: str = "",
+) -> PipelineEvent:
+    """Construct a PipelineEvent from current job state."""
+    return PipelineEvent(
+        job_id=job.job_id,
+        status=status,
+        stage=stage,
+        page=page,
+        total_pages=job.total_pages or None,
+        detail=detail,
+        progress_pct=compute_progress(
+            status, job.analyzed_pages, max(job.total_pages, 1)
+        ),
+    )
 
 
 def compute_progress(
