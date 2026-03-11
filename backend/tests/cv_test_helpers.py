@@ -61,6 +61,24 @@ def post_valid_upload(cv_client: TestClient) -> object:
         return cv_client.post("/api/cv/upload", files={"file": VALID_PDF}, data={"citizen_id": FAKE_CITIZEN_ID})
 
 
+def post_anonymous_upload(cv_client: TestClient) -> object:
+    """Post a valid PDF upload without citizen_id; all I/O mocked."""
+    ctx = AsyncMock()
+    ctx.__aenter__.return_value = AsyncMock()
+    ctx.__aexit__.return_value = False
+    fake_row, fake_job = MagicMock(), MagicMock()
+    fake_row.id = FAKE_CV_UPLOAD_ID
+    fake_job.job_id = FAKE_JOB_ID
+    with (
+        patch("backend.api.routers.cv.asyncio.to_thread", new_callable=AsyncMock),
+        patch("backend.api.routers.cv.AsyncSessionLocal", return_value=ctx),
+        patch("backend.api.routers.cv.create_cv_upload", new_callable=AsyncMock, return_value=fake_row),
+        patch("backend.api.routers.cv.worker.create_job", return_value=fake_job),
+        patch("backend.api.routers.cv.worker.submit_job", new_callable=AsyncMock),
+    ):
+        return cv_client.post("/api/cv/upload", files={"file": VALID_PDF})
+
+
 def get_job(cv_client: TestClient, state: JobState) -> object:
     """GET /api/cv/jobs/{id} with the given Redis job state mocked."""
     with patch("backend.api.routers.cv.job_tracker.load_job_state", new_callable=AsyncMock, return_value=state):
