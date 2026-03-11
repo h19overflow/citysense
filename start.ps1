@@ -11,17 +11,10 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host "Docker services started." -ForegroundColor Green
 
 Write-Host "Clearing any existing processes on ports 8082 and 5173..." -ForegroundColor Cyan
-foreach ($port in @(8082, 5173)) {
-    $pids = netstat -ano | Select-String ":$port\s" | Select-String "LISTENING" | ForEach-Object {
-        ($_ -split '\s+')[-1]
-    }
-    foreach ($p in $pids) {
-        if ($p -match '^\d+$' -and $p -ne '0') {
-            taskkill /PID $p /F 2>$null | Out-Null
-        }
-    }
-}
-Start-Sleep -Milliseconds 800
+# Use bash kill (works for Git Bash / WSL-mirrored processes that taskkill can't reach)
+bash -c "ps aux | grep '\.venv/Scripts/python' | grep -v grep | awk '{print \$1}' | xargs -r kill -9 2>/dev/null; true"
+bash -c "ps aux | grep 'npm run dev\|vite' | grep -v grep | awk '{print \$1}' | xargs -r kill -9 2>/dev/null; true"
+Start-Sleep -Seconds 1
 
 Write-Host "Starting backend and frontend..." -ForegroundColor Cyan
 $backend = Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$root'; .\.venv\Scripts\python.exe -m uvicorn backend.api.main:app --reload --port 8082" -PassThru
