@@ -10,15 +10,25 @@ import logging
 from typing import Any
 from urllib.parse import quote
 
-from brightdata import WebUnlocker, crawl_single_url
-from brightdata.webscraper_api.engine import BrightdataEngine, get_engine
+try:
+    from brightdata import WebUnlockerService as WebUnlocker
+except ImportError:
+    WebUnlocker = None  # type: ignore[misc,assignment]
+
+try:
+    from brightdata.webscraper_api.engine import BrightdataEngine, get_engine
+except ImportError:
+    BrightdataEngine = None  # type: ignore[misc,assignment]
+    get_engine = None  # type: ignore[assignment]
 
 from backend.config import get_api_key, SERP_ZONE, DATASETS
 
 logger = logging.getLogger("bright_data_client")
 
 
-def _get_engine() -> BrightdataEngine:
+def _get_engine() -> Any:
+    if get_engine is None:
+        raise RuntimeError("brightdata webscraper engine not available")
     return get_engine(token=get_api_key())
 
 
@@ -107,18 +117,20 @@ def fetch_with_unlocker(
     zone: str | None = None,
     as_markdown: bool = True,
 ) -> str | None:
-    """Fetch a URL via SDK crawl. Returns markdown/HTML or None."""
+    """Fetch a URL via SDK WebUnlockerService. Returns markdown/HTML or None."""
+    if WebUnlocker is None:
+        logger.error("brightdata WebUnlockerService not available")
+        return None
     try:
-        result = crawl_single_url(url, bearer_token=get_api_key())
+        client = WebUnlocker(token=get_api_key())
+        result = client.scrape(url)
         if not result:
             return None
-        md = result.get_markdown_content()
-        if as_markdown and md:
-            return md
-        page = result.get_page(0) if result.page_count > 0 else None
-        if page:
-            return page.get("markdown") or page.get("page_html")
-        return None
+        if as_markdown and hasattr(result, "markdown") and result.markdown:
+            return result.markdown
+        if hasattr(result, "html") and result.html:
+            return result.html
+        return str(result) if result else None
     except Exception as e:
         logger.error("Crawl failed for %s: %s", url, e)
         return None
@@ -128,12 +140,11 @@ def fetch_with_unlocker(
 # SERP API (uses SDK WebUnlocker with SERP zone)
 # ---------------------------------------------------------------------------
 
-def _get_serp_client() -> WebUnlocker:
-    """Create a WebUnlocker configured for the SERP zone."""
-    return WebUnlocker(
-        BRIGHTDATA_WEBUNLOCKER_BEARER=get_api_key(),
-        ZONE_STRING=SERP_ZONE,
-    )
+def _get_serp_client() -> Any:
+    """Create a WebUnlockerService configured for the SERP zone."""
+    if WebUnlocker is None:
+        raise RuntimeError("brightdata WebUnlockerService not available")
+    return WebUnlocker(token=get_api_key(), web_unlocker_zone=SERP_ZONE)
 
 
 def _serp_request(google_url: str) -> dict | None:
@@ -143,12 +154,13 @@ def _serp_request(google_url: str) -> dict | None:
     """
     client = _get_serp_client()
     try:
-        result = client.get_source(google_url)
-        if not result.success:
-            logger.error("SERP failed: %s", result.error)
+        result = client.scrape(google_url)
+        if not result:
+            logger.error("SERP returned empty result")
             return None
         import json
-        return json.loads(result.data)
+        data = result if isinstance(result, dict) else json.loads(str(result))
+        return data
     except (ValueError, TypeError):
         # WebUnlocker returned HTML — retry with explicit JSON format
         return _serp_request_json(google_url)
