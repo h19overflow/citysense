@@ -1,36 +1,20 @@
 """Unified FastAPI app — comment analysis, mayor chat, webhooks, and SSE."""
 
-import asyncio
 import os
-from contextlib import asynccontextmanager
+from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv()
+# Resolve .env relative to the project root regardless of working directory
+load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from backend.api.lifespan import lifespan
 from backend.api.routers import analysis, auth, benefits, chat, citizen_chat, citizen_profile, comments, housing, jobs, misinfo, news, roadmap, stream, webhooks
 from backend.core.exceptions import AppException
-
-
-@asynccontextmanager
-async def lifespan(application: FastAPI):
-    """Start background scraping on server boot if API key is available."""
-    scraper_task = None
-    auto_scrape = os.environ.get("AUTO_SCRAPE", "0") != "0"
-    has_api_key = bool(os.environ.get("BRIGHTDATA_API_KEY"))
-
-    if auto_scrape and has_api_key:
-        from backend.core.data_scraping.scheduler import start_scheduled_scraping
-        scraper_task = asyncio.create_task(start_scheduled_scraping())
-
-    yield
-
-    if scraper_task:
-        scraper_task.cancel()
 
 
 _extra = os.getenv("CORS_ORIGINS", "")
@@ -39,7 +23,7 @@ ALLOWED_ORIGINS = ["*"] if os.getenv("CORS_ALLOW_ALL", "1") == "1" else [
     "http://localhost:5173",
     "http://localhost:8080",
     "http://localhost:8081",
-    "http://localhost:8082",
+    "http://localhost:8085",
 ] + ([o.strip() for o in _extra.split(",") if o.strip()] if _extra else [])
 
 app = FastAPI(title="MontgomeryAI", lifespan=lifespan)
