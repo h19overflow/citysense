@@ -42,6 +42,9 @@ markers = [
     "unit: pure unit tests with no I/O",
     "integration: tests that cross module boundaries",
     "e2e: end-to-end workflow tests",
+    "contract: API/schema contract tests",
+    "negative: tests for error paths and invalid inputs",
+    "edge: edge case tests (empty, min/max, boundary)",
 ]
 
 [tool.coverage.run]
