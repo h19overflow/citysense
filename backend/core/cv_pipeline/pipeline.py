@@ -134,7 +134,6 @@ async def run_cv_pipeline(
 
         # --- Done ---
         job.status = JobStatus.COMPLETED
-        await save_job_state(job)
         detail = "New version saved" if is_new else "Duplicate — skipped"
         logger.info(
             "[Pipeline:%s] Pipeline complete (%s) — publishing COMPLETED event to Redis pub/sub",
@@ -157,10 +156,7 @@ async def run_cv_pipeline(
         job.status = JobStatus.FAILED
         job.error = f"{exc_type}: {exc}"
         await save_job_state(job)
-        await publish_event(
-            build_pipeline_event(job, JobStatus.FAILED, "Pipeline failed", detail=job.error)
-        )
-        yield build_pipeline_event(
-            job, JobStatus.FAILED, "Pipeline failed", detail=job.error
-        )
+        failed_event = build_pipeline_event(job, JobStatus.FAILED, "Pipeline failed", detail=job.error)
+        await publish_event(failed_event)
+        yield failed_event
         raise

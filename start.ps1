@@ -12,8 +12,8 @@ Write-Host "Docker services started." -ForegroundColor Green
 
 Write-Host "Clearing any existing processes on ports 8082 and 5173..." -ForegroundColor Cyan
 # Use bash kill (works for Git Bash / WSL-mirrored processes that taskkill can't reach)
-bash -c "ps aux | grep '\.venv/Scripts/python' | grep -v grep | awk '{print \$1}' | xargs -r kill -9 2>/dev/null; true"
-bash -c "ps aux | grep 'npm run dev\|vite' | grep -v grep | awk '{print \$1}' | xargs -r kill -9 2>/dev/null; true"
+bash -c "ps aux | grep '\.venv/Scripts/python' | grep -v grep | awk '{print \$2}' | xargs -r kill -9 2>/dev/null; true"
+bash -c "ps aux | grep 'npm run dev\|vite' | grep -v grep | awk '{print \$2}' | xargs -r kill -9 2>/dev/null; true"
 Start-Sleep -Seconds 1
 
 Write-Host "Starting backend and frontend..." -ForegroundColor Cyan

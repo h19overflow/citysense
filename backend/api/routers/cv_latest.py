@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException
-from fastapi.responses import Response
+from fastapi import APIRouter, HTTPException, Response
 
 from backend.db.crud.cv import get_latest_cv_version, list_cv_uploads_by_citizen
 from backend.db.session import AsyncSessionLocal
