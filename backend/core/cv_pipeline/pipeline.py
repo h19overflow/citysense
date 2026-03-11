@@ -19,11 +19,12 @@ from backend.core.cv_pipeline.components.ingestor import (
 )
 from backend.core.cv_pipeline.db_persist import persist_cv_result
 from backend.core.cv_pipeline.job_tracker import (
-    build_pipeline_event,
-    emit_pipeline_event,
+    compute_progress,
+    publish_event,
     save_job_state,
 )
 from backend.core.cv_pipeline.schemas import (
+    CVAnalysisResult,
     JobState,
     JobStatus,
     PageAnalysis,
@@ -44,7 +45,7 @@ async def _analyze_single_page(
 
     # Safe: asyncio is single-threaded, += happens between awaits.
     job.analyzed_pages += 1
-    event = await emit_pipeline_event(
+    event = await _emit(
         job,
         JobStatus.ANALYZING,
         f"Page {page_number}/{job.total_pages} complete",
@@ -61,25 +62,31 @@ async def run_cv_pipeline(
 
     Page analysis runs in parallel via asyncio.gather for speed.
     Each yield is a PipelineEvent published to Redis for SSE/WebSocket.
+
+    Args:
+        job: Job state containing file_path, citizen_id, cv_upload_id.
+
+    Yields:
+        PipelineEvent at each stage transition and per-page completion.
     """
     file_path = Path(job.file_path)
 
     try:
         # --- Stage 1: Ingestion ---
-        yield await emit_pipeline_event(job, JobStatus.INGESTING, "Ingesting document")
+        yield await _emit(job, JobStatus.INGESTING, "Ingesting document")
 
         documents = await ingest_cv(file_path)
         page_contents = await extract_page_contents(documents)
         job.total_pages = len(page_contents)
 
-        yield await emit_pipeline_event(
+        yield await _emit(
             job,
             JobStatus.INGESTING,
             f"Document ingested — {job.total_pages} pages found",
         )
 
         # --- Stage 2: Parallel page analysis ---
-        yield await emit_pipeline_event(
+        yield await _emit(
             job,
             JobStatus.ANALYZING,
             f"Analyzing {job.total_pages} pages in parallel",
@@ -98,13 +105,13 @@ async def run_cv_pipeline(
             yield event
 
         # --- Stage 3: Aggregation ---
-        yield await emit_pipeline_event(job, JobStatus.AGGREGATING, "Aggregating results")
+        yield await _emit(job, JobStatus.AGGREGATING, "Aggregating results")
 
         final_result = await aggregate_page_results(page_results)
         job.result = final_result
 
         # --- Stage 4: Persist to DB (with hash dedup) ---
-        yield await emit_pipeline_event(job, JobStatus.AGGREGATING, "Saving to database")
+        yield await _emit(job, JobStatus.AGGREGATING, "Saving to database")
 
         version_id, is_new = await persist_cv_result(
             cv_upload_id=job.cv_upload_id,
@@ -115,14 +122,52 @@ async def run_cv_pipeline(
         job.status = JobStatus.COMPLETED
         await save_job_state(job)
         detail = "New version saved" if is_new else "Duplicate — skipped"
-        yield build_pipeline_event(job, JobStatus.COMPLETED, "Analysis complete", detail=detail)
+        yield _build_event(job, JobStatus.COMPLETED, "Analysis complete", detail=detail)
 
-    except (FileNotFoundError, ValueError, OSError) as exc:
+    except (FileNotFoundError, ValueError, OSError, RuntimeError) as exc:
         logger.exception("CV pipeline failed for job %s", job.job_id)
         job.status = JobStatus.FAILED
         job.error = str(exc)
         await save_job_state(job)
-        yield build_pipeline_event(
+        yield _build_event(
             job, JobStatus.FAILED, "Pipeline failed", detail=str(exc)
         )
         raise
+
+
+async def _emit(
+    job: JobState,
+    status: JobStatus,
+    stage: str,
+    *,
+    page: int | None = None,
+    detail: str = "",
+) -> PipelineEvent:
+    """Build an event, update job state, persist, and publish."""
+    job.status = status
+    event = _build_event(job, status, stage, page=page, detail=detail)
+    await save_job_state(job)
+    await publish_event(event)
+    return event
+
+
+def _build_event(
+    job: JobState,
+    status: JobStatus,
+    stage: str,
+    *,
+    page: int | None = None,
+    detail: str = "",
+) -> PipelineEvent:
+    """Construct a PipelineEvent from current job state."""
+    return PipelineEvent(
+        job_id=job.job_id,
+        status=status,
+        stage=stage,
+        page=page,
+        total_pages=job.total_pages or None,
+        detail=detail,
+        progress_pct=compute_progress(
+            status, job.analyzed_pages, max(job.total_pages, 1)
+        ),
+    )
