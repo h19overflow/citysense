@@ -9,9 +9,21 @@ from __future__ import annotations
 import asyncio
 import logging
 
+import redis
+from sqlalchemy.exc import OperationalError as DBOperationalError
+
 from backend.workers.celery_app import app
 
 logger = logging.getLogger(__name__)
+
+# Transient failures worth retrying (network, broker, DB lock)
+RETRYABLE_EXCEPTIONS = (
+    ConnectionError,
+    TimeoutError,
+    redis.RedisError,
+    DBOperationalError,
+    OSError,
+)
 
 
 @app.task(
@@ -39,15 +51,15 @@ def run_cv_analysis(self, job_state_dict: dict) -> dict:
     try:
         result = asyncio.run(_execute_pipeline(job))
         return result.model_dump(mode="json")
-    except Exception as exc:
-        logger.exception("CV analysis task failed for job %s", job.job_id)
+    except RETRYABLE_EXCEPTIONS as exc:
+        logger.warning("Retryable failure for job %s: %s", job.job_id, exc)
         raise self.retry(exc=exc)
 
 
 async def _execute_pipeline(job) -> "JobState":
     """Run the async pipeline, draining all events."""
-    from backend.core.cv_pipeline.pipeline import run_cv_pipeline
     from backend.core.cv_pipeline.job_tracker import save_job_state
+    from backend.core.cv_pipeline.pipeline import run_cv_pipeline
 
     await save_job_state(job)
 
