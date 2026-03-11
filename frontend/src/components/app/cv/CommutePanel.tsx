@@ -18,7 +18,7 @@ const CommutePanel = () => {
   const { state, dispatch } = useApp();
   const [sortMode, setSortMode] = useState<SortMode>("distance");
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
-  const hasCv = !!state.cvData;
+  const hasCv = !!state.cvResult;
 
   useEffect(() => {
     if (state.transitRoutes.length > 0) return;

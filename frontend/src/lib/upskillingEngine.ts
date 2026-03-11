@@ -3,13 +3,13 @@
  * and recommends the highest-impact skills to learn.
  */
 import type {
-  CvData,
   JobMatch,
   TrendingSkill,
   UpskillingSummary,
   UpskillPath,
   TrainingOption,
 } from "./types";
+import type { CVAnalysisResult } from "./types/cv";
 
 const MONTGOMERY_TRAINING: Record<string, TrainingOption[]> = {
   "cdl": [
@@ -99,11 +99,11 @@ function normalizeSkill(skill: string): string {
 }
 
 export function computeUpskillingSummary(
-  cvData: CvData,
+  cvResult: CVAnalysisResult,
   jobMatches: JobMatch[],
   trendingSkills: TrendingSkill[],
 ): UpskillingSummary {
-  const userSkillsNorm = cvData.skills.map(normalizeSkill);
+  const userSkillsNorm = cvResult.skills.map(normalizeSkill);
 
   // Count how many jobs each missing skill would unlock (move from <40% to >=40%)
   const skillImpact: Record<string, { jobsUnlocked: number; category: string }> = {};

@@ -1,9 +1,10 @@
 /**
  * Mock citizen profile loader.
  * Loads pre-built personas from mock_citizens.json and maps them
- * into both CvData (career tab) and ProfileData (civic tab).
+ * into both CVAnalysisResult (career tab) and ProfileData (civic tab).
  */
-import type { CvData, ProfileData, CitizenCivicData } from "./types";
+import type { ProfileData, CitizenCivicData } from "./types";
+import type { CVAnalysisResult } from "./types/cv";
 
 export type { CitizenCivicData };
 
@@ -14,7 +15,7 @@ export interface CitizenProfile {
   avatarInitials: string;
   avatarColor: string;
   profile: CitizenCivicData;
-  cv: CvData;
+  cv: CVAnalysisResult;
   goals: string[];
   barriers: string[];
 }
@@ -67,7 +68,7 @@ function parseRawCitizen(raw: RawCitizen): CitizenProfile {
       needsHousingHelp: p.needsHousingHelp as boolean,
       needsUtilityHelp: p.needsUtilityHelp as boolean,
     },
-    cv: raw.cv as unknown as CvData,
+    cv: raw.cv as unknown as CVAnalysisResult,
     goals: raw.goals,
     barriers: raw.barriers,
   };
