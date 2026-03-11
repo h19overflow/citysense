@@ -6,6 +6,7 @@ import UpskillingPanel from "./UpskillingPanel";
 import CommutePanel from "./CommutePanel";
 import CitizenProfileBar from "./CitizenProfileBar";
 import CvOnboardingHero from "./CvOnboardingHero";
+import CvResultsPanel from "./CvResultsPanel";
 import BusinessGrowth from "./BusinessGrowth";
 
 type CareerTab = "market" | "growth";
@@ -35,7 +36,7 @@ function PageHeader() {
 const CvUploadView = () => {
   const { state } = useApp();
   const [activeTab, setActiveTab] = useState<CareerTab>("market");
-  const hasCv = !!state.cvData;
+  const hasCv = !!state.cvResult;
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -74,6 +75,7 @@ const CvUploadView = () => {
             <div className="px-5 pt-4 pb-0">
               <PageHeader />
             </div>
+            <CvResultsPanel result={state.cvResult!} />
             <JobMatchPanel />
           </div>
         )}
