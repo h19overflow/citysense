@@ -1,6 +1,5 @@
 import { API_BASE } from "./apiConfig";
-import { connectSseStream } from "./sseClient";
-import type { CVJobStatus, PipelineEvent } from "./types";
+import type { CVAnalysisResult, CVJobStatus, PipelineEvent } from "./types";
 
 export interface CvUploadResponse {
   job_id: string;
@@ -28,6 +27,17 @@ export async function uploadCv(
   return response.json();
 }
 
+export async function fetchLatestCv(
+  citizenId: string,
+): Promise<{ file_name: string; result: CVAnalysisResult } | null> {
+  if (!citizenId) return null;
+  const response = await fetch(
+    `${API_BASE}/api/cv/latest?citizen_id=${encodeURIComponent(citizenId)}`,
+  );
+  if (response.status === 204 || !response.ok) return null;
+  return response.json();
+}
+
 export async function fetchJobStatus(jobId: string): Promise<CVJobStatus> {
   const response = await fetch(`${API_BASE}/api/cv/jobs/${jobId}`);
 
@@ -43,16 +53,29 @@ export function streamJobProgress(
   onEvent: (event: PipelineEvent) => void,
   onError?: (error: string) => void,
 ): () => void {
-  return connectSseStream({
-    url: `${API_BASE}/api/cv/jobs/${jobId}/stream`,
-    onMessage: (msg) => {
-      const event = msg.data as PipelineEvent;
+  const url = `${API_BASE}/api/cv/jobs/${jobId}/stream`;
+  let eventSource: EventSource | null = new EventSource(url);
+  let disposed = false;
+
+  eventSource.onmessage = (raw) => {
+    try {
+      const event: PipelineEvent = JSON.parse(raw.data);
+      if (typeof event.status !== "string" || typeof event.job_id !== "string") return;
       onEvent(event);
-    },
-    onStatusChange: (connected) => {
-      if (!connected && onError) {
-        onError("Connection lost");
-      }
-    },
-  });
+    } catch {
+      console.warn("[CVStream] Failed to parse SSE message:", raw.data);
+    }
+  };
+
+  eventSource.onerror = () => {
+    if (!disposed) onError?.("Connection lost");
+    eventSource?.close();
+    eventSource = null;
+  };
+
+  return () => {
+    disposed = true;
+    eventSource?.close();
+    eventSource = null;
+  };
 }

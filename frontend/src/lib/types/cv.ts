@@ -11,8 +11,14 @@ export interface EducationEntry {
   year: string;
 }
 
+export interface ProjectEntry {
+  name: string;
+  description: string;
+}
+
 export interface CVAnalysisResult {
   experience: ExperienceEntry[];
+  projects: ProjectEntry[];
   skills: string[];
   soft_skills: string[];
   tools: string[];
