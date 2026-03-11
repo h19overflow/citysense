@@ -12,6 +12,7 @@ from __future__ import annotations
 import logging
 
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import Runnable
 from pydantic import BaseModel, Field
 
 from backend.agents.common.llm import build_llm
@@ -53,7 +54,7 @@ class _RoleList(BaseModel):
     )
 
 
-def build_synthesizer_chain():
+def build_synthesizer_chain() -> Runnable:
     """Build the role synthesizer LangChain chain."""
     llm = build_llm(model=CV_ANALYSIS_MODEL, temperature=CV_ANALYSIS_TEMPERATURE)
     prompt = ChatPromptTemplate.from_messages([("human", _SYNTHESIZER_PROMPT)])
