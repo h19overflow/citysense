@@ -26,8 +26,8 @@ export default function UploadZone({ compact = false }: { compact?: boolean }) {
   const handlePipelineEvent = (event: PipelineEvent) => {
     dispatch({ type: "SET_CV_PROGRESS", progress: event.progress_pct, stage: event.stage });
 
-    if (event.status === "completed" && state.cvJobId) {
-      fetchJobStatus(state.cvJobId).then((job) => {
+    if (event.status === "completed") {
+      fetchJobStatus(event.job_id).then((job) => {
         if (job.result) {
           dispatch({ type: "SET_CV_RESULT", result: job.result });
           setUploadState("complete");

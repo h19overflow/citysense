@@ -46,8 +46,9 @@ export function streamJobProgress(
   return connectSseStream({
     url: `${API_BASE}/api/cv/jobs/${jobId}/stream`,
     onMessage: (msg) => {
-      const event = msg.data as PipelineEvent;
-      onEvent(event);
+      const data = msg.data as Record<string, unknown>;
+      if (!data || typeof data.status !== "string" || typeof data.job_id !== "string") return;
+      onEvent(data as unknown as PipelineEvent);
     },
     onStatusChange: (connected) => {
       if (!connected && onError) {

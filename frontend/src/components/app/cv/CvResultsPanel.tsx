@@ -30,30 +30,27 @@ function AnimatedCard({ index, children }: { index: number; children: React.Reac
 }
 
 const CvResultsPanel = ({ result }: CvResultsPanelProps) => {
-  const cards = [
-    <ProfileSummaryBanner key="summary" result={result} />,
-    result.experience.length > 0 && (
-      <ExperienceCard key="experience" experience={result.experience} />
-    ),
-    result.education.length > 0 && (
-      <EducationCard key="education" education={result.education} />
-    ),
-    (result.skills.length > 0 || result.soft_skills.length > 0 || result.tools.length > 0) && (
-      <SkillsToolsCard
-        key="skills"
-        skills={result.skills}
-        softSkills={result.soft_skills}
-        tools={result.tools}
-      />
-    ),
-    result.roles.length > 0 && <RolesCard key="roles" roles={result.roles} />,
-  ].filter(Boolean);
+  const cards: { id: string; element: React.ReactNode }[] = [
+    { id: "summary", element: <ProfileSummaryBanner result={result} /> },
+    ...(result.experience.length > 0
+      ? [{ id: "experience", element: <ExperienceCard experience={result.experience} /> }]
+      : []),
+    ...(result.education.length > 0
+      ? [{ id: "education", element: <EducationCard education={result.education} /> }]
+      : []),
+    ...((result.skills.length > 0 || result.soft_skills.length > 0 || result.tools.length > 0)
+      ? [{ id: "skills", element: <SkillsToolsCard skills={result.skills} softSkills={result.soft_skills} tools={result.tools} /> }]
+      : []),
+    ...(result.roles.length > 0
+      ? [{ id: "roles", element: <RolesCard roles={result.roles} /> }]
+      : []),
+  ];
 
   return (
     <div className="space-y-4 p-4">
       {cards.map((card, index) => (
-        <AnimatedCard key={index} index={index}>
-          {card}
+        <AnimatedCard key={card.id} index={index}>
+          {card.element}
         </AnimatedCard>
       ))}
     </div>

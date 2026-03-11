@@ -47,10 +47,8 @@
 | `CommuteCard.tsx` | Commute option card |
 | `TravelMode.tsx` | Transport mode selector |
 | `TrendingSkillsBar.tsx` | Trending skills |
-| `SkillBadges.tsx` | Skill badges |
 | `EducationCard.tsx` | Education history |
 | `ExperienceCard.tsx` | Work experience |
 | `FilterPanel.tsx` | Job filter panel |
 | `JobFilters.tsx` | Job filter UI |
-| `AnalysisProgress.tsx` | CV analysis progress |
 | `BusinessGrowth.tsx` | Business/entrepreneurship |
