@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useMemo } from "react";
+import { useEffect, useCallback, useMemo, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import TopBar from "@/components/app/TopBar";
 import { AppNav, type MobileTab } from "@/components/app/MobileNav";
@@ -134,8 +134,20 @@ export default function CommandCenter() {
     [state.actionItems],
   );
 
+  const isCareer = currentView === "career";
+  const [careerMargin, setCareerMargin] = useState(false);
+
+  useEffect(() => {
+    if (!isCareer) {
+      setCareerMargin(false);
+      return;
+    }
+    const id = requestAnimationFrame(() => setCareerMargin(true));
+    return () => cancelAnimationFrame(id);
+  }, [isCareer]);
+
   return (
-    <div className="h-screen flex flex-col stitch-shell">
+    <div className={`h-screen flex flex-col stitch-shell transition-[margin] duration-300 ease-out ${careerMargin ? "mr-[400px]" : "mr-0"}`}>
       <TopBar />
 
       <div className="flex-1 min-h-0 overflow-hidden px-3 md:px-6 py-3 md:py-4">
@@ -154,7 +166,7 @@ export default function CommandCenter() {
         actionItemCount={actionItemCount}
       />
 
-      <FloatingChatBubble onSendMessage={handleSendMessage} />
+      {currentView !== "career" && <FloatingChatBubble onSendMessage={handleSendMessage} />}
     </div>
   );
 }
