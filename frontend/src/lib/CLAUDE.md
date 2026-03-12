@@ -5,8 +5,8 @@
 ## "I want to change..." Quick Reference
 | Task | Files to Touch |
 |------|---------------|
-| Global app state shape | `context/initialState.ts`, `types/state.ts` |
-| Add new action | `context/types.ts`, relevant `context/slices/*.ts`, `context/reducer.ts` |
+| Global app state shape | `context/initialState.ts`, `types/state.ts` — includes `guideInitialized: boolean` (prevents duplicate welcome messages) |
+| Add new action | `context/types.ts` (AppAction union), relevant `context/slices/*.ts`, `context/reducer.ts` |
 | News fetching | `newsService.ts` |
 | Job fetching | `jobService.ts` |
 | Services data | `govServices.ts`, `archgisService.ts` |
@@ -33,7 +33,7 @@
 | `slices/cvSlice.ts` | CV upload/analysis state |
 | `slices/jobsSlice.ts` | Job listings/matches state |
 | `slices/newsSlice.ts` | News articles/comments/reactions state |
-| `slices/servicesSlice.ts` | Service points/categories state |
+| `slices/servicesSlice.ts` | Service points/categories/guide state — `INIT_GUIDE_WELCOME` is idempotent (sets `guideInitialized` flag so multiple mounted instances of `ServiceGuideChat` don't each append a welcome message) |
 | `slices/roadmapSlice.ts` | Personalized roadmap state |
 | `slices/uiSlice.ts` | UI state (modals, panels) |
 
@@ -61,7 +61,7 @@
 | `govServices.ts` | Government service data |
 | `archgisService.ts` | ArcGIS map integration |
 | `aiChatService.ts` | AI chat responses |
-| `jobMatcher.ts` | Match user skills → jobs |
+| `jobMatcher.ts` | Match user skills → jobs — `jobMatchesSkillFilter()` guards against healthcare-only skills (e.g. "rn") appearing in non-healthcare jobs; `skillsOverlap()` prevents 2–3 char keywords from substring-matching inside longer skill names |
 | `jobMatcherHelpers.ts` | Matching utilities |
 | `upskillingEngine.ts` | Upskilling recommendations |
 | `commuteEngine.ts` | Commute calculations |

@@ -41,7 +41,7 @@
 | File | Purpose |
 |------|---------|
 | `base.py` | `BaseScraper` abstract class (fetch → process → dedup → save → broadcast) |
-| `bright_data_client.py` | `trigger_and_collect()`, `serp_search()` |
+| `bright_data_client.py` | Web Scraper API: `trigger_and_collect()`, `trigger_scraper()`, `poll_snapshot()` — Page fetch: `fetch_with_unlocker(url, zone)` returns HTML via `WebUnlocker.get_source()` — SERP: `serp_search()`, `serp_maps_search()` |
 | `scheduler.py` | Scraper scheduling (interval-based loop) |
 | `payloads.py` | Search queries, scraper configs |
 | `schemas.py` | `ArticleAnalysis`, `CommentAnalysis`, `AnalysisResults` Pydantic models |

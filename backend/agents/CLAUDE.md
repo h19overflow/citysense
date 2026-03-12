@@ -68,3 +68,6 @@
 |------|---------|
 | `llm.py` | `build_llm()` factory (Gemini, temp 0.3) |
 | `web_search.py` | `search_montgomery_web()` via Bright Data SERP |
+
+## Top-level `tools/` directory
+`agents/tools/` is a **backward-compat shim** — `registry.py` re-exports from `mayor/tools/registry.py`. Do not add real code here; work in `mayor/tools/` or `citizen/tools/` directly.
