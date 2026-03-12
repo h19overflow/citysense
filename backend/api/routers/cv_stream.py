@@ -19,13 +19,14 @@ def subscribe_to_job_events(
     queue: asyncio.Queue,
     loop: asyncio.AbstractEventLoop,
     stop_event: threading.Event,
+    channel_prefix: str = "cv_progress",
 ) -> None:
     """Blocking Redis pub/sub loop — runs in a thread via asyncio.to_thread.
 
-    Listens on cv_progress:{job_id} and feeds payloads into an asyncio.Queue.
+    Listens on {channel_prefix}:{job_id} and feeds payloads into an asyncio.Queue.
     Stops when a completed/failed event arrives or stop_event is set.
     """
-    channel = f"cv_progress:{job_id}"
+    channel = f"{channel_prefix}:{job_id}"
     logger.info("[SSE:%s] Subscriber thread started, subscribing to channel '%s'", job_id, channel)
 
     client = redis.from_url(redis_url, decode_responses=True)
@@ -76,6 +77,7 @@ def subscribe_to_job_events(
 async def stream_job_events(
     redis_url: str,
     job_id: str,
+    channel_prefix: str = "cv_progress",
 ) -> AsyncGenerator[str, None]:
     """Async generator yielding SSE-formatted events from Redis pub/sub.
 
@@ -87,7 +89,7 @@ async def stream_job_events(
     stop_event = threading.Event()
 
     task = asyncio.create_task(
-        asyncio.to_thread(subscribe_to_job_events, redis_url, job_id, queue, loop, stop_event)
+        asyncio.to_thread(subscribe_to_job_events, redis_url, job_id, queue, loop, stop_event, channel_prefix)
     )
 
     events_sent = 0

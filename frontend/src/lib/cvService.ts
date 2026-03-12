@@ -29,7 +29,7 @@ export async function uploadCv(
 
 export async function fetchLatestCv(
   citizenId: string,
-): Promise<{ file_name: string; result: CVAnalysisResult } | null> {
+): Promise<{ file_name: string; result: CVAnalysisResult; cv_upload_id: string } | null> {
   if (!citizenId) return null;
   const response = await fetch(
     `${API_BASE}/api/cv/latest?citizen_id=${encodeURIComponent(citizenId)}`,

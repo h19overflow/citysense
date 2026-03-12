@@ -11,6 +11,8 @@ export function applyCvAction(state: AppState, action: AppAction): AppState | nu
       return { ...state, cvAnalyzing: action.analyzing };
     case "SET_CV_JOB":
       return { ...state, cvJobId: action.jobId };
+    case "SET_CV_UPLOAD_ID":
+      return { ...state, cvUploadId: action.uploadId };
     case "SET_CV_PROGRESS":
       return { ...state, cvProgress: action.progress, cvStage: action.stage };
     case "CLEAR_CV":
@@ -20,6 +22,7 @@ export function applyCvAction(state: AppState, action: AppAction): AppState | nu
         cvFileName: null,
         cvAnalyzing: false,
         cvJobId: null,
+        cvUploadId: null,
         cvProgress: 0,
         cvStage: "",
       };

@@ -53,8 +53,9 @@ export default function UploadZone({ compact = false }: { compact?: boolean }) {
     const citizenId = state.citizenMeta?.id ?? "";
 
     try {
-      const { job_id } = await uploadCv(file, citizenId);
+      const { job_id, cv_upload_id } = await uploadCv(file, citizenId);
       dispatch({ type: "SET_CV_JOB", jobId: job_id });
+      dispatch({ type: "SET_CV_UPLOAD_ID", uploadId: cv_upload_id });
       setUploadState("analyzing");
       dispatch({ type: "SET_CV_ANALYZING", analyzing: true });
 
