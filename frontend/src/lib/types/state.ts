@@ -31,6 +31,7 @@ export interface AppState {
   activeCategories: ServiceCategory[];
   servicePoints: ServicePoint[];
   guideMessages: GuideMessage[];
+  guideInitialized: boolean;
   guideTyping: boolean;
   jobListings: JobListing[];
   jobMatches: JobMatch[];

@@ -27,6 +27,9 @@ export function applyServicesAction(state: AppState, action: AppAction): AppStat
           ...action.points,
         ],
       };
+    case "INIT_GUIDE_WELCOME":
+      if (state.guideInitialized) return state;
+      return { ...state, guideInitialized: true, guideMessages: [action.message] };
     case "ADD_GUIDE_MESSAGE":
       return { ...state, guideMessages: [...state.guideMessages, action.message] };
     case "SET_GUIDE_TYPING":
