@@ -2,19 +2,29 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from backend.agents.career.agent import build_career_agent
+import backend.agents.career.agent as career_agent_module
 from backend.agents.career.schemas import CareerAgentResponse
 
 
 def test_build_career_agent_returns_agent():
-    agent = build_career_agent()
-    assert agent is not None
+    with patch("backend.agents.career.agent.build_llm") as mock_llm, \
+         patch("backend.agents.career.agent.create_agent") as mock_create:
+        mock_create.return_value = MagicMock()
+        career_agent_module._cached_agent = None  # reset singleton
+        agent = career_agent_module.build_career_agent()
+        assert agent is not None
+        mock_llm.assert_called_once()
 
 
 def test_build_career_agent_is_cached():
-    agent1 = build_career_agent()
-    agent2 = build_career_agent()
-    assert agent1 is agent2
+    with patch("backend.agents.career.agent.build_llm"), \
+         patch("backend.agents.career.agent.create_agent") as mock_create:
+        mock_create.return_value = MagicMock()
+        career_agent_module._cached_agent = None  # reset singleton
+        agent1 = career_agent_module.build_career_agent()
+        agent2 = career_agent_module.build_career_agent()
+        assert agent1 is agent2
+        mock_create.assert_called_once()  # only built once
 
 
 @pytest.mark.asyncio
