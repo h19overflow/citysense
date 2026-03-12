@@ -1,14 +1,12 @@
 """Tools for searching local DB and web job listings."""
 
-import asyncio
-
 from langchain_core.tools import tool
 
 from backend.agents.common import web_search
 
 
 @tool
-def search_local_jobs(roles: str, skills: str) -> str:
+async def search_local_jobs(roles: str, skills: str) -> str:
     """Search the Montgomery job listings database for roles matching a citizen's CV.
 
     Args:
@@ -18,7 +16,10 @@ def search_local_jobs(roles: str, skills: str) -> str:
     Returns plain-text list of matching jobs with title, company, and address.
     """
     from backend.db.crud.jobs import search_jobs_by_roles_and_skills
-    results = asyncio.run(search_jobs_by_roles_and_skills(roles=roles, skills=skills))
+    from backend.db.session import AsyncSessionLocal
+
+    async with AsyncSessionLocal() as session:
+        results = await search_jobs_by_roles_and_skills(session, roles=roles, skills=skills)
     if not results:
         return "No matching jobs found in local database."
     lines = [f"Local DB jobs ({len(results)} found):"]

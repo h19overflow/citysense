@@ -52,7 +52,7 @@ async def run_career_analysis(
     try:
         result = await agent.ainvoke({"messages": messages})
         return _extract_response(result)
-    except Exception as e:
+    except (ValueError, RuntimeError) as e:
         logger.error(
             "Career analysis failed",
             extra={"error": str(e), "operation": "run_career_analysis"},
@@ -83,7 +83,7 @@ async def handle_career_chat(
     try:
         result = await agent.ainvoke({"messages": messages})
         return _extract_response(result)
-    except Exception as e:
+    except (ValueError, RuntimeError) as e:
         logger.error(
             "Career chat failed",
             extra={"error": str(e), "operation": "handle_career_chat"},

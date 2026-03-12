@@ -11,6 +11,7 @@ import redis.asyncio as aioredis
 from fastapi import APIRouter, BackgroundTasks
 from fastapi.responses import StreamingResponse
 
+from backend.api.routers.career_chat import store_career_context
 from backend.api.routers.cv_stream import stream_job_events
 from backend.api.schemas.career_schemas import CareerAnalyzeRequest, CareerAnalyzeResponse
 from backend.db.crud.citizen import get_citizen_by_id
@@ -84,10 +85,11 @@ async def _run_analysis_task(
         from backend.agents.career.agent import run_career_analysis
         result = await run_career_analysis(cv_version, profile)
 
+        store_career_context(job_id, result)
         await publish("completed", "Analysis complete", 100, result=result)
 
     except Exception as e:
-        logger.error("Career analysis task failed for job %s: %s", job_id, e)
-        await publish("failed", f"Analysis failed: {e}", 0)
+        logger.error("Career analysis task error detail for job %s: %s", job_id, e)
+        await publish("failed", "Analysis failed. Please try again.", 0)
     finally:
         await redis_client.aclose()

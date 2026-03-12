@@ -60,13 +60,13 @@ export function CareerChatBubble({ cvVersionId, citizenId, onResult }: CareerCha
     if (cvVersionId && citizenId) {
       startAnalysis(cvVersionId, citizenId);
     }
-  }, [cvVersionId, citizenId]);
+  }, [cvVersionId, citizenId, startAnalysis]);
 
   useEffect(() => {
     if (result && onResult) {
       onResult(result);
     }
-  }, [result]);
+  }, [result, onResult]);
 
   const handleChipClick = (chip: string) => {
     if (!citizenId) return;

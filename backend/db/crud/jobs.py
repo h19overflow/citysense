@@ -44,6 +44,7 @@ async def list_jobs(
 
 
 async def search_jobs_by_roles_and_skills(
+    session: AsyncSession,
     roles: str,
     skills: str,
     limit: int = 20,
@@ -51,24 +52,22 @@ async def search_jobs_by_roles_and_skills(
     """Return job listings matching any of the given roles.
 
     Args:
+        session: Active async database session.
         roles: Comma-separated role names to match against job title.
         skills: Comma-separated skills (reserved for future use).
         limit: Max results to return.
     """
     from sqlalchemy import or_, select
 
-    from backend.db.session import AsyncSessionLocal
-
     role_list = [r.strip() for r in roles.split(",") if r.strip()]
     if not role_list:
         return []
-    async with AsyncSessionLocal() as session:
-        conditions = [JobListing.title.ilike(f"%{role}%") for role in role_list]
-        stmt = select(JobListing).where(or_(*conditions)).limit(limit)
-        result = await session.execute(stmt)
-        records = result.scalars().all()
-        session.expunge_all()
-        return list(records)
+    conditions = [JobListing.title.ilike(f"%{role}%") for role in role_list]
+    stmt = select(JobListing).where(or_(*conditions)).limit(limit)
+    result = await session.execute(stmt)
+    records = result.scalars().all()
+    session.expunge_all()
+    return list(records)
 
 
 def job_to_geojson_feature(job: JobListing) -> dict | None:
