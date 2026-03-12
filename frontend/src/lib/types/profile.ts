@@ -38,5 +38,5 @@ export interface CitizenMeta {
   avatarColor: string;
   goals: string[];
   barriers: string[];
-  civicData: CitizenCivicData;
+  civicData: CitizenCivicData | null;
 }

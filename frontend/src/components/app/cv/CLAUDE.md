@@ -6,6 +6,7 @@
 | Task | Files to Touch |
 |------|---------------|
 | CV upload flow | `CvUploadView.tsx`, `DropZoneArea.tsx`, `UploadZone.tsx` |
+| Career chat sidebar | `CareerChatBubble.tsx` |
 | CV analysis results | `CvResultsPanel.tsx`, `ProfileSummaryBanner.tsx`, `SkillsToolsCard.tsx`, `RolesCard.tsx` |
 | Onboarding hero | `CvOnboardingHero.tsx` |
 | Job match panel/cards | `job-match/JobMatchPanel.tsx`, `job-match/JobMatchCard.tsx` |
@@ -33,6 +34,7 @@
 ## Root Component Files
 | File | Purpose |
 |------|---------|
+| `CareerChatBubble.tsx` | Fixed right-side panel (400px) that slides in when the career view is active — shows suggestion chips and a placeholder chat input (career assistant not yet wired) |
 | `CvUploadView.tsx` | CV upload interface |
 | `CvOnboardingHero.tsx` | Onboarding for CV feature |
 | `CvResultsPanel.tsx` | Orchestrates result cards with stagger animation |

@@ -35,6 +35,11 @@ export interface CareerAgentResult {
   chips: string[];
 }
 
+export interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
 interface CareerAgentState {
   status: CareerStatus;
   stage: string;
@@ -42,6 +47,7 @@ interface CareerAgentState {
   result: CareerAgentResult | null;
   error: string | null;
   jobId: string | null;
+  messages: ChatMessage[];
 }
 
 export function useCareerAgent() {
@@ -52,11 +58,16 @@ export function useCareerAgent() {
     result: null,
     error: null,
     jobId: null,
+    messages: [],
   });
   const eventSourceRef = useRef<EventSource | null>(null);
+  // Ref tracks current messages so sendMessage always reads the latest list,
+  // avoiding the stale-closure problem with state.messages in useCallback.
+  const messagesRef = useRef<ChatMessage[]>([]);
 
   const startAnalysis = useCallback(
     async (cvVersionId: string, citizenId: string) => {
+      messagesRef.current = [];
       setState({
         status: "running",
         stage: "Starting analysis...",
@@ -64,6 +75,7 @@ export function useCareerAgent() {
         result: null,
         error: null,
         jobId: null,
+        messages: [],
       });
 
       const response = await fetch("/api/career/analyze", {
@@ -90,7 +102,7 @@ export function useCareerAgent() {
       es.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (data.status === "completed") {
-          setState({ status: "completed", stage: "Done", progress: 100, result: data.result, error: null, jobId: job_id });
+          setState((s) => ({ ...s, status: "completed", stage: "Done", progress: 100, result: data.result, error: null, jobId: job_id }));
           es.close();
         } else if (data.status === "failed") {
           setState((s) => ({ ...s, status: "failed", error: data.stage }));
@@ -114,6 +126,14 @@ export function useCareerAgent() {
       contextId: string,
       citizenId: string
     ): Promise<CareerAgentResult | null> => {
+      // Read current history from ref (always up-to-date, no stale closure)
+      const currentHistory = messagesRef.current;
+
+      const userMessage: ChatMessage = { role: "user", content: message };
+      const updatedMessages = [...currentHistory, userMessage];
+      messagesRef.current = updatedMessages;
+      setState((s) => ({ ...s, messages: updatedMessages }));
+
       const response = await fetch("/api/career/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -121,11 +141,21 @@ export function useCareerAgent() {
           message,
           career_context_id: contextId,
           citizen_id: citizenId,
+          history: currentHistory.map((m) => ({ role: m.role, content: m.content })),
         }),
       });
       if (!response.ok) return null;
       const result: CareerAgentResult = await response.json();
-      setState((s) => ({ ...s, result }));
+
+      const assistantMessage: ChatMessage = { role: "assistant", content: result.summary };
+      const finalMessages = [...updatedMessages, assistantMessage];
+      messagesRef.current = finalMessages;
+      setState((s) => ({
+        ...s,
+        status: "completed",
+        result,
+        messages: finalMessages,
+      }));
       return result;
     },
     []

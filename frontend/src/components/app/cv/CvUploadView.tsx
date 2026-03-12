@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Briefcase, TrendingUp } from "lucide-react";
+import { useAuth } from "@clerk/react";
 import { useApp } from "@/lib/appContext";
 import { fetchLatestCv } from "@/lib/cvService";
 import JobMatchPanel from "./JobMatchPanel";
@@ -37,8 +38,34 @@ function PageHeader() {
 
 const CvUploadView = () => {
   const { state, dispatch } = useApp();
+  const { getToken, isSignedIn } = useAuth();
   const [activeTab, setActiveTab] = useState<CareerTab>("market");
   const hasCv = !!state.cvResult;
+
+  useEffect(() => {
+    if (!isSignedIn || state.citizenMeta?.id) return;
+    getToken().then(async (token) => {
+      const response = await fetch("/api/citizen/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) return;
+      const data = await response.json();
+      if (!data.exists || !data.profile) return;
+      dispatch({
+        type: "SET_CITIZEN_META",
+        meta: {
+          id: data.profile.id,
+          persona: data.profile.name,
+          tagline: data.profile.job_title ?? "",
+          avatarInitials: data.profile.name?.slice(0, 2).toUpperCase() ?? "??",
+          avatarColor: "#4f7942",
+          goals: [],
+          barriers: [],
+          civicData: null,
+        },
+      });
+    });
+  }, [isSignedIn]);
 
   useEffect(() => {
     if (state.cvResult || !state.citizenMeta?.id) return;
@@ -46,12 +73,16 @@ const CvUploadView = () => {
       if (!data) return;
       dispatch({ type: "SET_CV_RESULT", result: data.result });
       dispatch({ type: "SET_CV_FILE", fileName: data.file_name });
+      dispatch({ type: "SET_CV_UPLOAD_ID", uploadId: data.cv_upload_id });
     });
   }, [state.citizenMeta?.id]);
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <CareerChatBubble />
+      <CareerChatBubble
+        citizenId={state.citizenMeta?.id}
+        cvVersionId={state.cvUploadId ?? undefined}
+      />
       {hasCv && <CitizenProfileBar />}
 
       {hasCv && (

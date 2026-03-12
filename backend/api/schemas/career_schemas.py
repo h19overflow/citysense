@@ -12,7 +12,13 @@ class CareerAnalyzeResponse(BaseModel):
     job_id: str
 
 
+class ChatTurn(BaseModel):
+    role: str   # "user" | "assistant"
+    content: str
+
+
 class CareerChatRequest(BaseModel):
     message: str
     career_context_id: str
     citizen_id: str
+    history: list[ChatTurn] = []

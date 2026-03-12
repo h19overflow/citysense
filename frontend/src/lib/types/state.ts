@@ -25,6 +25,7 @@ export interface AppState {
   cvFileName: string | null;
   cvAnalyzing: boolean;
   cvJobId: string | null;
+  cvUploadId: string | null;
   cvProgress: number;
   cvStage: string;
   selectedPin: ServicePoint | null;

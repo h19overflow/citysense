@@ -112,17 +112,43 @@ def _build_analysis_prompt(cv_result: Any, citizen_profile: Any) -> str:
 
 
 def _build_context_prefix(context: dict[str, Any]) -> str:
-    """Build a context summary string for follow-up chat."""
+    """Build a full context summary for follow-up chat so no tool calls are needed."""
+    if not context:
+        return (
+            "[No prior career analysis found]\n"
+            "You have no CV data for this citizen. "
+            "Politely let them know you don't have their profile yet and ask them to upload their CV first."
+        )
+
     summary = context.get("summary", "")
     next_role = context.get("next_role_target", "")
-    job_count = len(context.get("job_opportunities", []))
-    gap_count = len(context.get("skill_gaps", []))
+
+    jobs = context.get("job_opportunities", [])
+    jobs_text = "\n".join(
+        f"  - {j.get('title', '?')} at {j.get('company', '?')} ({j.get('match_percent', 0)}% match)"
+        for j in jobs
+    ) or "  None found"
+
+    gaps = context.get("skill_gaps", [])
+    gaps_text = "\n".join(
+        f"  - {g.get('skill', '?')} [{g.get('importance', '?')}]"
+        for g in gaps
+    ) or "  None found"
+
+    resources = context.get("upskill_resources", [])
+    resources_text = "\n".join(
+        f"  - {r.get('skill', '?')}: {r.get('resource_name', '?')} ({r.get('provider', '?')})"
+        for r in resources
+    ) or "  None found"
+
     return (
-        f"[Career analysis already complete]\n"
+        f"[Career analysis already complete — DO NOT call any tools]\n"
         f"Summary: {summary}\n"
-        f"Target role: {next_role}\n"
-        f"Jobs found: {job_count}, Skill gaps: {gap_count}\n"
-        f"Answer the citizen's follow-up question using this context."
+        f"Target role: {next_role}\n\n"
+        f"Job opportunities:\n{jobs_text}\n\n"
+        f"Skill gaps:\n{gaps_text}\n\n"
+        f"Upskill resources:\n{resources_text}\n\n"
+        f"Answer the citizen's follow-up question using ONLY the above context."
     )
 
 

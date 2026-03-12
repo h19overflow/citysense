@@ -43,6 +43,7 @@ export type AppAction =
   | { type: "SET_CV_FILE"; fileName: string | null }
   | { type: "SET_CV_ANALYZING"; analyzing: boolean }
   | { type: "SET_CV_JOB"; jobId: string }
+  | { type: "SET_CV_UPLOAD_ID"; uploadId: string }
   | { type: "SET_CV_PROGRESS"; progress: number; stage: string }
   | { type: "CLEAR_CV" }
   | { type: "SET_SELECTED_PIN"; pin: ServicePoint | null }

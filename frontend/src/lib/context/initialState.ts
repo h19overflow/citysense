@@ -15,6 +15,7 @@ export const initialState: AppState = {
   cvFileName: null,
   cvAnalyzing: false,
   cvJobId: null,
+  cvUploadId: null,
   cvProgress: 0,
   cvStage: "",
   selectedPin: null,

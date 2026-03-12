@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MessageSquare, Send, Sparkles } from "lucide-react";
 import { CareerProgressBubble } from "./CareerProgressBubble";
 import { useCareerAgent, type CareerAgentResult } from "../../../lib/hooks/useCareerAgent";
@@ -48,8 +48,10 @@ function IdleState() {
 export function CareerChatBubble({ cvVersionId, citizenId, onResult }: CareerChatBubbleProps) {
   const [visible, setVisible] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  const { status, stage, progress, result, error, jobId, startAnalysis, sendMessage } = useCareerAgent();
+  const [isSending, setIsSending] = useState(false);
+  const { status, stage, progress, result, error, jobId, messages, startAnalysis, sendMessage } = useCareerAgent();
   const contextId = jobId ?? "";
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setVisible(true));
@@ -68,15 +70,27 @@ export function CareerChatBubble({ cvVersionId, citizenId, onResult }: CareerCha
     }
   }, [result, onResult]);
 
-  const handleChipClick = (chip: string) => {
-    if (!citizenId) return;
-    sendMessage(chip, contextId, citizenId);
+  // Scroll to bottom whenever messages change
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isSending]);
+
+  const isBlocked = status === "running" || isSending || !citizenId;
+
+  const handleChipClick = async (chip: string) => {
+    if (isBlocked) return;
+    setIsSending(true);
+    await sendMessage(chip, contextId, citizenId);
+    setIsSending(false);
   };
 
-  const handleSend = () => {
-    if (!inputValue.trim() || !citizenId) return;
-    sendMessage(inputValue.trim(), contextId, citizenId);
+  const handleSend = async () => {
+    if (!inputValue.trim() || isBlocked) return;
+    const text = inputValue.trim();
     setInputValue("");
+    setIsSending(true);
+    await sendMessage(text, contextId, citizenId);
+    setIsSending(false);
   };
 
   return (
@@ -86,30 +100,60 @@ export function CareerChatBubble({ cvVersionId, citizenId, onResult }: CareerCha
       }`}
     >
       <PanelHeader status={status} />
-      <div className="flex-1 overflow-y-auto min-h-0 py-3">
-        {status === "idle" && <IdleState />}
+      <div className="flex-1 overflow-y-auto min-h-0 py-3 flex flex-col gap-3 px-4">
+        {status === "idle" && messages.length === 0 && <IdleState />}
         {status === "running" && (
           <CareerProgressBubble stage={stage} progress={progress} />
         )}
         {status === "failed" && (
-          <div className="px-4 py-3 text-sm text-destructive">{error ?? "Analysis failed."}</div>
+          <div className="text-sm text-destructive py-2">{error ?? "Analysis failed."}</div>
         )}
-        {status === "completed" && result && (
-          <div className="flex flex-col gap-3 px-4 py-2">
-            <p className="text-xs text-muted-foreground leading-relaxed">{result.summary}</p>
-            <div className="flex flex-wrap gap-2">
-              {result.chips.map((chip) => (
-                <button
-                  key={chip}
-                  onClick={() => handleChipClick(chip)}
-                  className="px-3 py-1.5 rounded-full border border-border/50 bg-background text-xs text-foreground hover:bg-muted transition-colors"
-                >
-                  {chip}
-                </button>
-              ))}
+
+        {/* Message thread */}
+        {messages.map((msg, i) => (
+          <div
+            key={i}
+            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+          >
+            <div
+              className={`max-w-[85%] rounded-2xl px-3 py-2 text-xs leading-relaxed ${
+                msg.role === "user"
+                  ? "bg-[hsl(var(--pine-green))] text-white rounded-br-sm"
+                  : "bg-muted text-foreground rounded-bl-sm"
+              }`}
+            >
+              {msg.content}
+            </div>
+          </div>
+        ))}
+
+        {/* Typing indicator while waiting for reply */}
+        {isSending && (
+          <div className="flex justify-start">
+            <div className="bg-muted rounded-2xl rounded-bl-sm px-3 py-2 flex gap-1 items-center">
+              <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50 animate-bounce [animation-delay:0ms]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50 animate-bounce [animation-delay:150ms]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50 animate-bounce [animation-delay:300ms]" />
             </div>
           </div>
         )}
+
+        {/* Suggestion chips after last assistant message */}
+        {status === "completed" && result && !isSending && (
+          <div className="flex flex-wrap gap-2 pt-1">
+            {result.chips.map((chip) => (
+              <button
+                key={chip}
+                onClick={() => handleChipClick(chip)}
+                className="px-3 py-1.5 rounded-full border border-border/50 bg-background text-xs text-foreground hover:bg-muted transition-colors"
+              >
+                {chip}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div ref={bottomRef} />
       </div>
       <div className="flex gap-2 p-3 border-t border-border/30 shrink-0">
         <input
@@ -117,12 +161,12 @@ export function CareerChatBubble({ cvVersionId, citizenId, onResult }: CareerCha
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSend()}
           placeholder={status === "running" ? "Analyzing your profile..." : "Ask your career guide..."}
-          disabled={status === "running"}
+          disabled={isBlocked}
           className="flex-1 px-3 py-2 text-sm rounded-lg border border-border/50 bg-background focus:outline-none min-h-[40px] disabled:opacity-50 disabled:cursor-not-allowed"
         />
         <button
           onClick={handleSend}
-          disabled={status === "running" || !inputValue.trim()}
+          disabled={isBlocked || !inputValue.trim()}
           className="px-3 py-2 rounded-lg bg-[hsl(var(--pine-green))] text-white min-h-[40px] disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
           aria-label="Send message"
         >
