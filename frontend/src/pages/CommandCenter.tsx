@@ -1,5 +1,6 @@
-import { useEffect, useCallback, useMemo, useState } from "react";
+import { useEffect, useCallback, useMemo, useState, useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import TopBar from "@/components/app/TopBar";
 import { AppNav, type MobileTab } from "@/components/app/MobileNav";
 import { ServicesView } from "@/components/app/services/ServicesView";
@@ -17,6 +18,19 @@ import {
 import type { AppView, Language, ServiceCategory } from "@/lib/types";
 
 const VALID_VIEWS = new Set<string>(["services", "admin", "profile", "news", "career"]);
+
+const TAB_ORDER: Record<string, number> = {
+  services: 0,
+  news: 1,
+  career: 2,
+  profile: 3,
+};
+
+const slideVariants = {
+  enter: (direction: number) => ({ x: direction > 0 ? "100%" : "-100%", opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (direction: number) => ({ x: direction > 0 ? "-100%" : "100%", opacity: 0 }),
+};
 
 export default function CommandCenter() {
   const { state, dispatch } = useApp();
@@ -40,6 +54,7 @@ export default function CommandCenter() {
   const navigateToView = useCallback(
     (view: AppView) => {
       if (view !== currentView) {
+        slideDirection.current = (TAB_ORDER[view] ?? 0) > (TAB_ORDER[currentView] ?? 0) ? 1 : -1;
         navigate(`/app/${view}`, { replace: true });
       }
     },
@@ -134,6 +149,9 @@ export default function CommandCenter() {
     [state.actionItems],
   );
 
+  // Track slide direction: +1 = slide right→left (going forward), -1 = slide left→right
+  const slideDirection = useRef<number>(1);
+
   const isCareer = currentView === "career";
   const [careerMargin, setCareerMargin] = useState(false);
 
@@ -153,9 +171,20 @@ export default function CommandCenter() {
       <div className="flex-1 min-h-0 overflow-hidden px-3 md:px-6 py-3 md:py-4">
         <div className="max-w-7xl mx-auto h-full min-h-0">
           <div className="stitch-panel h-full min-h-0 overflow-hidden">
-            <div className="flex-1 flex flex-col min-w-0 min-h-0 h-full">
-              {activeView}
-            </div>
+            <AnimatePresence mode="popLayout" custom={slideDirection.current} initial={false}>
+              <motion.div
+                key={currentView}
+                custom={slideDirection.current}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] }}
+                className="flex-1 flex flex-col min-w-0 min-h-0 h-full"
+              >
+                {activeView}
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
       </div>
