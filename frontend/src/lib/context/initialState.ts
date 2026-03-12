@@ -21,6 +21,7 @@ export const initialState: AppState = {
   activeCategories: ["health", "community", "childcare", "education", "safety", "libraries"] as ServiceCategory[],
   servicePoints: [],
   guideMessages: [],
+  guideInitialized: false,
   guideTyping: false,
   jobListings: [],
   jobMatches: [],

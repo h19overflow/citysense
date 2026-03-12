@@ -74,7 +74,7 @@ def fetch_full_text(articles: list[dict], max_articles: int = 20) -> list[dict]:
         url = article.get("sourceUrl", "")
         if not url:
             continue
-        content = fetch_with_unlocker(url, as_markdown=True)
+        content = fetch_with_unlocker(url)
         if content:
             article["body"] = content[:2000]
         time.sleep(1)

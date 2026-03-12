@@ -11,7 +11,7 @@ from typing import Any
 from urllib.parse import quote
 
 try:
-    from brightdata import WebUnlockerService as WebUnlocker
+    from brightdata import WebUnlocker
 except ImportError:
     WebUnlocker = None  # type: ignore[misc,assignment]
 
@@ -115,22 +115,18 @@ def poll_snapshot(
 def fetch_with_unlocker(
     url: str,
     zone: str | None = None,
-    as_markdown: bool = True,
 ) -> str | None:
-    """Fetch a URL via SDK WebUnlockerService. Returns markdown/HTML or None."""
+    """Fetch a URL via WebUnlocker. Returns HTML or None."""
     if WebUnlocker is None:
-        logger.error("brightdata WebUnlockerService not available")
+        logger.error("brightdata WebUnlocker not available")
         return None
     try:
-        client = WebUnlocker(token=get_api_key())
-        result = client.scrape(url)
-        if not result:
+        client = WebUnlocker(BRIGHTDATA_WEBUNLOCKER_BEARER=get_api_key(), ZONE_STRING=zone)
+        result = client.get_source(url)
+        if not result or not result.success:
+            logger.error("Crawl failed for %s: %s", url, getattr(result, "error", "unknown"))
             return None
-        if as_markdown and hasattr(result, "markdown") and result.markdown:
-            return result.markdown
-        if hasattr(result, "html") and result.html:
-            return result.html
-        return str(result) if result else None
+        return result.data if result.data else None
     except Exception as e:
         logger.error("Crawl failed for %s: %s", url, e)
         return None
@@ -141,10 +137,10 @@ def fetch_with_unlocker(
 # ---------------------------------------------------------------------------
 
 def _get_serp_client() -> Any:
-    """Create a WebUnlockerService configured for the SERP zone."""
+    """Create a WebUnlocker configured for the SERP zone."""
     if WebUnlocker is None:
-        raise RuntimeError("brightdata WebUnlockerService not available")
-    return WebUnlocker(token=get_api_key(), web_unlocker_zone=SERP_ZONE)
+        raise RuntimeError("brightdata WebUnlocker not available")
+    return WebUnlocker(BRIGHTDATA_WEBUNLOCKER_BEARER=get_api_key(), ZONE_STRING=SERP_ZONE)
 
 
 def _serp_request(google_url: str) -> dict | None:
@@ -154,12 +150,15 @@ def _serp_request(google_url: str) -> dict | None:
     """
     client = _get_serp_client()
     try:
-        result = client.scrape(google_url)
-        if not result:
-            logger.error("SERP returned empty result")
+        result = client.get_source(google_url)
+        if not result or not result.success:
+            logger.error("SERP returned error for '%s': %s", google_url, getattr(result, "error", "unknown"))
             return None
         import json
-        data = result if isinstance(result, dict) else json.loads(str(result))
+        raw = result.data
+        if not raw:
+            return None
+        data = raw if isinstance(raw, dict) else json.loads(str(raw))
         return data
     except (ValueError, TypeError):
         # WebUnlocker returned HTML — retry with explicit JSON format

@@ -49,6 +49,7 @@ export type AppAction =
   | { type: "TOGGLE_CATEGORY"; category: ServiceCategory }
   | { type: "SET_SERVICE_POINTS"; points: ServicePoint[] }
   | { type: "ADD_SERVICE_POINTS"; points: ServicePoint[] }
+  | { type: "INIT_GUIDE_WELCOME"; message: GuideMessage }
   | { type: "ADD_GUIDE_MESSAGE"; message: GuideMessage }
   | { type: "SET_GUIDE_TYPING"; typing: boolean }
   | { type: "SET_JOB_LISTINGS"; listings: JobListing[] }

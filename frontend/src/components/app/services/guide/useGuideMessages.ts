@@ -16,9 +16,7 @@ export function useGuideMessages(setInput: (value: string) => void) {
   const prevPinRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (state.guideMessages.length === 0) {
-      dispatch({ type: "ADD_GUIDE_MESSAGE", message: WELCOME_MESSAGE });
-    }
+    dispatch({ type: "INIT_GUIDE_WELCOME", message: WELCOME_MESSAGE });
   }, []);
 
   useEffect(() => {

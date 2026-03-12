@@ -20,7 +20,7 @@ class BenefitsScraper(BaseScraper):
         """Fetch benefit pages as markdown via Web Unlocker."""
         results: list[dict] = []
         for i, target in enumerate(BENEFITS_TARGETS):
-            markdown = fetch_with_unlocker(url=target["url"], as_markdown=True)
+            markdown = fetch_with_unlocker(url=target["url"])
             if markdown:
                 results.append({"markdown": markdown, "target": target})
             if i < len(BENEFITS_TARGETS) - 1:
