@@ -9,6 +9,7 @@ import CitizenProfileBar from "./CitizenProfileBar";
 import CvOnboardingHero from "./CvOnboardingHero";
 import CvResultsPanel from "./CvResultsPanel";
 import BusinessGrowth from "./BusinessGrowth";
+import { CareerChatBubble } from "./CareerChatBubble";
 
 type CareerTab = "market" | "growth";
 
@@ -50,6 +51,7 @@ const CvUploadView = () => {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
+      <CareerChatBubble />
       {hasCv && <CitizenProfileBar />}
 
       {hasCv && (
