@@ -115,7 +115,6 @@ def poll_snapshot(
 def fetch_with_unlocker(
     url: str,
     zone: str | None = None,
-    as_markdown: bool = True,
 ) -> str | None:
     """Fetch a URL via WebUnlocker. Returns HTML or None."""
     if WebUnlocker is None:
