@@ -4,19 +4,15 @@ import json
 import logging
 from collections import defaultdict
 from typing import Any
-
 from dotenv import load_dotenv
-
-load_dotenv()
-
 from langchain.agents import create_agent
 from langchain_core.messages import AIMessage, HumanMessage
-
 from backend.agents.citizen.prompt import CITIZEN_CHAT_PROMPT
 from backend.agents.citizen.schemas import CitizenAgentResponse
 from backend.agents.citizen.tools.registry import CITIZEN_TOOLS
 from backend.agents.common.llm import build_llm
 
+load_dotenv()
 logger = logging.getLogger(__name__)
 
 _cached_agent = None
