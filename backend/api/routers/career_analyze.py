@@ -36,7 +36,7 @@ async def start_career_analysis(
     background_tasks.add_task(
         _run_analysis_task,
         job_id=job_id,
-        cv_upload_id=request.cv_version_id,
+        cv_upload_id=request.cv_upload_id,
         citizen_id=request.citizen_id,
     )
     return CareerAnalyzeResponse(job_id=job_id)

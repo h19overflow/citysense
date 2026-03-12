@@ -48,8 +48,8 @@ function IdleState() {
 export function CareerChatBubble({ cvVersionId, citizenId, onResult }: CareerChatBubbleProps) {
   const [visible, setVisible] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  const [contextId] = useState(() => crypto.randomUUID());
-  const { status, stage, progress, result, error, startAnalysis, sendMessage } = useCareerAgent();
+  const { status, stage, progress, result, error, jobId, startAnalysis, sendMessage } = useCareerAgent();
+  const contextId = jobId ?? "";
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setVisible(true));

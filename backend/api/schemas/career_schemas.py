@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class CareerAnalyzeRequest(BaseModel):
-    cv_version_id: str
+    cv_upload_id: str
     citizen_id: str
 
 

@@ -41,6 +41,7 @@ interface CareerAgentState {
   progress: number;
   result: CareerAgentResult | null;
   error: string | null;
+  jobId: string | null;
 }
 
 export function useCareerAgent() {
@@ -50,6 +51,7 @@ export function useCareerAgent() {
     progress: 0,
     result: null,
     error: null,
+    jobId: null,
   });
   const eventSourceRef = useRef<EventSource | null>(null);
 
@@ -61,12 +63,13 @@ export function useCareerAgent() {
         progress: 0,
         result: null,
         error: null,
+        jobId: null,
       });
 
       const response = await fetch("/api/career/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cv_version_id: cvVersionId, citizen_id: citizenId }),
+        body: JSON.stringify({ cv_upload_id: cvVersionId, citizen_id: citizenId }),
       });
 
       if (!response.ok) {
@@ -75,13 +78,19 @@ export function useCareerAgent() {
       }
 
       const { job_id } = await response.json();
+      setState((s) => ({ ...s, jobId: job_id }));
+
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+      }
+
       const es = new EventSource(`/api/career/jobs/${job_id}/stream`);
       eventSourceRef.current = es;
 
       es.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (data.status === "completed") {
-          setState({ status: "completed", stage: "Done", progress: 100, result: data.result, error: null });
+          setState({ status: "completed", stage: "Done", progress: 100, result: data.result, error: null, jobId: job_id });
           es.close();
         } else if (data.status === "failed") {
           setState((s) => ({ ...s, status: "failed", error: data.stage }));
