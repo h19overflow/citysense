@@ -569,7 +569,7 @@ class TestSynthesizeCvRoles:
 
     @pytest.mark.unit
     async def test_returns_roles_list(self):
-        from backend.agents.cv_analyzers.synthesizer import synthesize_cv_roles
+        from backend.agents.citizen.cv_analyzers.synthesizer import synthesize_cv_roles
 
         cv = CVAnalysisResult(
             experience=[ExperienceEntry(role="Backend Developer", company="Acme")],
@@ -581,7 +581,7 @@ class TestSynthesizeCvRoles:
         mock_chain = AsyncMock()
         mock_chain.ainvoke.return_value = MagicMock(roles=["Backend Developer", "Software Engineer"])
 
-        with patch("backend.agents.cv_analyzers.synthesizer.build_synthesizer_chain", return_value=mock_chain):
+        with patch("backend.agents.citizen.cv_analyzers.synthesizer.build_synthesizer_chain", return_value=mock_chain):
             roles = await synthesize_cv_roles(cv)
 
         assert "Backend Developer" in roles
@@ -589,21 +589,21 @@ class TestSynthesizeCvRoles:
 
     @pytest.mark.unit
     async def test_returns_empty_list_for_empty_cv(self):
-        from backend.agents.cv_analyzers.synthesizer import synthesize_cv_roles
+        from backend.agents.citizen.cv_analyzers.synthesizer import synthesize_cv_roles
 
         cv = CVAnalysisResult()
 
         mock_chain = AsyncMock()
         mock_chain.ainvoke.return_value = MagicMock(roles=[])
 
-        with patch("backend.agents.cv_analyzers.synthesizer.build_synthesizer_chain", return_value=mock_chain):
+        with patch("backend.agents.citizen.cv_analyzers.synthesizer.build_synthesizer_chain", return_value=mock_chain):
             roles = await synthesize_cv_roles(cv)
 
         assert roles == []
 
     @pytest.mark.unit
     async def test_does_not_include_project_names_as_roles(self):
-        from backend.agents.cv_analyzers.synthesizer import synthesize_cv_roles
+        from backend.agents.citizen.cv_analyzers.synthesizer import synthesize_cv_roles
 
         cv = CVAnalysisResult(
             projects=[ProjectEntry(name="Student Helper", description="A tutoring app")],
@@ -614,7 +614,7 @@ class TestSynthesizeCvRoles:
         mock_chain = AsyncMock()
         mock_chain.ainvoke.return_value = MagicMock(roles=["Software Developer"])
 
-        with patch("backend.agents.cv_analyzers.synthesizer.build_synthesizer_chain", return_value=mock_chain):
+        with patch("backend.agents.citizen.cv_analyzers.synthesizer.build_synthesizer_chain", return_value=mock_chain):
             roles = await synthesize_cv_roles(cv)
 
         assert "Student Helper" not in roles

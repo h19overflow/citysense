@@ -106,7 +106,7 @@ describe("matchJobsToProfile", () => {
   });
 
   it("expands cv skills using known mappings (microsoft office → excel + computer)", () => {
-    const jobs = [makeJob({ skills: { technical: ["excel"] } })];
+    const jobs = [makeJob({ skills: { technical: ["excel"] }, skillSummary: "excel computer" })];
     const cv = makeCv(["Microsoft Office"]);
 
     const matches = matchJobsToProfile(jobs, cv);

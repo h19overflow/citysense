@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, HTTPException
 
-from backend.agents.roadmap_agent import generate_personalized_roadmap
+from backend.agents.citizen.roadmap_agent import generate_personalized_roadmap
 from backend.api.schemas.roadmap_schemas import PersonalizedRoadmap, RoadmapRequest
 
 router = APIRouter(tags=["roadmap"])

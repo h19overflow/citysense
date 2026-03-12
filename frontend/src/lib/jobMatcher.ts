@@ -33,6 +33,19 @@ export function jobMatchesSkillFilter(job: JobListing, rawSkillKey: string): boo
   return true;
 }
 
+/** Returns true if a job skill genuinely matches a user skill.
+ * Prevents short keywords (e.g. "rn") from matching inside longer user skills
+ * (e.g. "programming" contains "rn" as a substring — that is NOT a match).
+ */
+function skillsOverlap(jobSkill: string, userSkill: string): boolean {
+  if (jobSkill === userSkill) return true;
+  // Only allow containment when the shorter side is at least 4 characters,
+  // preventing 2-3 char abbreviations from substring-matching inside words.
+  if (jobSkill.length >= 4 && userSkill.includes(jobSkill)) return true;
+  if (userSkill.length >= 4 && jobSkill.includes(userSkill)) return true;
+  return false;
+}
+
 export function matchJobsToProfile(
   jobs: JobListing[],
   cvResult: CVAnalysisResult,
@@ -40,13 +53,15 @@ export function matchJobsToProfile(
   const userSkills = normalizeCvSkills(cvResult.skills);
 
   const matches: JobMatch[] = jobs.map((job) => {
-    const requiredSkills = flattenSkillCategories(job.skills);
+    const requiredSkills = flattenSkillCategories(job.skills).filter((skill) =>
+      jobMatchesSkillFilter(job, skill)
+    );
 
     const matched = requiredSkills.filter((skill) =>
-      userSkills.some((us) => us.includes(skill) || skill.includes(us))
+      userSkills.some((us) => skillsOverlap(skill, us))
     );
     const missing = requiredSkills.filter(
-      (skill) => !userSkills.some((us) => us.includes(skill) || skill.includes(us))
+      (skill) => !userSkills.some((us) => skillsOverlap(skill, us))
     );
 
     const matchPercent = requiredSkills.length > 0

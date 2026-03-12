@@ -21,8 +21,8 @@ from langchain_core.runnables import Runnable
 
 from backend.config import OUTPUT_FILES, REPO_ROOT
 from backend.core.data_scraping.schemas import ArticleAnalysis, AnalysisResults
-from backend.agents.redact_pii import redact_comment_text
-from backend.agents.prompts import BATCH_ANALYSIS_PROMPT
+from backend.agents.citizen.redact_pii import redact_comment_text
+from backend.agents.mayor.prompt import BATCH_ANALYSIS_PROMPT
 
 logger = logging.getLogger("agents.comment_analysis")
 
