@@ -1,0 +1,91 @@
+{
+  "timestamp": "2026-03-12T18:37:54.708105",
+  "backend_url": "http://localhost:8085",
+  "summary": {
+    "total_scenarios": 4,
+    "pass": 4,
+    "fail": 0,
+    "error": 0,
+    "pass_rate_pct": 100.0,
+    "full_analysis_total_ms": 10751.318699999956,
+    "full_analysis_post_ms": 271.0218000001987,
+    "full_analysis_first_event_ms": 87.41209999993771,
+    "full_analysis_sse_events": 5,
+    "avg_chat_latency_ms": 2084.1,
+    "hallucination_detected": false
+  },
+  "scenarios": [
+    {
+      "name": "full_analysis_hamza_caio",
+      "status": "pass",
+      "error": null,
+      "timings": {
+        "post_analyze_ms": 271.0218000001987,
+        "first_sse_event_ms": 87.41209999993771,
+        "total_stream_ms": 10751.318699999956,
+        "chat_request_ms": 0.0
+      },
+      "sse_event_count": 5,
+      "final_status": "completed",
+      "summary_preview": "You possess an exceptionally strong technical background in AI, machine learning, and data engineering, with extensive e",
+      "job_count": 3,
+      "skill_gap_count": 2,
+      "chat_response_preview": "",
+      "chat_summary_correct": null
+    },
+    {
+      "name": "chat_hello",
+      "status": "pass",
+      "error": null,
+      "timings": {
+        "post_analyze_ms": 0.0,
+        "first_sse_event_ms": 0.0,
+        "total_stream_ms": 0.0,
+        "chat_request_ms": 2602.5979000000916
+      },
+      "sse_event_count": 0,
+      "final_status": "",
+      "summary_preview": "",
+      "job_count": 0,
+      "skill_gap_count": 0,
+      "chat_response_preview": "Hello! It's great to connect with you again. Based on your strong background in AI, machine learning, and data engineeri",
+      "chat_summary_correct": true
+    },
+    {
+      "name": "chat_ml_roles_question",
+      "status": "pass",
+      "error": null,
+      "timings": {
+        "post_analyze_ms": 0.0,
+        "first_sse_event_ms": 0.0,
+        "total_stream_ms": 0.0,
+        "chat_request_ms": 2344.301200000018
+      },
+      "sse_event_count": 0,
+      "final_status": "",
+      "summary_preview": "",
+      "job_count": 2,
+      "skill_gap_count": 2,
+      "chat_response_preview": "You have two strong options for ML Engineer roles in Montgomery: a Senior AI/Machine Learning Engineer position at a Glo",
+      "chat_summary_correct": true
+    },
+    {
+      "name": "chat_empty_context",
+      "status": "pass",
+      "error": null,
+      "timings": {
+        "post_analyze_ms": 0.0,
+        "first_sse_event_ms": 0.0,
+        "total_stream_ms": 0.0,
+        "chat_request_ms": 1305.3237000001445
+      },
+      "sse_event_count": 0,
+      "final_status": "",
+      "summary_preview": "",
+      "job_count": 0,
+      "skill_gap_count": 0,
+      "chat_response_preview": "I don't have your profile information yet, so I cannot provide personalized job recommendations. Please upload your CV s",
+      "chat_summary_correct": null
+    }
+  ]
+}

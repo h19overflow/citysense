@@ -1,0 +1,24 @@
+{
+  "initial_analysis_prompt": "Analyze this citizen's career profile and find opportunities:\n\nCurrent title: Tech Lead\nCurrent salary: 5000000.0\nSkills: Advanced RAG, Agentic Systems, Machine Learning, Python, Deep learning, NLP, Data Science, Inference Optimization, Knowledge Graphs, Embeddings\nTools: LangChain, LangGraph, FastAPI, PyTorch, TensorFlow, AWS, Docker, Redis, PostgreSQL, vLLM\nInferred roles: Machine Learning Engineer, AI Engineer, Data Scientist, Data Engineer\n\nSearch for matching jobs, compute skill gaps to the next level, and find local training resources.",
+  "context_prefix_on_hello": "[Career analysis already complete]\nSummary: You have strong admin skills...\nTarget role: Office Manager\nJobs found: 3, Skill gaps: 2\nAnswer the citizen's follow-up question using this context.",
+  "what_is_MISSING_from_prompt": [
+    "experience entries (internship at TM R&D)",
+    "education (MMU BSc CS)",
+    "summary paragraph",
+    "projects (8 projects)",
+    "soft_skills"
+  ],
+  "compute_skill_gaps_hardcoded_roles": [
+    "data scientist",
+    "data analyst",
+    "software engineer",
+    "project manager",
+    "accountant",
+    "nurse"
+  ],
+  "your_actual_roles_NOT_in_map": [
+    "Machine Learning Engineer",
+    "AI Engineer",
+    "Data Engineer"
+  ]
+}

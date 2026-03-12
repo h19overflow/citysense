@@ -1,0 +1,91 @@
+{
+  "timestamp": "2026-03-12T18:28:41.134525",
+  "backend_url": "http://localhost:8085",
+  "summary": {
+    "total_scenarios": 4,
+    "pass": 4,
+    "fail": 0,
+    "error": 0,
+    "pass_rate_pct": 100.0,
+    "full_analysis_total_ms": 13905.385600000045,
+    "full_analysis_post_ms": 287.90830000002643,
+    "full_analysis_first_event_ms": 80.54820000006657,
+    "full_analysis_sse_events": 5,
+    "avg_chat_latency_ms": 10084.4,
+    "hallucination_detected": false
+  },
+  "scenarios": [
+    {
+      "name": "full_analysis_hamza_caio",
+      "status": "pass",
+      "error": null,
+      "timings": {
+        "post_analyze_ms": 287.90830000002643,
+        "first_sse_event_ms": 80.54820000006657,
+        "total_stream_ms": 13905.385600000045,
+        "chat_request_ms": 0.0
+      },
+      "sse_event_count": 5,
+      "final_status": "completed",
+      "summary_preview": "You possess an elite technical profile with extensive experience in AI, ML, and cloud-native development. Given your bac",
+      "job_count": 4,
+      "skill_gap_count": 2,
+      "chat_response_preview": "",
+      "chat_summary_correct": null
+    },
+    {
+      "name": "chat_hello",
+      "status": "pass",
+      "error": null,
+      "timings": {
+        "post_analyze_ms": 0.0,
+        "first_sse_event_ms": 0.0,
+        "total_stream_ms": 0.0,
+        "chat_request_ms": 2848.331299999927
+      },
+      "sse_event_count": 0,
+      "final_status": "",
+      "summary_preview": "",
+      "job_count": 0,
+      "skill_gap_count": 0,
+      "chat_response_preview": "Hello! It is great to connect with you again. You possess an elite technical profile with extensive experience in AI, ML",
+      "chat_summary_correct": true
+    },
+    {
+      "name": "chat_ml_roles_question",
+      "status": "pass",
+      "error": null,
+      "timings": {
+        "post_analyze_ms": 0.0,
+        "first_sse_event_ms": 0.0,
+        "total_stream_ms": 0.0,
+        "chat_request_ms": 12398.986100000002
+      },
+      "sse_event_count": 0,
+      "final_status": "",
+      "summary_preview": "",
+      "job_count": 3,
+      "skill_gap_count": 2,
+      "chat_response_preview": "There is a robust market for ML Engineering talent in Montgomery, with several open roles at firms like EY and through m",
+      "chat_summary_correct": true
+    },
+    {
+      "name": "chat_empty_context",
+      "status": "pass",
+      "error": null,
+      "timings": {
+        "post_analyze_ms": 0.0,
+        "first_sse_event_ms": 0.0,
+        "total_stream_ms": 0.0,
+        "chat_request_ms": 15005.903799999942
+      },
+      "sse_event_count": 0,
+      "final_status": "",
+      "summary_preview": "",
+      "job_count": 0,
+      "skill_gap_count": 0,
+      "chat_response_preview": "Your background in communication, Microsoft Office, and data entry makes you an excellent candidate for various administ",
+      "chat_summary_correct": null
+    }
+  ]
+}
