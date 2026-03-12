@@ -128,7 +128,7 @@ class NewsScraper(BaseScraper):
 
     def _run_comment_analysis(self) -> None:
         try:
-            from backend.agents.comment_analysis import run_comment_analysis_pipeline
+            from backend.agents.citizen.comment_analysis import run_comment_analysis_pipeline
             run_comment_analysis_pipeline()
         except Exception:
             logger.exception("[%s] Comment analysis failed", self.name)

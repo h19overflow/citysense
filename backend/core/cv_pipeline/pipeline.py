@@ -12,8 +12,8 @@ import os
 from collections.abc import AsyncGenerator
 from pathlib import Path
 
-from backend.agents.cv_analyzers.agent import analyze_cv_page
-from backend.agents.cv_analyzers.synthesizer import synthesize_cv_roles
+from backend.agents.citizen.cv_analyzers.agent import analyze_cv_page
+from backend.agents.citizen.cv_analyzers.synthesizer import synthesize_cv_roles
 from backend.core.cv_pipeline.components.aggregator import aggregate_page_results
 from backend.core.cv_pipeline.components.ingestor import (
     extract_page_contents,

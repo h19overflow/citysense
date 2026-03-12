@@ -7,7 +7,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
 
-from backend.agents.mayor_chat import stream_mayor_response
+from backend.agents.mayor.agent import stream_mayor_response
 from backend.core.exceptions import AppException
 
 logger = logging.getLogger(__name__)

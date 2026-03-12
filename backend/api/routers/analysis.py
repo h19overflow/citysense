@@ -5,7 +5,7 @@ import json
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 
 from backend.config import OUTPUT_FILES, REPO_ROOT
-from backend.agents.comment_analysis import run_batch_analysis, save_analysis_results, merge_community_sentiment
+from backend.agents.citizen.comment_analysis import run_batch_analysis, save_analysis_results, merge_community_sentiment
 
 router = APIRouter(tags=["analysis"])
 
