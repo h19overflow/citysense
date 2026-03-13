@@ -1,7 +1,7 @@
 """Career intelligence agent — proactive job matching and upskilling advisor."""
 
 import logging
-from typing import Any
+from typing import Any, cast
 
 from dotenv import load_dotenv
 
@@ -9,6 +9,7 @@ load_dotenv()
 
 from langchain.agents import create_agent
 from langchain_core.messages import AIMessage, HumanMessage
+from langgraph.graph.state import CompiledStateGraph
 
 from backend.agents.career.prompt import CAREER_AGENT_PROMPT
 from backend.agents.career.schemas import CareerAgentResponse
@@ -17,11 +18,11 @@ from backend.agents.common.llm import build_llm
 
 logger = logging.getLogger(__name__)
 
-_cached_agent = None
+_cached_agent: CompiledStateGraph | None = None
 MAX_HISTORY_TURNS = 6
 
 
-def build_career_agent() -> object:
+def build_career_agent() -> CompiledStateGraph:
     """Return the cached career agent, building once on first call."""
     global _cached_agent
     if _cached_agent is not None:
@@ -40,12 +41,12 @@ async def run_career_analysis(
     cv_result: Any,
     citizen_profile: Any,
 ) -> dict[str, Any]:
-    """Run proactive career analysis from a parsed CV and citizen profile.
+    """Run initial career analysis from a parsed CV and citizen profile.
 
-    Triggers all 4 tools (local jobs, web jobs, skill gaps, courses)
-    and returns a structured CareerAgentResponse dict.
+    Summarizes the profile and recommends a next role. Job search tools
+    are only called when the citizen explicitly requests them.
     """
-    agent = build_career_agent()
+    agent = cast(CompiledStateGraph, build_career_agent())
     prompt = _build_analysis_prompt(cv_result, citizen_profile)
     messages = [HumanMessage(content=prompt)]
 
@@ -54,8 +55,9 @@ async def run_career_analysis(
         return _extract_response(result)
     except (ValueError, RuntimeError) as e:
         logger.error(
-            "Career analysis failed",
-            extra={"error": str(e), "operation": "run_career_analysis"},
+            "Career analysis failed: %s",
+            str(e),
+            extra={"operation": "run_career_analysis"},
         )
         return _build_error_response(str(e))
 
@@ -72,7 +74,7 @@ async def handle_career_chat(
         context: The previously computed CareerAgentResponse dict.
         history: Conversation history (max MAX_HISTORY_TURNS messages).
     """
-    agent = build_career_agent()
+    agent = cast(CompiledStateGraph, build_career_agent())
     context_prefix = _build_context_prefix(context)
     messages = [
         HumanMessage(content=context_prefix),
@@ -85,8 +87,9 @@ async def handle_career_chat(
         return _extract_response(result)
     except (ValueError, RuntimeError) as e:
         logger.error(
-            "Career chat failed",
-            extra={"error": str(e), "operation": "handle_career_chat"},
+            "Career chat failed: %s",
+            str(e),
+            extra={"operation": "handle_career_chat"},
         )
         return _build_error_response(str(e))
 
@@ -100,14 +103,13 @@ def _build_analysis_prompt(cv_result: Any, citizen_profile: Any) -> str:
     salary = getattr(citizen_profile, "salary", "Unknown") or "Unknown"
 
     return (
-        f"Analyze this citizen's career profile and find opportunities:\n\n"
+        f"Here is the citizen's career profile. Summarize their strengths "
+        f"and recommend a next role target. Do NOT search for jobs unless asked.\n\n"
         f"Current title: {current_title}\n"
         f"Current salary: {salary}\n"
         f"Skills: {skills or 'Not specified'}\n"
         f"Tools: {tools or 'Not specified'}\n"
-        f"Inferred roles: {roles or 'Not specified'}\n\n"
-        "Search for matching jobs, compute skill gaps to the next level, "
-        "and find local training resources."
+        f"Inferred roles: {roles or 'Not specified'}\n"
     )
 
 
@@ -162,6 +164,7 @@ def _extract_response(result: dict[str, Any]) -> dict[str, Any]:
 
 def _build_error_response(error: str) -> dict[str, Any]:
     """Return a graceful error response matching CareerAgentResponse shape."""
+    logger.debug("Building error response: %s", error)
     return {
         "summary": (
             "I'm having trouble analyzing your career profile right now. "
