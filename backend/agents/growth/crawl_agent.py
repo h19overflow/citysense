@@ -5,7 +5,7 @@ import logging
 from typing import Any
 
 from langchain_core.messages import AIMessage
-from langgraph.prebuilt import create_react_agent
+from langchain.agents import create_agent
 
 from backend.agents.common.llm import build_llm
 from backend.agents.growth.prompts import CRAWL_AGENT_PROMPT
@@ -22,7 +22,11 @@ def get_crawl_agent() -> Any:
     global _cached_crawl_agent
     if _cached_crawl_agent is None:
         llm = build_llm(model="gemini-3.1-flash-lite-preview", temperature=0.2)
-        _cached_crawl_agent = create_react_agent(model=llm, tools=CRAWL_TOOLS)
+        _cached_crawl_agent = create_agent(
+            model=llm,
+            tools=CRAWL_TOOLS,
+            system_prompt=CRAWL_AGENT_PROMPT,
+        )
     return _cached_crawl_agent
 
 
