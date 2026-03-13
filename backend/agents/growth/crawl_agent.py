@@ -6,6 +6,7 @@ from typing import Any
 
 from langchain_core.messages import AIMessage
 from langchain.agents import create_agent
+from langgraph.graph.state import CompiledStateGraph
 
 from backend.agents.common.llm import build_llm
 from backend.agents.growth.prompts import CRAWL_AGENT_PROMPT
@@ -14,10 +15,10 @@ from backend.agents.growth.tools.registry import CRAWL_TOOLS
 
 logger = logging.getLogger(__name__)
 
-_cached_crawl_agent: Any = None
+_cached_crawl_agent: CompiledStateGraph | None = None
 
 
-def get_crawl_agent() -> Any:
+def get_crawl_agent() -> CompiledStateGraph:
     """Return the cached crawl agent, building once on first call."""
     global _cached_crawl_agent
     if _cached_crawl_agent is None:
@@ -71,10 +72,7 @@ async def run_all_crawl_agents(strategies: list[CrawlStrategy]) -> list[CrawlRes
     """
     if not strategies:
         return []
-    results = await asyncio.gather(
-        *[run_crawl_agent(s) for s in strategies],
-        return_exceptions=False,
-    )
+    results = await asyncio.gather(*[run_crawl_agent(s) for s in strategies])
     return list(results)
 
 

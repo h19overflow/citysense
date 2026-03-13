@@ -1,9 +1,11 @@
 """Pure function — merges List[CrawlResult] into a unified signal dict."""
 
+from typing import Any
+
 from backend.agents.growth.schemas import CrawlResult
 
 
-def aggregate_crawl_results(results: list[CrawlResult]) -> dict:
+def aggregate_crawl_results(results: list[CrawlResult]) -> dict[str, Any]:
     """Merge all crawl results into a flat deduplicated signal dict.
 
     Args:

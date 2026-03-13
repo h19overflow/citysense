@@ -1,7 +1,7 @@
 """Bright Data crawl tool for growth plan agents."""
 
 import logging
-from typing import Literal
+from typing import Any, Literal
 
 import httpx
 from langchain_core.tools import tool
@@ -56,7 +56,7 @@ async def crawl_page(url: str, depth_hint: Literal["surface", "medium", "deep"] 
         return f"[Crawl failed for {url}: {exc}]"
 
 
-def _extract_content(response_data: dict) -> str:
+def _extract_content(response_data: dict[str, Any]) -> str:
     """Extract text content from Bright Data crawl response."""
     return (
         response_data.get("content")
