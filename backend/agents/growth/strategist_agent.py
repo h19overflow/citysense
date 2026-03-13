@@ -2,9 +2,11 @@
 
 import asyncio
 import logging
+from typing import Any
 
 import httpx
 from langchain_core.messages import HumanMessage
+from langchain_core.runnables import Runnable
 
 from backend.agents.common.llm import build_llm
 from backend.agents.growth.prompts import STRATEGIST_PROMPT
@@ -15,7 +17,7 @@ logger = logging.getLogger(__name__)
 _MAX_HEADER_BYTES = 4096
 
 
-def build_strategist_chain():
+def build_strategist_chain() -> Runnable:
     """Build a structured-output chain for the strategist agent."""
     llm = build_llm(model="gemini-3.1-flash-lite-preview", temperature=0.3)
     return llm.with_structured_output(StrategistOutput)
@@ -27,14 +29,19 @@ async def fetch_link_header(url: str) -> str:
         async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
             response = await client.get(url)
             return response.text[:_MAX_HEADER_BYTES]
-    except Exception as exc:
-        logger.warning("Header fetch failed for %s: %s", url, exc)
+    except (httpx.HTTPError, httpx.TimeoutException, OSError) as exc:
+        logger.warning(
+            "Header fetch failed for %s: %s",
+            url,
+            exc,
+            extra={"operation": "fetch_link_header"},
+        )
         return f"[Could not fetch header for {url}]"
 
 
 async def run_strategist_agent(
     urls: list[str],
-    cv_summary: dict,
+    cv_summary: dict[str, Any],
     career_goal: str,
     target_timeline: str,
 ) -> list[CrawlStrategy]:
@@ -42,21 +49,25 @@ async def run_strategist_agent(
     if not urls:
         return []
     headers = await asyncio.gather(*[fetch_link_header(url) for url in urls])
-    prompt = _build_strategist_prompt(urls, headers, cv_summary, career_goal, target_timeline)
+    prompt = _build_strategist_prompt(urls, list(headers), cv_summary, career_goal, target_timeline)
     chain = build_strategist_chain()
 
     try:
         result: StrategistOutput = await chain.ainvoke([HumanMessage(content=prompt)])
         return result.strategies
-    except Exception as exc:
-        logger.error("Strategist agent failed: %s", exc, extra={"operation": "run_strategist_agent"})
+    except (ValueError, RuntimeError, httpx.HTTPError) as exc:
+        logger.error(
+            "Strategist agent failed: %s",
+            exc,
+            extra={"operation": "run_strategist_agent"},
+        )
         return _build_fallback_strategies(urls)
 
 
 def _build_strategist_prompt(
     urls: list[str],
     headers: list[str],
-    cv_summary: dict,
+    cv_summary: dict[str, Any],
     career_goal: str,
     target_timeline: str,
 ) -> str:
