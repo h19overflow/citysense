@@ -31,8 +31,8 @@ async def get_growth_intake(
 async def update_growth_intake_crawl_data(
     session: AsyncSession,
     intake_id: str,
-    crawl_strategies: list,
-    crawl_results: dict,
+    crawl_strategies: list[Any],
+    crawl_results: dict[str, Any],
 ) -> GrowthIntake | None:
     """Set crawl_strategies and crawl_results on an existing intake row."""
     return await update_record(
@@ -120,7 +120,7 @@ async def list_roadmap_analyses_by_citizen(
 async def update_roadmap_analysis_answers(
     session: AsyncSession,
     analysis_id: str,
-    gap_answers: dict,
+    gap_answers: dict[str, Any],
 ) -> RoadmapAnalysis | None:
     """Set gap_answers on an existing roadmap analysis row."""
     return await update_record(
