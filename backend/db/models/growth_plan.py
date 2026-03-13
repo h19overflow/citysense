@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Integer, String, Text, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -36,7 +36,6 @@ class GrowthIntake(Base):
 
     analyses: Mapped[list["RoadmapAnalysis"]] = relationship(
         back_populates="intake",
-        order_by="RoadmapAnalysis.version_number.desc()",
         cascade="all, delete-orphan",
     )
 
@@ -62,9 +61,7 @@ class RoadmapAnalysis(Base):
         index=True,
     )
     version_number: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
-    stage: Mapped[str] = mapped_column(
-        String(20), nullable=False, comment="'preliminary' or 'final'"
-    )
+    stage: Mapped[str] = mapped_column(String(20), nullable=False)
     confidence_scores: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     gap_questions: Mapped[list | None] = mapped_column(JSONB, nullable=True)
     gap_answers: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
@@ -77,3 +74,7 @@ class RoadmapAnalysis(Base):
     )
 
     intake: Mapped["GrowthIntake"] = relationship(back_populates="analyses")
+
+    __table_args__ = (
+        CheckConstraint("stage IN ('preliminary', 'final')", name="ck_roadmap_analyses_stage"),
+    )
