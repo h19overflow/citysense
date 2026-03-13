@@ -4,6 +4,7 @@ from backend.db.models.admin_profile import AdminProfile
 from backend.db.models.benefit_service import BenefitService
 from backend.db.models.citizen_profile import CitizenProfile
 from backend.db.models.cv_upload import CVUpload, CVVersion
+from backend.db.models.growth_plan import GrowthIntake, RoadmapAnalysis
 from backend.db.models.housing_listing import HousingListing
 from backend.db.models.job_listing import JobListing
 from backend.db.models.news_article import NewsArticle
@@ -15,6 +16,8 @@ __all__ = [
     "CitizenProfile",
     "CVUpload",
     "CVVersion",
+    "GrowthIntake",
+    "RoadmapAnalysis",
     "HousingListing",
     "JobListing",
     "NewsArticle",
