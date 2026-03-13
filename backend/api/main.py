@@ -13,7 +13,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from backend.api.lifespan import lifespan
-from backend.api.routers import analysis, auth, benefits, career_analyze, career_chat, chat, citizen_chat, citizen_profile, comments, cv, cv_latest, growth, housing, jobs, misinfo, news, roadmap, stream, webhooks
+from backend.api.routers import (
+    analysis, auth, benefits, career_analyze, career_chat, chat,
+    citizen_chat, citizen_profile, comments, cv, cv_latest, growth,
+    housing, jobs, misinfo, news, roadmap, stream, webhooks,
+)
 from backend.core.exceptions import AppException
 
 
