@@ -112,9 +112,9 @@ async def compute_roadmap_diff(
     record_2 = await get_roadmap_analysis_by_id(session, analysis_id_2)
 
     if record_1 is None:
-        raise ValueError(f"Analysis not found: {analysis_id_1}")
+        raise NotFoundError("Analysis not found", {"analysis_id": analysis_id_1})
     if record_2 is None:
-        raise ValueError(f"Analysis not found: {analysis_id_2}")
+        raise NotFoundError("Analysis not found", {"analysis_id": analysis_id_2})
 
     return {
         "version_from": record_1.version_number,

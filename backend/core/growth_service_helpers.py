@@ -1,7 +1,7 @@
 """Private helpers for the growth plan orchestration service."""
 
 import logging
-from typing import Any
+from typing import Any, Literal
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,7 +13,12 @@ from backend.db.crud.growth import (
     get_next_analysis_version_number,
     update_growth_intake_crawl_data,
 )
-from backend.db.models.growth_plan import RoadmapAnalysis
+from backend.db.models.growth_plan import GrowthIntake, RoadmapAnalysis
+
+_ANALYSIS_DATA_KEYS = frozenset({
+    "confidence_scores", "gap_questions", "gap_answers",
+    "path_fill_gap", "path_multidisciplinary", "path_pivot", "diff_summary",
+})
 
 logger = logging.getLogger(__name__)
 
@@ -63,10 +68,11 @@ async def persist_analysis(
     session: AsyncSession,
     citizen_id: str,
     intake_id: str,
-    stage: str,
+    stage: Literal["preliminary", "final"],
     analysis_data: dict[str, Any],
 ) -> RoadmapAnalysis:
     """Version and persist a RoadmapAnalysis row, returning the saved record."""
+    safe_data = {k: v for k, v in analysis_data.items() if k in _ANALYSIS_DATA_KEYS}
     version = await get_next_analysis_version_number(session, citizen_id)
     analysis = await create_roadmap_analysis(
         session,
@@ -74,7 +80,7 @@ async def persist_analysis(
         intake_id=intake_id,
         version_number=version,
         stage=stage,
-        **analysis_data,
+        **safe_data,
     )
     logger.info(
         "Analysis persisted",
@@ -83,7 +89,7 @@ async def persist_analysis(
     return analysis
 
 
-def intake_to_dict(intake: Any) -> dict[str, Any]:
+def intake_to_dict(intake: GrowthIntake) -> dict[str, Any]:
     """Convert a GrowthIntake ORM object to a plain dict for agent consumption."""
     return {
         "career_goal": intake.career_goal,
