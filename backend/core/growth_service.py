@@ -66,6 +66,11 @@ async def process_gap_answers(
             "Preliminary analysis not found",
             {"analysis_id": preliminary_analysis_id},
         )
+    if previous_record.citizen_id != citizen_id:
+        raise NotFoundError(
+            "Preliminary analysis not found",
+            {"analysis_id": preliminary_analysis_id},
+        )
 
     intake = await get_growth_intake(session, previous_record.intake_id)
     if intake is None:
@@ -104,6 +109,7 @@ async def get_roadmap_history(
 
 async def compute_roadmap_diff(
     session: AsyncSession,
+    citizen_id: str,
     analysis_id_1: str,
     analysis_id_2: str,
 ) -> dict[str, Any]:
@@ -111,9 +117,9 @@ async def compute_roadmap_diff(
     record_1 = await get_roadmap_analysis_by_id(session, analysis_id_1)
     record_2 = await get_roadmap_analysis_by_id(session, analysis_id_2)
 
-    if record_1 is None:
+    if record_1 is None or record_1.citizen_id != citizen_id:
         raise NotFoundError("Analysis not found", {"analysis_id": analysis_id_1})
-    if record_2 is None:
+    if record_2 is None or record_2.citizen_id != citizen_id:
         raise NotFoundError("Analysis not found", {"analysis_id": analysis_id_2})
 
     return {

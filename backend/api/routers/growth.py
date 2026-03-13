@@ -68,7 +68,7 @@ async def submit_growth_intake(
                 content={"code": "CITIZEN_NOT_FOUND", "message": "Citizen profile not found", "details": {}},
             )
         cv_data = await _get_cv_data(session, citizen_id)
-        result = await process_growth_intake(session, citizen_id, body.model_dump(), cv_data)
+        result = await process_growth_intake(session, citizen_id, body.model_dump(mode="json"), cv_data)
     logger.info("Growth intake completed", extra={"citizen_id": citizen_id})
     return JSONResponse(result)
 
@@ -125,9 +125,15 @@ async def fetch_roadmap_history(
 async def fetch_roadmap_diff(
     analysis_id_1: str,
     analysis_id_2: str,
-    user: ClerkUser = Depends(get_current_user),  # noqa: ARG001
+    user: ClerkUser = Depends(get_current_user),
 ) -> JSONResponse:
     """Return diff narrative and side-by-side paths between two analysis versions."""
     async with get_session() as session:
-        result = await compute_roadmap_diff(session, analysis_id_1, analysis_id_2)
+        citizen_id = await _resolve_citizen_id(session, user)
+        if not citizen_id:
+            return JSONResponse(
+                status_code=404,
+                content={"code": "CITIZEN_NOT_FOUND", "message": "Citizen profile not found", "details": {}},
+            )
+        result = await compute_roadmap_diff(session, citizen_id, analysis_id_1, analysis_id_2)
     return JSONResponse(result)
