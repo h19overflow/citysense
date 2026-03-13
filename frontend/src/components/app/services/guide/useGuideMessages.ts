@@ -14,6 +14,8 @@ const WELCOME_MESSAGE: GuideMessage = {
 export function useGuideMessages(setInput: (value: string) => void) {
   const { state, dispatch } = useApp();
   const prevPinRef = useRef<string | null>(null);
+  const processingPendingRef = useRef(false);
+  const isSendingRef = useRef(false);
 
   useEffect(() => {
     dispatch({ type: "INIT_GUIDE_WELCOME", message: WELCOME_MESSAGE });
@@ -32,7 +34,8 @@ export function useGuideMessages(setInput: (value: string) => void) {
   }, [state.selectedPin]);
 
   const sendMessage = useCallback(async (text: string) => {
-    if (!text.trim()) return;
+    if (!text.trim() || isSendingRef.current) return;
+    isSendingRef.current = true;
     const userMsg: GuideMessage = {
       id: `guide-user-${Date.now()}`,
       role: "user",
@@ -56,15 +59,18 @@ export function useGuideMessages(setInput: (value: string) => void) {
     if (chatResponse.mapAction) {
       dispatch({ type: "SET_MAP_COMMAND", command: chatResponse.mapAction });
     }
+    isSendingRef.current = false;
   }, [dispatch, setInput]);
 
   useEffect(() => {
-    if (state.guidePendingMessage) {
-      const msg = state.guidePendingMessage;
-      dispatch({ type: "CLEAR_GUIDE_PENDING" });
-      sendMessage(msg);
-    }
-  }, [state.guidePendingMessage]);
+    if (!state.guidePendingMessage || processingPendingRef.current) return;
+    processingPendingRef.current = true;
+    const msg = state.guidePendingMessage;
+    dispatch({ type: "CLEAR_GUIDE_PENDING" });
+    sendMessage(msg).finally(() => {
+      processingPendingRef.current = false;
+    });
+  }, [state.guidePendingMessage, dispatch, sendMessage]);
 
   function selectPinById(pinId: string) {
     const pin = state.servicePoints.find((p) => p.id === pinId);
