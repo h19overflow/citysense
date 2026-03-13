@@ -29,6 +29,7 @@
 | CV job tracking (Redis) | `cv_pipeline/job_tracker.py` |
 | CV DB persistence | `cv_pipeline/db_persist.py` |
 | CV background worker | `cv_pipeline/worker.py` |
+| Growth plan orchestration | `growth_service.py`, `growth_service_helpers.py` |
 
 ## Core Files
 | File | Purpose |
@@ -36,6 +37,8 @@
 | `exceptions.py` | `AppException` base → `ValidationError`, `NotFoundError`, `ConflictError`, `AuthError`, `ExternalServiceError` |
 | `redis_client.py` | `RedisCache` singleton (fail-open), `cache` global instance |
 | `sse_broadcaster.py` | In-memory event broadcaster for SSE clients |
+| `growth_service.py` | `process_growth_intake`, `process_gap_answers`, `get_latest_roadmap`, `get_roadmap_history`, `compute_roadmap_diff` |
+| `growth_service_helpers.py` | `run_crawl_pipeline`, `extract_cv_summary`, `persist_analysis`, `intake_to_dict`, `serialize_analysis` |
 
 ## Data Scraping (`data_scraping/`)
 | File | Purpose |
