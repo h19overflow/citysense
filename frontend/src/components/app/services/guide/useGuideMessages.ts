@@ -4,6 +4,10 @@ import { generatePinGuideResponse } from "@/lib/guideResponses";
 import { getSmartResponse } from "@/lib/aiChatService";
 import type { GuideMessage } from "@/lib/types";
 
+// Module-level claim set: whichever hook instance claims a pending message first wins.
+// Prevents duplicate sends when multiple ServiceGuideChat instances are mounted.
+const _claimedMessages = new Set<string>();
+
 const WELCOME_MESSAGE: GuideMessage = {
   id: "guide-welcome",
   role: "assistant",
@@ -14,7 +18,6 @@ const WELCOME_MESSAGE: GuideMessage = {
 export function useGuideMessages(setInput: (value: string) => void) {
   const { state, dispatch } = useApp();
   const prevPinRef = useRef<string | null>(null);
-  const processingPendingRef = useRef(false);
   const isSendingRef = useRef(false);
 
   useEffect(() => {
@@ -63,12 +66,12 @@ export function useGuideMessages(setInput: (value: string) => void) {
   }, [dispatch, setInput]);
 
   useEffect(() => {
-    if (!state.guidePendingMessage || processingPendingRef.current) return;
-    processingPendingRef.current = true;
     const msg = state.guidePendingMessage;
+    if (!msg || _claimedMessages.has(msg)) return;
+    _claimedMessages.add(msg);
     dispatch({ type: "CLEAR_GUIDE_PENDING" });
     sendMessage(msg).finally(() => {
-      processingPendingRef.current = false;
+      _claimedMessages.delete(msg);
     });
   }, [state.guidePendingMessage, dispatch, sendMessage]);
 
