@@ -30,6 +30,8 @@
 | CV DB persistence | `cv_pipeline/db_persist.py` |
 | CV background worker | `cv_pipeline/worker.py` |
 | Growth plan orchestration | `growth_service.py`, `growth_service_helpers.py` |
+| Growth plan progress bus | `growth_progress.py` |
+| Curriculum builder service | `curriculum_service.py` — **NOT YET BUILT** (see Next Steps) |
 
 ## Core Files
 | File | Purpose |
@@ -37,8 +39,51 @@
 | `exceptions.py` | `AppException` base → `ValidationError`, `NotFoundError`, `ConflictError`, `AuthError`, `ExternalServiceError` |
 | `redis_client.py` | `RedisCache` singleton (fail-open), `cache` global instance |
 | `sse_broadcaster.py` | In-memory event broadcaster for SSE clients |
-| `growth_service.py` | `process_growth_intake`, `process_gap_answers`, `get_latest_roadmap`, `get_roadmap_history`, `compute_roadmap_diff` |
+| `growth_service.py` | `create_intake_record`, `run_intake_pipeline` (BackgroundTask), `process_gap_answers`, `get_latest_roadmap`, `get_roadmap_history`, `compute_roadmap_diff` |
 | `growth_service_helpers.py` | `run_crawl_pipeline`, `extract_cv_summary`, `persist_analysis`, `intake_to_dict`, `serialize_analysis` |
+| `growth_progress.py` | In-process `asyncio.Queue` event bus keyed by `intake_id` — `create_progress_queue`, `get_progress_queue`, `emit_progress`, `close_progress_queue` |
+
+## Growth Plan Pipeline — Architecture
+```
+POST /api/growth/intake
+  → create_intake_record (DB, sync)
+  → BackgroundTasks.add_task(run_intake_pipeline)
+  → return {"intake_id": "..."}          ← immediate response
+
+run_intake_pipeline (background)
+  → create_progress_queue(intake_id)
+  → run_crawl_pipeline (BrightData, per-URL parallel)
+  → run_preliminary_analysis (Gemini)
+  → persist_analysis (DB)
+  → close_progress_queue(intake_id, analysis_id)  ← always in finally
+
+GET /api/growth/intake/{intake_id}/status  (SSE, no auth)
+  → polls queue → streams progress events → done event includes analysis_id
+
+POST /api/growth/roadmap/answers
+  → process_gap_answers → run_final_analysis → persist_analysis
+
+GET /api/growth/roadmap/latest       → get_latest_roadmap
+GET /api/growth/roadmap/history      → list all versions
+GET /api/growth/roadmap/{id1}/{id2}/diff → compute_roadmap_diff
+```
+
+## Next Steps — Growth Plan Iteration 2
+
+### Roadmap mutation endpoint
+`PATCH /api/growth/roadmap/{analysis_id}` — partial update of a single path's fields (title, skill_steps, timeline_estimate, unfair_advantage). Used by the career chat agent when the user asks it to edit their roadmap.
+- Service function: `patch_roadmap_path(session, citizen_id, analysis_id, path_key, updates)`
+- IDOR check required: verify `analysis.citizen_id == citizen_id`
+
+### Career agent roadmap context
+`backend/api/routers/career_chat.py` context prefix needs a new optional field: `active_roadmap_path` (serialized `RoadmapPath`). When the frontend sends this, the agent prompt should include it under a "ACTIVE GROWTH PATH" section so the agent can reference and suggest edits.
+
+### Curriculum builder service (`curriculum_service.py`)
+- `build_curriculum(session, citizen_id, analysis_id, path_key, user_prefs)` — orchestrates curriculum agent
+- Persists to new `Curriculum` DB model linked to `RoadmapAnalysis`
+- Supports streaming via SSE (same pattern as growth progress bus)
+- Agent (`backend/agents/growth/curriculum_agent.py`) uses BrightData SERP to find real courses and GitHub projects as milestone markers
+- Dynamic: subsequent chat turns can swap resources ("free only", "YouTube instead of Coursera")
 
 ## Data Scraping (`data_scraping/`)
 | File | Purpose |
