@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.agents.growth.analysis_agent import run_final_analysis, run_preliminary_analysis
 from backend.core.exceptions import NotFoundError
+from backend.core.growth_progress import close_progress_queue, create_progress_queue, emit_progress
 from backend.core.growth_service_helpers import (
     intake_to_dict,
     persist_analysis,
@@ -34,6 +35,8 @@ async def process_growth_intake(
     """Run intake pipeline: persist form → crawl → preliminary analysis → persist result."""
     intake = await create_growth_intake(session, citizen_id=citizen_id, **intake_form)
     logger.info("Growth intake created", extra={"citizen_id": citizen_id, "intake_id": intake.id})
+    create_progress_queue(intake.id)
+    await emit_progress(intake.id, "starting", "Starting your growth analysis…", 5)
 
     urls: list[str] = intake_form.get("external_links") or []
     crawl_signals = await run_crawl_pipeline(
@@ -44,9 +47,13 @@ async def process_growth_intake(
         intake.career_goal,
         intake.target_timeline,
     )
+    await emit_progress(intake.id, "analyzing", "Building your 3 growth paths…", 75)
 
     analysis_data = await run_preliminary_analysis(cv_data, intake_form, crawl_signals)
+    await emit_progress(intake.id, "persisting", "Saving your roadmap…", 95)
     analysis = await persist_analysis(session, citizen_id, intake.id, "preliminary", analysis_data)
+    await close_progress_queue(intake.id, analysis.id)
+    logger.info("Growth intake pipeline complete", extra={"citizen_id": citizen_id, "intake_id": intake.id, "analysis_id": analysis.id})
     return {"intake_id": intake.id, "analysis_id": analysis.id, "analysis": serialize_analysis(analysis)}
 
 

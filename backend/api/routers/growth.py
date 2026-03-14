@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import asyncio
+import json
 import logging
 from typing import Any
 
 from fastapi import APIRouter, Depends
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 
 from backend.api.auth import ClerkUser
 from backend.api.deps import get_current_user
@@ -119,6 +121,36 @@ async def fetch_roadmap_history(
             return JSONResponse({"versions": [], "count": 0})
         versions = await get_roadmap_history(session, citizen_id)
     return JSONResponse({"versions": versions, "count": len(versions)})
+
+
+@router.get("/intake/{intake_id}/status")
+async def stream_intake_progress(
+    intake_id: str,
+    user: ClerkUser = Depends(get_current_user),
+) -> StreamingResponse:
+    """SSE stream for crawl + analysis progress for a given intake run."""
+    from backend.core.growth_progress import get_progress_queue
+
+    async def event_generator():
+        # Poll briefly — queue may not exist yet if SSE opens before intake starts
+        for _ in range(20):
+            queue = get_progress_queue(intake_id)
+            if queue:
+                break
+            await asyncio.sleep(0.1)
+
+        queue = get_progress_queue(intake_id)
+        if not queue:
+            yield f"data: {json.dumps({'stage': 'done', 'progress': 100})}\n\n"
+            return
+
+        while True:
+            event = await queue.get()
+            if event is None:
+                break
+            yield f"data: {json.dumps(event)}\n\n"
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 
 @router.get("/roadmap/{analysis_id_1}/{analysis_id_2}/diff")

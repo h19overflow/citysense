@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.agents.growth.crawl_agent import run_all_crawl_agents
 from backend.agents.growth.crawl_aggregator import aggregate_crawl_results
 from backend.agents.growth.strategist_agent import run_strategist_agent
+from backend.core.growth_progress import emit_progress
 from backend.db.crud.growth import (
     create_roadmap_analysis,
     get_next_analysis_version_number,
@@ -33,12 +34,16 @@ async def run_crawl_pipeline(
 ) -> dict[str, Any]:
     """Run strategist → parallel crawl → aggregator. Persist results. Return aggregated signals."""
     if not urls:
+        await emit_progress(intake_id, "analyzing", "No links provided — running direct analysis…", 40)
         return {}
 
     cv_summary = extract_cv_summary(cv_data)
+    await emit_progress(intake_id, "strategizing", "Planning how to read your links…", 10)
     strategies = await run_strategist_agent(urls, cv_summary, career_goal, target_timeline)
+    await emit_progress(intake_id, "crawling", f"Reading {len(strategies)} link(s)…", 30)
     crawl_results = await run_all_crawl_agents(strategies)
     aggregated = aggregate_crawl_results(crawl_results)
+    await emit_progress(intake_id, "aggregating", "Combining signals…", 60)
 
     await update_growth_intake_crawl_data(
         session,
