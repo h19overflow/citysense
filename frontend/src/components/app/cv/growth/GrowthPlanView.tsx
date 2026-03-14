@@ -5,6 +5,7 @@ import { GrowthIntakeForm } from "./GrowthIntakeForm";
 import { GrowthProgress } from "./GrowthProgress";
 import { FinalRoadmap } from "./FinalRoadmap";
 import { GapQuestionCards } from "./GapQuestionCards";
+import { ActiveRoadmapView } from "./ActiveRoadmapView";
 
 function NoCvPrompt() {
   return (
@@ -18,7 +19,7 @@ function NoCvPrompt() {
 }
 
 export function GrowthPlanView() {
-  const { state } = useApp();
+  const { state, dispatch } = useApp();
   const {
     growthStage,
     growthAnalysis,
@@ -52,6 +53,20 @@ export function GrowthPlanView() {
 
   if (growthStage === "crawling" || growthStage === "finalizing") {
     return <GrowthProgress progress={growthProgress} />;
+  }
+
+  if (state.activeRoadmapPath && state.activeRoadmapPathKey && growthAnalysis) {
+    return (
+      <ActiveRoadmapView
+        path={state.activeRoadmapPath}
+        pathKey={state.activeRoadmapPathKey}
+        onDiscuss={(ctx) => {
+          // TODO(Task 8): wire discuss context to CareerChatBubble
+          console.log("discuss:", ctx);
+        }}
+        onBack={() => dispatch({ type: "CLEAR_ACTIVE_ROADMAP_PATH" })}
+      />
+    );
   }
 
   if (growthAnalysis) {
