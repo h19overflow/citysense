@@ -98,6 +98,12 @@
 }
 
 @layer base {
+  @media (min-width: 768px) {
+    html {
+      font-size: 130%; /* 20.8px base — scales all rem units up 30% */
+    }
+  }
+
   * {
     @apply border-border;
   }
@@ -116,7 +122,7 @@
   }
 
   .text-caption {
-    font-size: 11px;
+    font-size: 14px; /* ~30% up from original 11px */
     line-height: 1.4;
   }
 
