@@ -18,7 +18,8 @@
 | Travel mode picker | `TravelMode.tsx` |
 | Profile bar | `CitizenProfileBar.tsx` |
 | Job filtering | `FilterPanel.tsx`, `JobFilters.tsx` |
-| Business growth | `BusinessGrowth.tsx` |
+| Business growth (legacy) | `BusinessGrowth.tsx` — replaced by `GrowthPlanView` |
+| Growth Plan UI | `growth/GrowthPlanView.tsx`, `growth/hooks/useGrowthPlan.ts` |
 | Job matching logic | `../../lib/jobMatcher.ts`, `../../lib/jobMatcherHelpers.ts` |
 | Upskilling logic | `../../lib/upskillingEngine.ts` |
 | Commute logic | `../../lib/commuteEngine.ts`, `../../lib/transitService.ts` |
@@ -30,6 +31,7 @@
 | `job-match/` | Job matching UI | `JobMatchPanel.tsx`, `JobMatchCard.tsx`, `JobMatchCardHeader.tsx`, `JobMatchCardDetail.tsx`, `JobResultsList.tsx` |
 | `market/` | Market analysis | `MarketPulse.tsx`, `MetricCard.tsx`, `HorizontalBarRow.tsx` |
 | `upskilling/` | Skill development | `UpskillingPanel.tsx`, `SkillPathCard.tsx`, `ImpactHeader.tsx`, `QuickWinsSection.tsx` |
+| `growth/` | Growth Plan UI | `GrowthPlanView.tsx`, `GrowthIntakeForm.tsx`, `GrowthProgress.tsx`, `PathCard.tsx`, `GapQuestionCards.tsx`, `FinalRoadmap.tsx`, `hooks/useGrowthPlan.ts` |
 
 ## Root Component Files
 | File | Purpose |

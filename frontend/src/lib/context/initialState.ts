@@ -51,4 +51,9 @@ export const initialState: AppState = {
   housingListings: [],
   activeRoadmap: null,
   roadmapCompletedStepIds: [],
+  growthStage: "idle",
+  growthAnalysis: null,
+  growthIntakeId: null,
+  growthProgress: null,
+  growthDiffVisible: false,
 };

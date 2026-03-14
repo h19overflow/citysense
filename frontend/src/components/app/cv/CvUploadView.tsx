@@ -9,7 +9,7 @@ import CommutePanel from "./CommutePanel";
 import CitizenProfileBar from "./CitizenProfileBar";
 import CvOnboardingHero from "./CvOnboardingHero";
 import CvResultsPanel from "./CvResultsPanel";
-import BusinessGrowth from "./BusinessGrowth";
+import { GrowthPlanView } from "./growth/GrowthPlanView";
 import { CareerChatBubble } from "./CareerChatBubble";
 
 type CareerTab = "market" | "growth";
@@ -127,7 +127,7 @@ const CvUploadView = () => {
           <div className="space-y-5 p-5">
             <UpskillingPanel />
             <CommutePanel />
-            <BusinessGrowth />
+            <GrowthPlanView />
           </div>
         )}
       </div>

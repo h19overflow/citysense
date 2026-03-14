@@ -20,6 +20,10 @@
 | CV analysis config | `citizen/cv_analyzers/config.py` |
 | CV analysis schemas | `citizen/cv_analyzers/schemas.py` |
 | CV role inference | `citizen/cv_analyzers/synthesizer.py` |
+| Growth agent behavior | `growth/strategist_agent.py`, `growth/crawl_agent.py`, `growth/analysis_agent.py` |
+| Growth agent tools | `growth/tools/registry.py`, `growth/tools/crawl_tools.py` |
+| Growth agent schemas | `growth/schemas.py` |
+| Growth agent prompts | `growth/prompts.py`, `growth/analysis_prompts.py` |
 
 ## Agent Inventory
 | Agent | Entry Point | LLM | Purpose |
@@ -29,6 +33,9 @@
 | Roadmap | `citizen/roadmap_agent.py` | Gemini | Personalized civic-service step-by-step plans |
 | Comment Analysis | `citizen/comment_analysis.py` | Gemini | Batch sentiment analysis of article comments |
 | CV Analyzer | `citizen/cv_analyzers/agent.py` | Gemini | Extract skills, experience, tools from CV pages |
+| Strategist | `growth/strategist_agent.py` | Gemini | Reads link headers, generates personalized CrawlStrategy per URL |
+| Crawl | `growth/crawl_agent.py` | Gemini | Crawls one URL per agent instance, runs in parallel |
+| Analysis | `growth/analysis_agent.py` | Gemini | Two-stage analysis: preliminary + final with diff |
 
 ## Mayor Agent (`mayor/`)
 | File | Purpose |
@@ -71,3 +78,16 @@
 
 ## Top-level `tools/` directory
 `agents/tools/` is a **backward-compat shim** — `registry.py` re-exports from `mayor/tools/registry.py`. Do not add real code here; work in `mayor/tools/` or `citizen/tools/` directly.
+
+## Growth Agents (`growth/`)
+| File | Purpose |
+|------|---------|
+| `strategist_agent.py` | `run_strategist_agent()` — reads link headers, returns list[CrawlStrategy] |
+| `crawl_agent.py` | `run_crawl_agent()`, `run_all_crawl_agents()` — parallel crawl via asyncio.gather |
+| `crawl_aggregator.py` | `aggregate_crawl_results()` — deduplicates signals, groups by link_type |
+| `analysis_agent.py` | `run_preliminary_analysis()`, `run_final_analysis()` — structured output via with_structured_output |
+| `analysis_prompts.py` | `build_preliminary_prompt()`, `build_final_prompt()` |
+| `prompts.py` | STRATEGIST_PROMPT, CRAWL_AGENT_PROMPT, ANALYSIS_PRELIMINARY_PROMPT, ANALYSIS_FINAL_PROMPT |
+| `schemas.py` | CrawlStrategy, CrawlResult, SkillStep, RoadmapPath, GapQuestion, RoadmapAnalysisResult, StrategistOutput |
+| `tools/crawl_tools.py` | `crawl_page` @tool — Bright Data crawl with depth_hint truncation |
+| `tools/registry.py` | CRAWL_TOOLS = [crawl_page] |

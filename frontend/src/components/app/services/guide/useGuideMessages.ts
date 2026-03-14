@@ -4,6 +4,10 @@ import { generatePinGuideResponse } from "@/lib/guideResponses";
 import { getSmartResponse } from "@/lib/aiChatService";
 import type { GuideMessage } from "@/lib/types";
 
+// Module-level claim set: whichever hook instance claims a pending message first wins.
+// Prevents duplicate sends when multiple ServiceGuideChat instances are mounted.
+const _claimedMessages = new Set<string>();
+
 const WELCOME_MESSAGE: GuideMessage = {
   id: "guide-welcome",
   role: "assistant",
@@ -14,6 +18,7 @@ const WELCOME_MESSAGE: GuideMessage = {
 export function useGuideMessages(setInput: (value: string) => void) {
   const { state, dispatch } = useApp();
   const prevPinRef = useRef<string | null>(null);
+  const isSendingRef = useRef(false);
 
   useEffect(() => {
     dispatch({ type: "INIT_GUIDE_WELCOME", message: WELCOME_MESSAGE });
@@ -32,7 +37,8 @@ export function useGuideMessages(setInput: (value: string) => void) {
   }, [state.selectedPin]);
 
   const sendMessage = useCallback(async (text: string) => {
-    if (!text.trim()) return;
+    if (!text.trim() || isSendingRef.current) return;
+    isSendingRef.current = true;
     const userMsg: GuideMessage = {
       id: `guide-user-${Date.now()}`,
       role: "user",
@@ -42,29 +48,35 @@ export function useGuideMessages(setInput: (value: string) => void) {
     dispatch({ type: "SET_GUIDE_TYPING", typing: true });
     setInput("");
 
-    const chatResponse = await getSmartResponse(text);
-    const guideResponse: GuideMessage = {
-      id: `guide-ai-${Date.now()}`,
-      role: "assistant",
-      content: chatResponse.content,
-      chips: chatResponse.chips,
-      serviceCards: chatResponse.serviceCards,
-    };
-    dispatch({ type: "ADD_GUIDE_MESSAGE", message: guideResponse });
-    dispatch({ type: "SET_GUIDE_TYPING", typing: false });
+    try {
+      const chatResponse = await getSmartResponse(text);
+      const guideResponse: GuideMessage = {
+        id: `guide-ai-${Date.now()}`,
+        role: "assistant",
+        content: chatResponse.content,
+        chips: chatResponse.chips,
+        serviceCards: chatResponse.serviceCards,
+      };
+      dispatch({ type: "ADD_GUIDE_MESSAGE", message: guideResponse });
+      dispatch({ type: "SET_GUIDE_TYPING", typing: false });
 
-    if (chatResponse.mapAction) {
-      dispatch({ type: "SET_MAP_COMMAND", command: chatResponse.mapAction });
+      if (chatResponse.mapAction) {
+        dispatch({ type: "SET_MAP_COMMAND", command: chatResponse.mapAction });
+      }
+    } finally {
+      isSendingRef.current = false;
     }
   }, [dispatch, setInput]);
 
   useEffect(() => {
-    if (state.guidePendingMessage) {
-      const msg = state.guidePendingMessage;
-      dispatch({ type: "CLEAR_GUIDE_PENDING" });
-      sendMessage(msg);
-    }
-  }, [state.guidePendingMessage]);
+    const msg = state.guidePendingMessage;
+    if (!msg || _claimedMessages.has(msg)) return;
+    _claimedMessages.add(msg);
+    dispatch({ type: "CLEAR_GUIDE_PENDING" });
+    sendMessage(msg).finally(() => {
+      _claimedMessages.delete(msg);
+    });
+  }, [state.guidePendingMessage, dispatch, sendMessage]);
 
   function selectPinById(pinId: string) {
     const pin = state.servicePoints.find((p) => p.id === pinId);

@@ -1,0 +1,163 @@
+"""Growth plan endpoints — intake, gap answers, roadmap retrieval, and diff."""
+
+from __future__ import annotations
+
+import asyncio
+import json
+import logging
+
+from fastapi import APIRouter, BackgroundTasks, Depends
+from fastapi.responses import JSONResponse, StreamingResponse
+
+from backend.api.auth import ClerkUser
+from backend.api.deps import get_current_user
+from backend.api.routers.growth_deps import get_cv_data, resolve_citizen_id
+from backend.api.schemas.growth_schemas import GapAnswersRequest, GrowthIntakeRequest
+from backend.core.growth_service import (
+    compute_roadmap_diff,
+    create_intake_record,
+    get_latest_roadmap,
+    get_roadmap_history,
+    process_gap_answers,
+    run_intake_pipeline,
+)
+from backend.db.session import get_session
+
+logger = logging.getLogger(__name__)
+
+router = APIRouter(prefix="/growth", tags=["growth"])
+
+
+@router.post("/intake")
+async def submit_growth_intake(
+    body: GrowthIntakeRequest,
+    background_tasks: BackgroundTasks,
+    user: ClerkUser = Depends(get_current_user),
+) -> JSONResponse:
+    """Persist intake form and immediately return intake_id; pipeline runs in background."""
+    async with get_session() as session:
+        citizen_id = await resolve_citizen_id(session, user)
+        if not citizen_id:
+            logger.warning("Growth intake rejected — citizen not found", extra={"email": user.email})
+            return JSONResponse(
+                status_code=404,
+                content={"code": "CITIZEN_NOT_FOUND", "message": "Citizen profile not found", "details": {}},
+            )
+        cv_data = await get_cv_data(session, citizen_id)
+        intake_form = body.model_dump(mode="json")
+        intake_id = await create_intake_record(session, citizen_id, intake_form)
+
+    background_tasks.add_task(run_intake_pipeline, intake_id, citizen_id, intake_form, cv_data)
+    logger.info("Growth intake accepted", extra={"citizen_id": citizen_id, "intake_id": intake_id})
+    return JSONResponse({"intake_id": intake_id})
+
+
+@router.post("/roadmap/answers")
+async def submit_gap_answers(
+    body: GapAnswersRequest,
+    user: ClerkUser = Depends(get_current_user),
+) -> JSONResponse:
+    """Persist gap answers and run final roadmap analysis."""
+    async with get_session() as session:
+        citizen_id = await resolve_citizen_id(session, user)
+        if not citizen_id:
+            logger.warning("Gap answers rejected — citizen not found", extra={"email": user.email})
+            return JSONResponse(
+                status_code=404,
+                content={"code": "CITIZEN_NOT_FOUND", "message": "Citizen profile not found", "details": {}},
+            )
+        cv_data = await get_cv_data(session, citizen_id)
+        result = await process_gap_answers(
+            session, citizen_id, body.preliminary_analysis_id, body.gap_answers, cv_data
+        )
+    logger.info("Gap answers processed", extra={"citizen_id": citizen_id})
+    return JSONResponse(result)
+
+
+@router.get("/roadmap/latest")
+async def fetch_latest_roadmap(
+    user: ClerkUser = Depends(get_current_user),
+) -> JSONResponse:
+    """Return the most recent roadmap analysis for the authenticated citizen."""
+    async with get_session() as session:
+        citizen_id = await resolve_citizen_id(session, user)
+        if not citizen_id:
+            return JSONResponse({"has_roadmap": False, "roadmap": None})
+        roadmap = await get_latest_roadmap(session, citizen_id)
+    return JSONResponse({"has_roadmap": roadmap is not None, "roadmap": roadmap})
+
+
+@router.get("/roadmap/history")
+async def fetch_roadmap_history(
+    user: ClerkUser = Depends(get_current_user),
+) -> JSONResponse:
+    """Return all roadmap analysis versions for the authenticated citizen, newest first."""
+    async with get_session() as session:
+        citizen_id = await resolve_citizen_id(session, user)
+        if not citizen_id:
+            return JSONResponse({"versions": [], "count": 0})
+        versions = await get_roadmap_history(session, citizen_id)
+    return JSONResponse({"versions": versions, "count": len(versions)})
+
+
+@router.get("/intake/{intake_id}/status")
+async def stream_intake_progress(
+    intake_id: str,
+) -> StreamingResponse:
+    """SSE stream for crawl + analysis progress for a given intake run.
+
+    No auth required — intake_id is an unguessable UUID issued to the
+    authenticated caller at POST /intake time.
+    """
+    from backend.core.growth_progress import get_progress_queue
+    from backend.db.crud.growth import get_latest_analysis_by_intake
+
+    async def event_generator():
+        # Poll briefly — queue may not exist yet if SSE opens before the background task starts
+        for _ in range(20):
+            queue = get_progress_queue(intake_id)
+            if queue:
+                break
+            await asyncio.sleep(0.1)
+
+        queue = get_progress_queue(intake_id)
+        if not queue:
+            # Pipeline already finished before SSE connected — look up the analysis_id from DB
+            async with get_session() as session:
+                analysis = await get_latest_analysis_by_intake(session, intake_id)
+            analysis_id = analysis.id if analysis else None
+            done_event: dict = {"stage": "done", "progress": 100}
+            if analysis_id:
+                done_event["analysis_id"] = analysis_id
+            yield f"data: {json.dumps(done_event)}\n\n"
+            return
+
+        while True:
+            event = await queue.get()
+            if event is None:
+                break
+            yield f"data: {json.dumps(event)}\n\n"
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
+
+
+@router.get("/roadmap/{analysis_id_1}/{analysis_id_2}/diff")
+async def fetch_roadmap_diff(
+    analysis_id_1: str,
+    analysis_id_2: str,
+    user: ClerkUser = Depends(get_current_user),
+) -> JSONResponse:
+    """Return diff narrative and side-by-side paths between two analysis versions."""
+    async with get_session() as session:
+        citizen_id = await resolve_citizen_id(session, user)
+        if not citizen_id:
+            return JSONResponse(
+                status_code=404,
+                content={"code": "CITIZEN_NOT_FOUND", "message": "Citizen profile not found", "details": {}},
+            )
+        result = await compute_roadmap_diff(session, citizen_id, analysis_id_1, analysis_id_2)
+    return JSONResponse(result)
