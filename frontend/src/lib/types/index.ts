@@ -8,4 +8,5 @@ export * from "./housing";
 export * from "./cv";
 export * from "./roadmap";
 export * from "./map";
+export * from "./growth";
 export * from "./state";

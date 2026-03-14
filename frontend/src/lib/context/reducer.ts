@@ -7,6 +7,7 @@ import { applyNewsAction } from "./slices/newsSlice";
 import { applyRoadmapAction } from "./slices/roadmapSlice";
 import { applyServicesAction } from "./slices/servicesSlice";
 import { applyUiAction } from "./slices/uiSlice";
+import { applyGrowthAction } from "./slices/growthSlice";
 
 const slices = [
   applyChatAction,
@@ -16,6 +17,7 @@ const slices = [
   applyRoadmapAction,
   applyServicesAction,
   applyUiAction,
+  applyGrowthAction,
 ];
 
 export function appReducer(state: AppState, action: AppAction): AppState {

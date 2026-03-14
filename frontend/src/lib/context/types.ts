@@ -25,6 +25,9 @@ import type {
   ReactionType,
   HousingListing,
   PersonalizedRoadmap,
+  GrowthStage,
+  GrowthAnalysis,
+  GrowthProgressData,
 } from "../types";
 
 export type AppAction =
@@ -86,4 +89,10 @@ export type AppAction =
   | { type: "CLEAR_GUIDE_PENDING" }
   | { type: "SET_ACTIVE_ROADMAP"; roadmap: PersonalizedRoadmap }
   | { type: "CLEAR_ROADMAP" }
-  | { type: "TOGGLE_ROADMAP_STEP"; stepId: string };
+  | { type: "TOGGLE_ROADMAP_STEP"; stepId: string }
+  | { type: "SET_GROWTH_STAGE"; stage: GrowthStage }
+  | { type: "SET_GROWTH_ANALYSIS"; analysis: GrowthAnalysis }
+  | { type: "SET_GROWTH_INTAKE_ID"; intakeId: string }
+  | { type: "SET_GROWTH_PROGRESS"; progress: GrowthProgressData }
+  | { type: "TOGGLE_GROWTH_DIFF" }
+  | { type: "CLEAR_GROWTH" };
