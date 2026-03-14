@@ -1,6 +1,5 @@
 """Shared dependencies for growth plan router."""
 
-import logging
 from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,8 +7,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.api.auth import ClerkUser
 from backend.db.crud.citizen import get_citizen_by_email
 from backend.db.crud.cv import get_latest_cv_version, list_cv_uploads_by_citizen
-
-logger = logging.getLogger(__name__)
 
 
 async def resolve_citizen_id(session: AsyncSession, user: ClerkUser) -> str | None:

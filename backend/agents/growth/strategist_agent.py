@@ -5,7 +5,7 @@ import logging
 from typing import Any
 
 import httpx
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.runnables import Runnable
 
 from backend.agents.common.llm import build_llm
@@ -53,7 +53,8 @@ async def run_strategist_agent(
     chain = build_strategist_chain()
 
     try:
-        result: StrategistOutput = await chain.ainvoke([HumanMessage(content=prompt)])
+        messages = [SystemMessage(content=STRATEGIST_PROMPT), HumanMessage(content=prompt)]
+        result: StrategistOutput = await chain.ainvoke(messages)
         return result.strategies
     except (ValueError, RuntimeError, httpx.HTTPError) as exc:
         logger.error(

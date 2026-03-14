@@ -48,21 +48,24 @@ export function useGuideMessages(setInput: (value: string) => void) {
     dispatch({ type: "SET_GUIDE_TYPING", typing: true });
     setInput("");
 
-    const chatResponse = await getSmartResponse(text);
-    const guideResponse: GuideMessage = {
-      id: `guide-ai-${Date.now()}`,
-      role: "assistant",
-      content: chatResponse.content,
-      chips: chatResponse.chips,
-      serviceCards: chatResponse.serviceCards,
-    };
-    dispatch({ type: "ADD_GUIDE_MESSAGE", message: guideResponse });
-    dispatch({ type: "SET_GUIDE_TYPING", typing: false });
+    try {
+      const chatResponse = await getSmartResponse(text);
+      const guideResponse: GuideMessage = {
+        id: `guide-ai-${Date.now()}`,
+        role: "assistant",
+        content: chatResponse.content,
+        chips: chatResponse.chips,
+        serviceCards: chatResponse.serviceCards,
+      };
+      dispatch({ type: "ADD_GUIDE_MESSAGE", message: guideResponse });
+      dispatch({ type: "SET_GUIDE_TYPING", typing: false });
 
-    if (chatResponse.mapAction) {
-      dispatch({ type: "SET_MAP_COMMAND", command: chatResponse.mapAction });
+      if (chatResponse.mapAction) {
+        dispatch({ type: "SET_MAP_COMMAND", command: chatResponse.mapAction });
+      }
+    } finally {
+      isSendingRef.current = false;
     }
-    isSendingRef.current = false;
   }, [dispatch, setInput]);
 
   useEffect(() => {

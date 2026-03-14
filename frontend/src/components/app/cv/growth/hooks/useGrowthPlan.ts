@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useAuth } from "@clerk/react";
 import { useApp } from "@/lib/appContext";
 import type {
@@ -11,6 +11,13 @@ export function useGrowthPlan() {
   const { getToken } = useAuth();
   const { state, dispatch } = useApp();
   const sseRef = useRef<EventSource | null>(null);
+
+  useEffect(() => {
+    return () => {
+      sseRef.current?.close();
+      sseRef.current = null;
+    };
+  }, []);
 
   const buildAuthHeaders = useCallback(async (): Promise<Record<string, string>> => {
     const token = await getToken();

@@ -26,35 +26,68 @@ from backend.db.crud.growth import (
 logger = logging.getLogger(__name__)
 
 
-async def process_growth_intake(
+async def create_intake_record(
     session: AsyncSession,
     citizen_id: str,
     intake_form: dict[str, Any],
-    cv_data: dict[str, Any],
-) -> dict[str, Any]:
-    """Run intake pipeline: persist form → crawl → preliminary analysis → persist result."""
+) -> str:
+    """Persist the intake form and return the new intake_id."""
     intake = await create_growth_intake(session, citizen_id=citizen_id, **intake_form)
     logger.info("Growth intake created", extra={"citizen_id": citizen_id, "intake_id": intake.id})
-    create_progress_queue(intake.id)
-    await emit_progress(intake.id, "starting", "Starting your growth analysis…", 5)
+    return intake.id
 
-    urls: list[str] = intake_form.get("external_links") or []
-    crawl_signals = await run_crawl_pipeline(
-        session,
-        intake.id,
-        urls,
-        cv_data,
-        intake.career_goal,
-        intake.target_timeline,
-    )
-    await emit_progress(intake.id, "analyzing", "Building your 3 growth paths…", 75)
 
-    analysis_data = await run_preliminary_analysis(cv_data, intake_form, crawl_signals)
-    await emit_progress(intake.id, "persisting", "Saving your roadmap…", 95)
-    analysis = await persist_analysis(session, citizen_id, intake.id, "preliminary", analysis_data)
-    await close_progress_queue(intake.id, analysis.id)
-    logger.info("Growth intake pipeline complete", extra={"citizen_id": citizen_id, "intake_id": intake.id, "analysis_id": analysis.id})
-    return {"intake_id": intake.id, "analysis_id": analysis.id, "analysis": serialize_analysis(analysis)}
+async def run_intake_pipeline(
+    intake_id: str,
+    citizen_id: str,
+    intake_form: dict[str, Any],
+    cv_data: dict[str, Any],
+) -> None:
+    """Run the full crawl + analysis pipeline for a previously created intake.
+
+    Designed to run as a BackgroundTask so POST /intake returns intake_id immediately.
+    The progress queue is always closed in the finally block so SSE clients never hang.
+    """
+    from backend.db.session import get_session
+    from backend.core.growth_progress import get_progress_queue
+
+    create_progress_queue(intake_id)
+    await emit_progress(intake_id, "starting", "Starting your growth analysis…", 5)
+
+    try:
+        async with get_session() as session:
+            crawl_signals = await run_crawl_pipeline(
+                session,
+                intake_id,
+                intake_form.get("external_links") or [],
+                cv_data,
+                intake_form.get("career_goal", ""),
+                intake_form.get("target_timeline", ""),
+            )
+        await emit_progress(intake_id, "analyzing", "Building your 3 growth paths…", 75)
+
+        analysis_data = await run_preliminary_analysis(cv_data, intake_form, crawl_signals)
+        await emit_progress(intake_id, "persisting", "Saving your roadmap…", 95)
+
+        async with get_session() as session:
+            analysis = await persist_analysis(session, citizen_id, intake_id, "preliminary", analysis_data)
+
+        logger.info(
+            "Growth intake pipeline complete",
+            extra={"citizen_id": citizen_id, "intake_id": intake_id, "analysis_id": analysis.id},
+        )
+        await close_progress_queue(intake_id, analysis.id)
+    except Exception as exc:
+        logger.error(
+            "Growth intake pipeline failed",
+            exc_info=exc,
+            extra={"citizen_id": citizen_id, "intake_id": intake_id},
+        )
+        raise
+    finally:
+        # Guarantee the queue is removed so SSE clients are never left hanging
+        if get_progress_queue(intake_id) is not None:
+            await close_progress_queue(intake_id, "")
 
 
 async def process_gap_answers(

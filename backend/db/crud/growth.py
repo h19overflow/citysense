@@ -117,6 +117,23 @@ async def list_roadmap_analyses_by_citizen(
     return records
 
 
+async def get_latest_analysis_by_intake(
+    session: AsyncSession, intake_id: str
+) -> RoadmapAnalysis | None:
+    """Fetch the most recent roadmap analysis for a given intake, or None."""
+    stmt = (
+        select(RoadmapAnalysis)
+        .where(RoadmapAnalysis.intake_id == intake_id)
+        .order_by(RoadmapAnalysis.version_number.desc())
+        .limit(1)
+    )
+    result = await session.execute(stmt)
+    record = result.scalar_one_or_none()
+    if record:
+        session.expunge(record)
+    return record
+
+
 async def update_roadmap_analysis_answers(
     session: AsyncSession,
     analysis_id: str,
