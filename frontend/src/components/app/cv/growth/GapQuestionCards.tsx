@@ -14,8 +14,8 @@ function isRatingQuestion(question: string): boolean {
   return RATING_KEYWORDS.some((kw) => lower.includes(kw));
 }
 
-function buildChoiceOptions(question: GapQuestion): string[] {
-  if (question.path_relevance.length >= 3) return question.path_relevance.slice(0, 3);
+// GapQuestion has no options field — use universal fallback choices for MC questions
+function buildChoiceOptions(_question: GapQuestion): string[] {
   return ["Yes, definitely", "Somewhat", "Not really"];
 }
 
