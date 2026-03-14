@@ -56,4 +56,7 @@ export const initialState: AppState = {
   growthIntakeId: null,
   growthProgress: null,
   growthDiffVisible: false,
+  activeRoadmapPath: null,
+  activeRoadmapAnalysisId: null,
+  activeRoadmapPathKey: null,
 };

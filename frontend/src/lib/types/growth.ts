@@ -45,6 +45,8 @@ export interface GrowthIntakeForm {
   external_links: string[];
 }
 
+export type PathKey = "fill_gap" | "multidisciplinary" | "pivot";
+
 export type GrowthStage =
   | "idle"
   | "submitting"
