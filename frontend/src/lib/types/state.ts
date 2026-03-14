@@ -9,6 +9,7 @@ import type { NewsArticle, NewsCategory, NewsComment, ReactionType } from "./new
 import type { MapCommand } from "./map";
 import type { HousingListing } from "./housing";
 import type { PersonalizedRoadmap } from "./roadmap";
+import type { GrowthStage, GrowthAnalysis, GrowthProgressData } from "./growth";
 
 export interface AppState {
   messages: ChatMessage[];
@@ -61,4 +62,9 @@ export interface AppState {
   housingListings: HousingListing[];
   activeRoadmap: PersonalizedRoadmap | null;
   roadmapCompletedStepIds: string[];
+  growthStage: GrowthStage;
+  growthAnalysis: GrowthAnalysis | null;
+  growthIntakeId: string | null;
+  growthProgress: GrowthProgressData | null;
+  growthDiffVisible: boolean;
 }
