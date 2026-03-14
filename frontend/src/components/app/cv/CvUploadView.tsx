@@ -4,8 +4,6 @@ import { useAuth } from "@clerk/react";
 import { useApp } from "@/lib/appContext";
 import { fetchLatestCv } from "@/lib/cvService";
 import JobMatchPanel from "./JobMatchPanel";
-import UpskillingPanel from "./UpskillingPanel";
-import CommutePanel from "./CommutePanel";
 import CitizenProfileBar from "./CitizenProfileBar";
 import CvOnboardingHero from "./CvOnboardingHero";
 import CvResultsPanel from "./CvResultsPanel";
@@ -123,13 +121,7 @@ const CvUploadView = () => {
           </div>
         )}
 
-        {hasCv && activeTab === "growth" && (
-          <div className="space-y-5 p-5">
-            <UpskillingPanel />
-            <CommutePanel />
-            <GrowthPlanView />
-          </div>
-        )}
+        {hasCv && activeTab === "growth" && <GrowthPlanView />}
       </div>
     </div>
   );
