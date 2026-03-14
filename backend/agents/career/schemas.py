@@ -30,7 +30,7 @@ class UpskillResource(BaseModel):
 class CareerAgentResponse(BaseModel):
     summary: str
     job_opportunities: list[JobOpportunity]
-    skill_gaps: list[SkillGap]
-    upskill_resources: list[UpskillResource]
+    skill_gaps: list[SkillGap] = []
+    upskill_resources: list[UpskillResource] = []
     next_role_target: str
     chips: list[str]
