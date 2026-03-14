@@ -86,7 +86,8 @@ export function useGrowthPlan() {
 
   const submitGapAnswers = useCallback(async (answers: Record<string, string>) => {
     if (!state.growthAnalysis) return;
-    dispatch({ type: "SET_GROWTH_STAGE", stage: "finalizing" });
+    // "answering" shows GapQuestionCards with isSubmitting=true (button loading state)
+    dispatch({ type: "SET_GROWTH_STAGE", stage: "answering" });
     const headers = await buildAuthHeaders();
 
     const res = await fetch("/api/growth/roadmap/answers", {
@@ -103,6 +104,8 @@ export function useGrowthPlan() {
       return;
     }
 
+    // Switch to progress screen while analysis runs on the server response
+    dispatch({ type: "SET_GROWTH_STAGE", stage: "finalizing" });
     const data = await res.json() as { analysis: GrowthAnalysis };
     dispatch({ type: "SET_GROWTH_ANALYSIS", analysis: data.analysis });
     dispatch({ type: "SET_GROWTH_STAGE", stage: "final" });
