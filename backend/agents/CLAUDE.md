@@ -23,6 +23,12 @@
 | Career chat agent | `career/agent.py`, `career/prompt.py` |
 | Career chat schema | `career/schemas.py` — `CareerAgentResponse` (skill_gaps + upskill_resources optional with `= []`) |
 | Career chat tools | `career/tools/registry.py` — search_local_jobs, search_web_jobs only |
+| Growth Guide handler | `career/growth_handler.py` — builds fresh agent with closure-bound `patch_roadmap_path` tool, injects active path context |
+| Growth Guide prompt | `career/prompt.py` — `GROWTH_GUIDE_PROMPT` (proactive growth coach persona) |
+| Roadmap edit tool | `career/tools/roadmap_tools.py` — `build_patch_roadmap_tool()` closure factory, calls CRUD directly |
+| Growth tools builder | `career/tools/registry.py` — `build_growth_tools()` helper |
+| Growth Guide chat | `career/growth_handler.py`, `career/prompt.py` (GROWTH_GUIDE_PROMPT) |
+| Growth Guide tools | `career/tools/roadmap_tools.py`, `career/tools/registry.py` (build_growth_tools) |
 | Growth agent behavior | `growth/strategist_agent.py`, `growth/crawl_agent.py`, `growth/analysis_agent.py` |
 | Growth agent tools | `growth/tools/registry.py`, `growth/tools/crawl_tools.py` |
 | Growth agent schemas | `growth/schemas.py` |
@@ -38,6 +44,7 @@
 | Comment Analysis | `citizen/comment_analysis.py` | Gemini | Batch sentiment analysis of article comments |
 | CV Analyzer | `citizen/cv_analyzers/agent.py` | Gemini | Extract skills, experience, tools from CV pages |
 | Career Chat | `career/agent.py` | Gemini | Career guidance + job search; intent-classified (SIMPLE / PROFILE_QUESTION / JOB_SEARCH) |
+| Growth Guide | `career/growth_handler.py` | Gemini | Proactive growth coach — advises on active roadmap path, can mutate roadmap fields via closure-bound tool |
 | Strategist | `growth/strategist_agent.py` | Gemini | Reads link headers, generates personalized CrawlStrategy per URL |
 | Crawl | `growth/crawl_agent.py` | Gemini | Crawls one URL per agent instance, runs in parallel |
 | Analysis | `growth/analysis_agent.py` | Gemini | Two-stage analysis: preliminary + final with diff |
@@ -47,11 +54,13 @@
 | File | Purpose |
 |------|---------|
 | `agent.py` | `build_career_agent()`, `handle_career_chat()` — intent-classified, context prefix controls tool use |
-| `prompt.py` | System prompt with intent classification (SIMPLE / PROFILE_QUESTION / JOB_SEARCH). Casual/profile turns → structured response, no tools. JOB_SEARCH → search_local_jobs then search_web_jobs |
+| `prompt.py` | System prompt with intent classification + `GROWTH_GUIDE_PROMPT` (proactive growth coach persona) |
 | `schemas.py` | `CareerAgentResponse` — `skill_gaps: list = []`, `upskill_resources: list = []` (optional, default empty) |
-| `tools/registry.py` | CAREER_TOOLS = [search_local_jobs, search_web_jobs] — gap/course tools removed |
+| `tools/registry.py` | CAREER_TOOLS = [search_local_jobs, search_web_jobs]. `build_growth_tools()` adds closure-bound `patch_roadmap_path` |
+| `growth_handler.py` | `handle_growth_chat()` — builds fresh agent per request with `patch_roadmap_path` tool. `_build_growth_context_prefix()` injects active path data |
+| `tools/roadmap_tools.py` | `build_patch_roadmap_tool(analysis_id, path_key, citizen_id)` — closure factory. Calls `update_roadmap_path_fields` CRUD directly. `_parse_field_update` converts field/value to JSONB merge dict |
 
-**Active roadmap context (next step):** `handle_career_chat` context prefix should accept an optional `active_roadmap_path: dict` field. When present, insert it under an `ACTIVE GROWTH PATH` section in the prompt so the agent can reference it, suggest edits, and call `PATCH /api/growth/roadmap/{id}` via a new tool.
+**Dual-mode chat:** `career_chat.py` router switches between Career Guide (default) and Growth Guide (`growth_mode=True`). Growth mode uses `growth_handler.py` with roadmap cache for path context.
 
 ## Mayor Agent (`mayor/`)
 | File | Purpose |
@@ -110,64 +119,72 @@
 
 ## Next Steps — Growth Plan Iteration 2
 
-### 1. Career agent receives active roadmap path
-**Files:** `career/agent.py`, `career/prompt.py`, `api/routers/career_chat.py`
+### 1. Career agent receives active roadmap path — DONE
+Implemented in `career/growth_handler.py`, `career/tools/roadmap_tools.py`, `career/prompt.py`, `career/tools/registry.py`. Schema updated in `api/schemas/career_schemas.py` with `growth_mode`, `active_roadmap_analysis_id`, `active_roadmap_path_key`, `discuss_context`. Router mode switching in `api/routers/career_chat.py`. Roadmap cache in `api/routers/roadmap_cache.py`. CRUD in `db/crud/growth_path.py`.
 
-The frontend will send `active_roadmap_path` (serialized `RoadmapPath`) in the chat request body when the user has selected a path. The context prefix builder should:
-1. Include it under an `## ACTIVE GROWTH PATH` section in the system prompt
-2. Allow the agent to suggest specific changes ("swap skill X for Y", "extend timeline to 6 months")
-3. New tool: `patch_roadmap_path` — calls `PATCH /api/growth/roadmap/{analysis_id}` to mutate the path directly from the agent
-
-**Schema change needed:** Add `active_roadmap_path: dict | None = None` and `active_roadmap_analysis_id: str | None = None` to the career chat request schema (`api/schemas/career_schemas.py`).
-
-### 2. Roadmap mutation endpoint
-**Files:** `api/routers/growth.py`, `core/growth_service.py`, `db/crud/growth.py`
-
-`PATCH /api/growth/roadmap/{analysis_id}` — partial update of one path's fields.
-```python
-# Request body
-class RoadmapPatchRequest(BaseModel):
-    path_key: Literal["fill_gap", "multidisciplinary", "pivot"]
-    updates: dict[str, Any]  # title, skill_steps, timeline_estimate, unfair_advantage
-```
-- Service: `patch_roadmap_path(session, citizen_id, analysis_id, path_key, updates) -> dict`
-- CRUD: `update_roadmap_path_fields(session, analysis_id, path_key, updates)`
-- IDOR check: verify `analysis.citizen_id == citizen_id`
+### 2. Roadmap mutation endpoint (for direct frontend edits)
+**Status:** CRUD layer (`update_roadmap_path_fields` with JSONB merge, IDOR check) is DONE. REST endpoint (`PATCH /api/growth/roadmap/{analysis_id}`) not yet wired — for future inline editing UI.
 
 ### 3. Curriculum builder agent
-**Files (to create):**
-- `growth/curriculum_agent.py` — `build_curriculum(path, user_prefs, conversation_history) -> CurriculumResult`
-- `growth/curriculum_prompts.py` — system + human prompts
-- `growth/tools/course_search_tool.py` — BrightData SERP search for courses by skill name
-- `growth/tools/project_search_tool.py` — GitHub/BrightData search for beginner projects per skill
-- `core/curriculum_service.py` — orchestrates agent, persists to DB, SSE streaming
-- `db/models/curriculum.py` — `Curriculum` model linked to `RoadmapAnalysis`
-- `db/crud/curriculum.py` — CRUD for curriculum + individual resource items
-- `api/routers/curriculum.py` — `POST /growth/roadmap/{id}/curriculum`, `GET /growth/roadmap/{id}/curriculum`, SSE stream
+**Key design constraint:** The curriculum is always scoped to a specific `(analysis_id, path_key)` pair — this is how we know which roadmap path it belongs to. `path_key` is the discriminator that ties the curriculum to one of the three paths.
 
-**Agent behaviour:**
-- Receives: `RoadmapPath` + learning_style + budget_preference ("free only" / "paid ok") + conversation_history
-- For each `SkillStep` in the path: searches for 1-2 courses + 1 project milestone
-- Streams results as it finds them (SSE per skill step)
-- Subsequent turns can swap resources: "YouTube only", "add a project for step 3", "find something more advanced"
-- All mutations persist back to `Curriculum` model — curriculum is a living document
+**Files to create:**
+- `growth/curriculum_agent.py` — `build_curriculum(path, user_prefs, history) -> CurriculumResult`
+- `growth/curriculum_prompts.py` — system + human prompts
+- `growth/tools/course_search_tool.py` — BrightData SERP for courses by skill name
+- `growth/tools/project_search_tool.py` — BrightData/GitHub SERP for projects by skill name
+- `core/curriculum_service.py` — orchestrates agent, persists, SSE streaming
+- `db/models/curriculum.py` — `Curriculum` + `CurriculumItem` models
+- `db/crud/curriculum.py` — CRUD, including `get_curriculum_by_path(session, analysis_id, path_key)`
+- `api/routers/curriculum.py`
+
+**IMPORTANT: curriculum agent tools call CRUD directly, not HTTP.**
+```python
+# growth/tools/course_search_tool.py
+@tool
+async def search_courses_for_skill(skill_name: str, free_only: bool = False) -> list[dict]:
+    """Search BrightData SERP for courses matching a skill. Returns title, url, provider, is_free."""
+    results = await serp_search(f"{skill_name} online course {'free' if free_only else ''}")
+    return parse_course_results(results)
+
+# growth/tools/project_search_tool.py
+@tool
+async def search_projects_for_skill(skill_name: str, difficulty: str = "beginner") -> list[dict]:
+    """Search for GitHub projects or tutorials to use as milestone for this skill."""
+    results = await serp_search(f"{skill_name} {difficulty} project tutorial github")
+    return parse_project_results(results)
+```
 
 **DB schema:**
 ```python
 class Curriculum(Base):
-    id: UUID
-    analysis_id: UUID  # FK → roadmap_analyses
-    path_key: str      # fill_gap / multidisciplinary / pivot
+    __tablename__ = "curriculums"
+    id: UUID (PK)
+    analysis_id: UUID  # FK → roadmap_analyses.id
+    path_key: str      # "fill_gap" | "multidisciplinary" | "pivot" — ties this to one RoadmapPath
     citizen_id: UUID
-    items: list[CurriculumItem]  # JSON or child table
+    created_at: datetime
+    updated_at: datetime
+    # items stored as child rows in CurriculumItem
 
 class CurriculumItem(Base):
-    skill_step_index: int
-    resource_type: str   # course / project / book / video
+    __tablename__ = "curriculum_items"
+    id: UUID (PK)
+    curriculum_id: UUID  # FK → curriculums.id
+    skill_step_index: int  # which SkillStep in the path this belongs to
+    resource_type: str     # "course" | "project" | "video" | "book"
     title: str
     url: str
-    provider: str        # Coursera / YouTube / GitHub / etc.
+    provider: str          # "Coursera" | "YouTube" | "GitHub" | etc.
     is_free: bool
     estimated_hours: int | None
-    completed: bool      # user can mark done
+    completed: bool        # user marks done
 ```
+
+**Agent behaviour:**
+- Receives: `RoadmapPath` (from DB, not from frontend) + learning_style + budget_pref + conversation_history
+- For each `SkillStep`: calls `search_courses_for_skill` + `search_projects_for_skill`
+- Persists each item via `upsert_curriculum_item(session, ...)` as it resolves — curriculum is built incrementally
+- Streams progress via SSE (same pattern as growth progress bus)
+- Subsequent turns: user says "YouTube only for step 2" → agent calls `delete_curriculum_items(session, curriculum_id, skill_step_index=2)` then `search_courses_for_skill(skill, free_only=True, provider_hint="youtube")` → persists new items
+- All tool calls go through CRUD — no HTTP round-trips

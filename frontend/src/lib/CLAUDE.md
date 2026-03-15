@@ -34,6 +34,7 @@
 | `slices/jobsSlice.ts` | Job listings/matches state |
 | `slices/newsSlice.ts` | News articles/comments/reactions state |
 | `slices/servicesSlice.ts` | Service points/categories/guide state — `INIT_GUIDE_WELCOME` is idempotent (sets `guideInitialized` flag so multiple mounted instances of `ServiceGuideChat` don't each append a welcome message) |
+| `slices/growthSlice.ts` | Growth plan state — includes `SET_ACTIVE_ROADMAP_PATH` / `CLEAR_ACTIVE_ROADMAP_PATH` actions for active path focus. `CLEAR_GROWTH` resets all growth + active path state |
 | `slices/roadmapSlice.ts` | Personalized roadmap state |
 | `slices/uiSlice.ts` | UI state (modals, panels) |
 
@@ -50,7 +51,8 @@
 | `housing.ts` | HousingListing |
 | `roadmap.ts` | PersonalizedRoadmap |
 | `map.ts` | MapCommand |
-| `state.ts` | AppState (full state interface) |
+| `growth.ts` | `PathKey` type alias (`"fill_gap" \| "multidisciplinary" \| "pivot"`) |
+| `state.ts` | AppState — includes `activeRoadmapPath`, `activeRoadmapAnalysisId`, `activeRoadmapPathKey` |
 | `index.ts` | Barrel export |
 
 ## Services & Engines
@@ -88,6 +90,7 @@
 |------|---------|
 | `apiConfig.ts` | API_BASE URL |
 | `useAuth.ts` | Clerk auth hook |
+| `hooks/useCareerAgent.ts` | Career chat hook — `sendMessage` accepts optional `GrowthChatContext` (growth_mode, analysis_id, path_key, discuss_context). Returns `updated_path` when agent mutates roadmap |
 | `useDataStream.ts` | SSE/WebSocket hook |
 | `useDraggable.ts` | Draggable DOM hook |
 | `utils.ts` | Generic utils |

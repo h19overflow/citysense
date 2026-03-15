@@ -81,26 +81,18 @@ GET  /api/growth/roadmap/{id1}/{id2}/diff   compare two versions
 |-------|-------|-----------|
 | `GrowthIntake` | `growth_intakes` | citizen_id, career_goal, target_timeline, learning_style, external_links, crawl_results |
 | `RoadmapAnalysis` | `roadmap_analyses` | citizen_id, intake_id, stage (preliminary/final), version_number, path_fill_gap, path_multidisciplinary, path_pivot, gap_questions, diff_summary |
-| `Curriculum` | `curriculums` | **NOT YET BUILT** — analysis_id, path_key, items (per skill step: course/project/video) |
+| `Curriculum` | `curriculums` | **NOT YET BUILT** — analysis_id, path_key, items (per skill step: course/project/video). CRUD for path fields exists in `db/crud/growth_path.py` |
 
 ## Roadmap for Next Session — Learning Journey
 
-### Priority 1: Career chat knows the active roadmap
-**Why first:** Highest UX impact, smallest scope. Connects existing systems.
+### Priority 1: Career chat knows the active roadmap — DONE
+Implemented: `agents/career/growth_handler.py`, `agents/career/tools/roadmap_tools.py`, `agents/career/prompt.py` (GROWTH_GUIDE_PROMPT), `agents/career/tools/registry.py` (build_growth_tools), `api/routers/career_chat.py` (mode switching), `api/routers/roadmap_cache.py`, `api/schemas/career_schemas.py` (growth fields), `db/crud/growth_path.py` (JSONB merge + IDOR check).
 
-1. Add `active_roadmap_path: dict | None` and `active_roadmap_analysis_id: str | None` to career chat request schema (`api/schemas/career_schemas.py`)
-2. In `api/routers/career_chat.py` context prefix builder: when `active_roadmap_path` present, inject `## ACTIVE GROWTH PATH` section
-3. Add `patch_roadmap` LangChain tool to `agents/career/tools/` that calls `PATCH /api/growth/roadmap/{id}`
-4. New endpoint: `PATCH /api/growth/roadmap/{analysis_id}` in `api/routers/growth.py`
-5. Service + CRUD: `patch_roadmap_path()` in `core/growth_service.py` + `update_roadmap_path_fields()` in `db/crud/growth.py`
-
-### Priority 2: Active roadmap focused view (frontend-only)
-**Why second:** No new backend needed — uses existing roadmap data.
-
-Add `activeRoadmapPath` + `activeRoadmapAnalysisId` to global state. `PathCard` gets "Focus on this" button. `GrowthPlanView` shows `ActiveRoadmapView` (new component) when a path is selected.
+### Priority 2: Active roadmap focused view — DONE
+Frontend: `ActiveRoadmapView.tsx` (hero layout with discuss buttons), `PathCard` "Focus on this path" button, `GrowthPlanView` conditional rendering, `CareerChatBubble` dual-mode (Growth Guide vs Career Guide), `CareerChatParts.tsx` (extracted sub-components). State: `activeRoadmapPath` / `activeRoadmapAnalysisId` / `activeRoadmapPathKey` in growthSlice.
 
 ### Priority 3: Curriculum builder
-**Why third:** Most complex, needs new agent + DB model + SSE + frontend chat UI.
+**Why next:** Most complex, needs new agent + DB model + SSE + frontend chat UI.
 
 See full spec in `agents/CLAUDE.md` → "Next Steps — Growth Plan Iteration 2 → #3 Curriculum builder agent"
 

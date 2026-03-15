@@ -6,7 +6,7 @@
 | Task | Files to Touch |
 |------|---------------|
 | CV upload flow | `CvUploadView.tsx`, `DropZoneArea.tsx`, `UploadZone.tsx` |
-| Career chat sidebar | `CareerChatBubble.tsx` |
+| Career chat sidebar | `CareerChatBubble.tsx`, `CareerChatParts.tsx` |
 | CV analysis results | `CvResultsPanel.tsx`, `ProfileSummaryBanner.tsx`, `SkillsToolsCard.tsx`, `RolesCard.tsx` |
 | Onboarding hero | `CvOnboardingHero.tsx` |
 | Job match panel/cards | `job-match/JobMatchPanel.tsx`, `job-match/JobMatchCard.tsx` |
@@ -19,10 +19,10 @@
 | Growth Plan roadmap display | `growth/FinalRoadmap.tsx`, `growth/PathCard.tsx` |
 | Growth Plan gap questions | `growth/GapQuestionCards.tsx` |
 | Growth Plan orchestrator | `growth/GrowthPlanView.tsx` |
-| Active roadmap / focused view | `growth/ActiveRoadmapView.tsx` — **NOT YET BUILT** (see Next Steps) |
+| Active roadmap / focused view | `growth/ActiveRoadmapView.tsx` — hero layout for focused path with discuss buttons per section/step |
 | Curriculum builder chat | `growth/CurriculumBuilder.tsx` — **NOT YET BUILT** (see Next Steps) |
 | Growth Plan API + state | `growth/hooks/useGrowthPlan.ts`, `../../../lib/context/slices/growthSlice.ts` |
-| Career chat context (roadmap) | `CareerChatBubble.tsx` — needs `activeRoadmapPath` passed as context |
+| Career chat context (roadmap) | `CareerChatBubble.tsx` — dual-mode: Growth Guide (with path banner) vs Career Guide based on activeTab |
 | Job matching logic | `../../lib/jobMatcher.ts`, `../../lib/jobMatcherHelpers.ts` |
 | CV state | `../../lib/context/slices/cvSlice.ts`, `../../lib/context/slices/jobsSlice.ts` |
 
@@ -31,12 +31,13 @@
 |-----------|---------|-----------|
 | `job-match/` | Job matching UI | `JobMatchPanel.tsx`, `JobMatchCard.tsx`, `JobMatchCardHeader.tsx`, `JobMatchCardDetail.tsx`, `JobResultsList.tsx` |
 | `market/` | Market analysis | `MarketPulse.tsx`, `MetricCard.tsx`, `HorizontalBarRow.tsx` |
-| `growth/` | Growth Plan UI — intake → progress → roadmap selection → curriculum | `GrowthPlanView.tsx`, `GrowthIntakeForm.tsx`, `GrowthProgress.tsx`, `PathCard.tsx`, `GapQuestionCards.tsx`, `FinalRoadmap.tsx`, `hooks/useGrowthPlan.ts` |
+| `growth/` | Growth Plan UI — intake → progress → roadmap selection → active path → curriculum | `GrowthPlanView.tsx`, `GrowthIntakeForm.tsx`, `GrowthProgress.tsx`, `PathCard.tsx`, `GapQuestionCards.tsx`, `FinalRoadmap.tsx`, `ActiveRoadmapView.tsx`, `hooks/useGrowthPlan.ts` |
 
 ## Root Component Files
 | File | Purpose |
 |------|---------|
-| `CareerChatBubble.tsx` | Fixed 400px right panel — career assistant chat. **Next:** receives `activeRoadmapPath` in context so it can advise on the selected path and edit roadmap fields via `PATCH /api/growth/roadmap/{id}` |
+| `CareerChatBubble.tsx` | Fixed 400px right panel — dual-mode chat. Growth Guide (with active path banner, discuss context) when on Growth tab with active path; Career Guide otherwise |
+| `CareerChatParts.tsx` | Extracted sub-components: PanelHeader, GrowthBanner, IdleState, TypingIndicator, ChatBubbleMessage |
 | `CvUploadView.tsx` | Tab container (Job Market / Growth Plan) with slide transition via Framer Motion |
 | `CvOnboardingHero.tsx` | Onboarding when no CV uploaded |
 | `CvResultsPanel.tsx` | Orchestrates result cards with stagger animation |
@@ -67,23 +68,11 @@ The Growth Plan tab is a full pipeline: intake form → crawl + analysis progres
 
 ## Next Steps — Growth Plan Iteration 2
 
-### 1. Career chat knows the active roadmap
-**Goal:** When the user selects a path (fill_gap / multidisciplinary / pivot), the career chat sidebar receives that path as context so it can answer questions about it, suggest adjustments, and guide the user.
+### 1. Career chat knows the active roadmap — DONE
+Global state has `activeRoadmapPath`, `activeRoadmapAnalysisId`, `activeRoadmapPathKey`. `PathCard` dispatches `SET_ACTIVE_ROADMAP_PATH`. `CareerChatBubble` sends growth context to backend. Backend Growth Guide agent can read and mutate the path via closure-bound tool.
 
-**Implementation sketch:**
-- Add `activeRoadmapPath: RoadmapPath | null` and `activeRoadmapAnalysisId: string | null` to global state (`growthSlice`)
-- `PathCard` gets a "Focus on this path" button that dispatches `SET_ACTIVE_ROADMAP_PATH`
-- `CareerChatBubble` reads `state.activeRoadmapPath` and includes it in the system context sent to the career agent
-- Backend: `career_chat.py` context prefix already accepts arbitrary context fields — add `active_roadmap_path` there
-- New endpoint: `PATCH /api/growth/roadmap/{analysis_id}` — lets the career agent mutate individual path fields (title, skill_steps, timeline_estimate) in response to user requests
-
-### 2. Active roadmap focused view
-**Goal:** After selecting a path the Growth Plan page re-frames around that single path — the other two paths collapse or move to a "compare" drawer.
-
-**Implementation sketch:**
-- New component `growth/ActiveRoadmapView.tsx` — hero-style layout for the selected path with skill steps as a checklist, progress tracker, and "Edit with AI" button
-- `GrowthPlanView` shows `ActiveRoadmapView` when `state.activeRoadmapPath` is set, `FinalRoadmap` otherwise
-- "Back to all paths" button clears `activeRoadmapPath`
+### 2. Active roadmap focused view — DONE
+`ActiveRoadmapView.tsx` renders hero layout for the focused path with discuss buttons per section/step. `GrowthPlanView` shows it when `state.activeRoadmapPath` is set. "Back to all paths" clears active path. Discuss buttons open chat sidebar with pre-filled context.
 
 ### 3. Curriculum builder
 **Goal:** A conversational flow that takes the selected roadmap path and builds a personalized learning curriculum — finding real courses, projects, and milestone checkpoints.
