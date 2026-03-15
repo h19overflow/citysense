@@ -16,7 +16,7 @@ from backend.api.lifespan import lifespan
 from backend.api.routers import (
     analysis, auth, benefits, career_analyze, career_chat, chat,
     citizen_chat, citizen_profile, comments, cv, cv_latest, growth,
-    housing, jobs, misinfo, news, roadmap, stream, webhooks,
+    housing, jobs, learning_block, misinfo, news, roadmap, stream, webhooks,
 )
 from backend.core.exceptions import AppException
 
@@ -66,6 +66,7 @@ app.include_router(cv_latest.router, prefix="/api")
 app.include_router(career_analyze.router, prefix="/api")
 app.include_router(career_chat.router, prefix="/api")
 app.include_router(growth.router, prefix="/api")
+app.include_router(learning_block.router, prefix="/api")
 
 
 @app.get("/health")
