@@ -68,3 +68,29 @@ class TestBuildGrowthTools:
     def test_tool_has_correct_name(self) -> None:
         tools = build_growth_tools("analysis-1", "fill_gap", "citizen-1")
         assert tools[0].name == "patch_roadmap_path"
+
+
+class TestParseAddStepEnriched:
+    """Verify add_step parsing with all enriched SkillStep fields."""
+
+    def test_parse_add_step_with_enriched_fields(self) -> None:
+        step_json = (
+            '{"skill":"Docker","why":"Deploy",'
+            '"resource":"Docker Hub",'
+            '"resource_url":"https://hub.docker.com",'
+            '"resource_type":"documentation",'
+            '"importance":"Critical for CI/CD",'
+            '"mindset":"Think in containers"}'
+        )
+        result = _parse_field_update("add_step", step_json)
+        assert result == {
+            "_add_step": {
+                "skill": "Docker",
+                "why": "Deploy",
+                "resource": "Docker Hub",
+                "resource_url": "https://hub.docker.com",
+                "resource_type": "documentation",
+                "importance": "Critical for CI/CD",
+                "mindset": "Think in containers",
+            }
+        }
