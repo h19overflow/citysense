@@ -36,6 +36,36 @@ class SkillStep(BaseModel):
     mindset: str | None = None      # what approach/mentality to bring
 
 
+class PhaseTask(BaseModel):
+    """One actionable task within a learning phase."""
+
+    action: str                     # "Watch", "Read", "Build", "Practice"
+    instruction: str                # specific, actionable instruction
+    is_completed: bool = False
+    user_note: str | None = None    # optional reflection from user
+
+
+class Phase(BaseModel):
+    """One phase of a learning block (Understand / Build / Prove)."""
+
+    name: str                       # "Understand", "Build", "Prove"
+    time_estimate: str              # "Days 1-3" or "~4 hours"
+    tasks: list[PhaseTask]
+    stop_signal: str                # "You know enough when..."
+    anti_patterns: list[str]        # "Don't spend 3 days on tutorials"
+
+
+class LearningBlock(BaseModel):
+    """Deep, actionable learning plan for a single skill."""
+
+    skill_name: str
+    why_this_matters: str           # personalized to user's goal
+    total_time: str                 # "~10 hours over 2 weeks"
+    not_yet: list[str]              # what to explicitly skip for now
+    phases: list[Phase]
+    prerequisites: list[str]        # references to other skill names
+
+
 class RoadmapPath(BaseModel):
     """One of three possible growth paths for the user."""
 
