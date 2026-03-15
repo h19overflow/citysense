@@ -64,7 +64,6 @@ export function GrowthPlanView({ onDiscuss }: GrowthPlanViewProps) {
       <ActiveRoadmapView
         path={state.activeRoadmapPath}
         pathKey={state.activeRoadmapPathKey}
-        onDiscuss={(ctx) => onDiscuss?.(ctx)}
         onBack={() => dispatch({ type: "CLEAR_ACTIVE_ROADMAP_PATH" })}
       />
     );
