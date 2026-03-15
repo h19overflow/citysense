@@ -68,7 +68,7 @@ export function ChatBubbleMessage({ role, content }: { role: "user" | "assistant
   return (
     <div className={`flex ${role === "user" ? "justify-end" : "justify-start"}`}>
       <div
-        className={`max-w-[85%] rounded-2xl px-3 py-2 text-xs leading-relaxed ${
+        className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
           role === "user"
             ? "bg-[hsl(var(--pine-green))] text-white rounded-br-sm"
             : "bg-muted text-foreground rounded-bl-sm"

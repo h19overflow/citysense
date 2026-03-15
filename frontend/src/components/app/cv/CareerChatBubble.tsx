@@ -104,7 +104,7 @@ export function CareerChatBubble({ cvVersionId, citizenId, activeTab, discussCon
               <button
                 key={chip}
                 onClick={() => handleSendMessage(chip)}
-                className="px-3 py-1.5 rounded-full border border-border/50 bg-background text-xs text-foreground hover:bg-muted transition-colors"
+                className="px-3.5 py-2 rounded-full border border-border/50 bg-background text-sm text-foreground hover:bg-muted transition-colors"
               >
                 {chip}
               </button>
@@ -120,7 +120,7 @@ export function CareerChatBubble({ cvVersionId, citizenId, activeTab, discussCon
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSendMessage(inputValue)}
-          placeholder={status === "running" ? "Analyzing your profile..." : "Ask your career guide..."}
+          placeholder={status === "running" ? "Analyzing your profile..." : isGrowthMode ? "What would you like to improve on your path?" : "Ask your career guide..."}
           disabled={isBlocked}
           className="flex-1 px-3 py-2 text-sm rounded-lg border border-border/50 bg-background focus:outline-none min-h-[40px] disabled:opacity-50 disabled:cursor-not-allowed"
         />
