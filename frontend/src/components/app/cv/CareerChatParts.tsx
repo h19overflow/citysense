@@ -1,29 +1,15 @@
 import { motion } from "framer-motion";
 import { MessageSquare, Sparkles } from "lucide-react";
-import type { PathKey } from "@/lib/types";
 
-const PATH_LABELS: Record<string, string> = {
-  fill_gap: "Fill the Gap",
-  multidisciplinary: "Multidisciplinary",
-  pivot: "Pivot",
-};
-
-const PATH_BADGE_COLORS: Record<string, string> = {
-  fill_gap: "bg-blue-100 text-blue-700",
-  multidisciplinary: "bg-amber-100 text-amber-700",
-  pivot: "bg-violet-100 text-violet-700",
-};
-
-export function PanelHeader({ status, isGrowthMode }: { status: string; isGrowthMode: boolean }) {
+export function PanelHeader({ status }: { status: string }) {
   const isRunning = status === "running";
-  const title = isGrowthMode ? "Growth Guide" : "Career Guide";
   return (
     <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border/30 shrink-0 bg-[hsl(var(--pine-green))] text-white">
       <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center">
         <Sparkles className="w-3.5 h-3.5" />
       </div>
       <div>
-        <span className="text-sm font-semibold tracking-tight">{title}</span>
+        <span className="text-sm font-semibold tracking-tight">Career Guide</span>
         <div className="flex items-center gap-1.5">
           <span className={`w-1.5 h-1.5 rounded-full ${isRunning ? "bg-yellow-400 animate-pulse" : "bg-emerald-400 animate-pulse"}`} />
           <span className="text-[10px] text-white/60 font-medium">
@@ -32,34 +18,6 @@ export function PanelHeader({ status, isGrowthMode }: { status: string; isGrowth
         </div>
       </div>
     </div>
-  );
-}
-
-export function GrowthBanner({ pathKey, pathTitle }: { pathKey: PathKey | null; pathTitle?: string }) {
-  if (!pathKey) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2 }}
-        className="mx-4 mt-2 px-3 py-2 rounded-lg bg-muted/60 text-xs text-muted-foreground text-center"
-      >
-        Select a path to start building it together
-      </motion.div>
-    );
-  }
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2 }}
-      className="mx-4 mt-2 px-3 py-2 rounded-lg bg-muted/60 flex items-center gap-2"
-    >
-      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${PATH_BADGE_COLORS[pathKey] ?? ""}`}>
-        {PATH_LABELS[pathKey] ?? pathKey}
-      </span>
-      <span className="text-xs text-foreground font-medium truncate">{pathTitle}</span>
-    </motion.div>
   );
 }
 

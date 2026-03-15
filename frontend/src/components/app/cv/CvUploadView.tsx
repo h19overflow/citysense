@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Briefcase, TrendingUp } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAuth } from "@clerk/react";
@@ -47,11 +47,8 @@ const CvUploadView = () => {
   const { state, dispatch } = useApp();
   const { getToken, isSignedIn } = useAuth();
   const [activeTab, setActiveTab] = useState<CareerTab>("market");
-  const [discussContext, setDiscussContext] = useState<string | undefined>();
   const direction = useRef(1);
   const hasCv = !!state.cvResult;
-
-  const handleDiscuss = useCallback((ctx: string) => setDiscussContext(ctx), []);
 
   function switchTab(tab: CareerTab) {
     direction.current = TAB_ORDER[tab] > TAB_ORDER[activeTab] ? 1 : -1;
@@ -98,8 +95,6 @@ const CvUploadView = () => {
       <CareerChatBubble
         citizenId={state.citizenMeta?.id}
         cvVersionId={state.cvUploadId ?? undefined}
-        activeTab={activeTab}
-        discussContext={discussContext}
       />
       {hasCv && <CitizenProfileBar />}
 
@@ -152,7 +147,7 @@ const CvUploadView = () => {
                   <JobMatchPanel />
                 </div>
               )}
-              {activeTab === "growth" && <GrowthPlanView onDiscuss={handleDiscuss} />}
+              {activeTab === "growth" && <GrowthPlanView />}
             </motion.div>
           </AnimatePresence>
         )}
