@@ -58,3 +58,4 @@
 | `admin.py` | `create_admin()`, `get_admin_by_email()`, `update_admin()` |
 | `cv.py` | `create_cv_upload()`, `get_cv_upload_with_versions()`, `list_cv_uploads_by_citizen()`, `create_cv_version()`, `get_latest_cv_version()`, `get_next_version_number()`, `find_version_by_hash()`, `list_cv_versions()` |
 | `growth.py` | `create_growth_intake`, `get_growth_intake`, `update_growth_intake_crawl_data`, `create_roadmap_analysis`, `get_latest_roadmap_analysis`, `get_roadmap_analysis_by_id`, `get_next_analysis_version_number`, `list_roadmap_analyses_by_citizen`, `update_roadmap_analysis_answers` |
+| `growth_path.py` | `update_roadmap_path_fields` (JSONB merge + skill_steps mutations, IDOR check) |
