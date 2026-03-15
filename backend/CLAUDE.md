@@ -75,8 +75,7 @@ GET  /api/growth/roadmap/latest             restore roadmap on page load
 GET  /api/growth/roadmap/history            all versions
 GET  /api/growth/roadmap/{id1}/{id2}/diff   compare two versions
 
-POST /api/growth/learning-blocks            SkillAgent → Orchestrator → parallel LearningBlock generation
-GET  /api/growth/learning-blocks/{analysis_id}/{path_key}  fetch by path
+POST /api/growth/learning-block/expand       on-demand LearningBlock for a stub skill step
 ```
 
 ## DB Models — Growth Plan
@@ -84,28 +83,25 @@ GET  /api/growth/learning-blocks/{analysis_id}/{path_key}  fetch by path
 |-------|-------|-----------|
 | `GrowthIntake` | `growth_intakes` | citizen_id, career_goal, target_timeline, learning_style, external_links, crawl_results |
 | `RoadmapAnalysis` | `roadmap_analyses` | citizen_id, intake_id, stage (preliminary/final), version_number, path_fill_gap, path_multidisciplinary, path_pivot, gap_questions, diff_summary |
-| `LearningBlock` | `learning_blocks` | analysis_id, path_key, citizen_id, skill_step_index, block_title, block_description, learning_resources (JSONB: course/project/video items), completion_status |
+| *(LearningBlocks are generated at runtime by skill agents and stored as JSONB within RoadmapAnalysis path data — no separate DB table)* |||
 
 ## Roadmap for Next Session — Learning Journey
 
-### Priority 1: Career chat knows the active roadmap — DONE
-Implemented: `agents/career/growth_handler.py`, `agents/career/tools/roadmap_tools.py`, `agents/career/prompt.py` (GROWTH_GUIDE_PROMPT), `agents/career/tools/registry.py` (build_growth_tools), `api/routers/career_chat.py` (mode switching), `api/routers/roadmap_cache.py`, `api/schemas/career_schemas.py` (growth fields), `db/crud/growth_path.py` (JSONB merge + IDOR check).
+### Priority 1: Career chat — DONE (simplified)
+Career chat is now career-only (no growth mode). Previous dual-persona system removed.
 
 ### Priority 2: Active roadmap focused view — DONE
-Frontend: `ActiveRoadmapView.tsx` (hero layout with discuss buttons), `PathCard` "Focus on this path" button, `GrowthPlanView` conditional rendering, `CareerChatBubble` dual-mode (Growth Guide vs Career Guide), `CareerChatParts.tsx` (extracted sub-components). State: `activeRoadmapPath` / `activeRoadmapAnalysisId` / `activeRoadmapPathKey` in growthSlice.
+Frontend: `ActiveRoadmapView.tsx` (renders LearningBlockCards), `GrowthPlanView` conditional rendering. State: `activeRoadmapPath` / `activeRoadmapAnalysisId` / `activeRoadmapPathKey` in growthSlice.
 
-### Priority 3: Learning blocks generation — DONE
-**Architecture:** SkillAgent → Orchestrator → parallel LearningBlock generation (one per skill step)
+### Priority 3: Deep learning blocks — DONE
+**Architecture:** SkillAgent → Orchestrator → parallel LearningBlock generation (first 3 detailed, rest stubs)
 
 Implemented:
 - **Backend agents:** `agents/growth/skill_agent.py`, `agents/growth/skill_agent_prompt.py`, `agents/growth/skill_orchestrator.py`
-- **Backend core:** `core/learning_block_service.py` — orchestrates skill agent + runs generator + SSE streaming
-- **Backend API:** `api/routers/learning_block.py` — `POST /api/growth/learning-blocks`, `GET /api/growth/learning-blocks/{analysis_id}/{path_key}`
-- **Backend DB:** `db/models/learning_block.py`, `db/crud/learning_block.py`
-- **Frontend:** `components/app/cv/growth/LearningBlockCard.tsx`, service wrapper `lib/learningBlockService.ts`
+- **Backend core:** `core/growth_service_helpers.py` — `attach_learning_blocks_to_analysis()`, `extract_intake_preferences()`
+- **Backend API:** `api/routers/learning_block.py` — `POST /api/growth/learning-block/expand`
+- **Frontend:** `components/app/cv/growth/LearningBlockCard.tsx`, `lib/services/learningBlockService.ts`
 
 Removed (no longer needed):
-- `agents/career/growth_handler.py` (Career Guide agent with roadmap mutation)
-- `agents/career/tools/roadmap_tools.py` (patch_roadmap_path tool)
-- `api/routers/roadmap_cache.py` (in-memory roadmap cache)
-- `db/crud/growth_path.py` (JSONB roadmap mutations)
+- `agents/career/growth_handler.py`, `agents/career/tools/roadmap_tools.py`
+- `api/routers/roadmap_cache.py`, `db/crud/growth_path.py`

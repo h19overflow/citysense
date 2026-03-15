@@ -31,7 +31,7 @@
 | CV background worker | `cv_pipeline/worker.py` |
 | Growth plan orchestration | `growth_service.py`, `growth_service_helpers.py` |
 | Growth plan progress bus | `growth_progress.py` |
-| Learning blocks orchestration | `learning_block_service.py` |
+| Learning blocks integration | `growth_service_helpers.py` (`attach_learning_blocks_to_analysis`) |
 
 ## Core Files
 | File | Purpose |
@@ -42,7 +42,6 @@
 | `growth_service.py` | `create_intake_record`, `run_intake_pipeline` (BackgroundTask), `process_gap_answers`, `get_latest_roadmap`, `get_roadmap_history`, `compute_roadmap_diff` |
 | `growth_service_helpers.py` | `run_crawl_pipeline`, `extract_cv_summary`, `persist_analysis`, `intake_to_dict`, `serialize_analysis`, `extract_intake_preferences`, `attach_learning_blocks_to_analysis` |
 | `growth_progress.py` | In-process `asyncio.Queue` event bus keyed by `intake_id` — `create_progress_queue`, `get_progress_queue`, `emit_progress`, `close_progress_queue` |
-| `learning_block_service.py` | `generate_learning_blocks(session, analysis_id, path_key)` — orchestrates skill agent across all skill steps, SSE streaming |
 
 ## Growth Plan Pipeline — Architecture
 ```
@@ -71,22 +70,20 @@ GET /api/growth/roadmap/{id1}/{id2}/diff → compute_roadmap_diff
 
 ## Growth Plan Pipeline — Learning Blocks Integration
 ```
-POST /api/growth/intake
-  → run_intake_pipeline → run_final_analysis → persist_analysis
-  → FOR EACH path (fill_gap, multidisciplinary, pivot):
-      → run_skill_orchestrator (parallel skill agents)
-      → persist learning blocks per skill step
-      → close_learning_block_progress_queue(analysis_id, path_key)
+run_intake_pipeline (background, after preliminary analysis)
+  → extract_intake_preferences(intake_form)
+  → attach_learning_blocks_to_analysis(analysis_data, cv_data, intake_prefs)
+      → FOR EACH path (fill_gap, multidisciplinary, pivot):
+          → generate_learning_blocks(skill_steps, cv_slice, ..., max_detailed=3)
+              → asyncio.gather(run_skill_agent(...) for first N steps)
+              → stub blocks for remaining steps
+          → attach as learning_blocks[] on path dict
 
-GET /api/growth/learning-blocks/{analysis_id}/{path_key}
-  → fetch all learning blocks for this path + skill steps
-  → renders LearningBlockCard per step
+POST /api/growth/learning-block/expand (on-demand)
+  → load analysis path + skill step by index
+  → generate_single_learning_block(skill_name, skill_why, ...)
+  → return LearningBlock JSON
 ```
-
-## Next Steps — Learning Blocks Iteration 2
-
-### Dynamic learning block refinement
-Users should be able to refine blocks via chat: "find Python tutorials on YouTube instead" → agent calls CRUD to update block resources. Requires storing conversation history per learning block + real-time CRUD updates (future work).
 
 ## Data Scraping (`data_scraping/`)
 | File | Purpose |

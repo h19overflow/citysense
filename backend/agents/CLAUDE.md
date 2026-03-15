@@ -23,9 +23,9 @@
 | Career chat agent | `career/agent.py`, `career/prompt.py` |
 | Career chat schema | `career/schemas.py` — `CareerAgentResponse` (skill_gaps + upskill_resources optional with `= []`) |
 | Career chat tools | `career/tools/registry.py` — search_local_jobs, search_web_jobs only |
-| Skill agent behavior | `growth/skill_agent.py` — generates learning block title + description for one skill step |
-| Skill agent prompt | `growth/skill_agent_prompt.py` — `build_skill_agent_prompt()`, `SKILL_BLOCK_GENERATION_PROMPT` |
-| Skill orchestrator | `growth/skill_orchestrator.py` — parallelize skill agent across all skill steps in a path |
+| Skill agent behavior | `growth/skill_agent.py` — per-skill LearningBlock generation with structured output |
+| Skill agent prompt | `growth/skill_agent_prompt.py` — `SKILL_AGENT_SYSTEM_PROMPT`, `build_skill_agent_input()` |
+| Skill orchestrator | `growth/skill_orchestrator.py` — `generate_learning_blocks()` parallel fan-out |
 | Growth agent behavior | `growth/strategist_agent.py`, `growth/crawl_agent.py`, `growth/analysis_agent.py` |
 | Growth agent tools | `growth/tools/registry.py`, `growth/tools/crawl_tools.py` |
 | Growth agent schemas | `growth/schemas.py` |
@@ -43,7 +43,7 @@
 | Strategist | `growth/strategist_agent.py` | Gemini | Reads link headers, generates personalized CrawlStrategy per URL |
 | Crawl | `growth/crawl_agent.py` | Gemini | Crawls one URL per agent instance, runs in parallel |
 | Analysis | `growth/analysis_agent.py` | Gemini | Two-stage analysis: preliminary + final with diff |
-| Skill Agent | `growth/skill_agent.py` | Gemini | Generates learning block title + description for one skill step in roadmap path |
+| Skill Agent | `growth/skill_agent.py` | Gemini | Per-skill LearningBlock agent — generates deep 3-phase learning plan for one skill step |
 
 ## Career Agent (`career/`)
 | File | Purpose |
@@ -107,9 +107,9 @@
 | `analysis_prompts.py` | `build_preliminary_prompt()`, `build_final_prompt()` |
 | `prompts.py` | STRATEGIST_PROMPT, CRAWL_AGENT_PROMPT, ANALYSIS_PRELIMINARY_PROMPT, ANALYSIS_FINAL_PROMPT |
 | `schemas.py` | CrawlStrategy, CrawlResult, SkillStep, RoadmapPath, GapQuestion, RoadmapAnalysisResult, StrategistOutput |
-| `skill_agent.py` | `build_skill_agent()`, `run_skill_agent()` — generates block title + description for one skill step |
-| `skill_agent_prompt.py` | `build_skill_agent_prompt()`, `SKILL_BLOCK_GENERATION_PROMPT` |
-| `skill_orchestrator.py` | `run_skill_orchestrator()` — parallelize skill agent across all skill steps in a RoadmapPath |
+| `skill_agent.py` | `build_skill_chain()`, `run_skill_agent()` — per-skill LearningBlock agent with parallel-safe fallback |
+| `skill_agent_prompt.py` | `SKILL_AGENT_SYSTEM_PROMPT`, `build_skill_agent_input()` — system prompt and input builder |
+| `skill_orchestrator.py` | `generate_learning_blocks()`, `generate_single_learning_block()` — parallel fan-out via asyncio.gather |
 | `tools/crawl_tools.py` | `crawl_page` @tool — Bright Data crawl with depth_hint truncation |
 | `tools/registry.py` | CRAWL_TOOLS = [crawl_page] |
 
