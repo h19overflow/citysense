@@ -22,11 +22,19 @@ const ACCENT_STYLES: Record<string, { bg: string; border: string; label: string 
   violet: { bg: "bg-violet-600", border: "border-violet-300", label: "text-violet-700" },
 };
 
+function extractUrl(step: SkillStep): string | null {
+  if (step.resource_url) return step.resource_url;
+  // Detect if the resource text itself is or contains a URL
+  const urlMatch = step.resource.match(/https?:\/\/[^\s)]+/);
+  return urlMatch ? urlMatch[0] : null;
+}
+
 export function SkillStepCard({ step, index, accentColor, onDiscuss }: SkillStepCardProps) {
   const accent = ACCENT_STYLES[accentColor] ?? ACCENT_STYLES.blue;
   const accentBg = accent.bg;
   const borderClass = accent.border;
   const labelClass = accent.label;
+  const linkUrl = extractUrl(step);
 
   return (
     <li className="flex gap-3 relative">
@@ -55,12 +63,23 @@ export function SkillStepCard({ step, index, accentColor, onDiscuss }: SkillStep
             {RESOURCE_ICONS[step.resource_type]}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium text-foreground">{step.resource}</p>
+            {linkUrl ? (
+              <a
+                href={linkUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-medium text-primary hover:underline"
+              >
+                {step.resource}
+              </a>
+            ) : (
+              <p className="text-sm font-medium text-foreground">{step.resource}</p>
+            )}
             <p className="text-xs text-muted-foreground capitalize">{step.resource_type}</p>
           </div>
-          {step.resource_url && (
+          {linkUrl && (
             <a
-              href={step.resource_url}
+              href={linkUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="shrink-0 flex items-center gap-1 text-xs font-medium text-primary hover:underline"
