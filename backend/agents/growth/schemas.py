@@ -30,7 +30,10 @@ class SkillStep(BaseModel):
     skill: str
     why: str
     resource: str
-    resource_type: Literal["course", "book", "project", "community"]
+    resource_url: str | None = None
+    resource_type: Literal["course", "book", "project", "community", "documentation"]
+    importance: str | None = None   # why this step matters in the bigger picture
+    mindset: str | None = None      # what approach/mentality to bring
 
 
 class RoadmapPath(BaseModel):
