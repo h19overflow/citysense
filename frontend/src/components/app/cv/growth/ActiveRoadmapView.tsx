@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
-import type { RoadmapPath, PathKey } from "@/lib/types";
+import type { RoadmapPath, PathKey, LearningBlock } from "@/lib/types";
 import { LearningBlockCard } from "./LearningBlockCard";
+import { expandLearningBlock } from "@/lib/services/learningBlockService";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
@@ -34,13 +36,33 @@ interface ActiveRoadmapViewProps {
   path: RoadmapPath;
   pathKey: PathKey;
   onBack: () => void;
+  analysisId?: string;
+  citizenId?: string;
 }
 
-export function ActiveRoadmapView({ path, pathKey, onBack }: ActiveRoadmapViewProps) {
+export function ActiveRoadmapView({ path, pathKey, onBack, analysisId, citizenId }: ActiveRoadmapViewProps) {
   const colors = PATH_COLORS[pathKey];
   const accentColor = PATH_ACCENT[pathKey] ?? "blue";
-  const blocks = path.learning_blocks ?? [];
+  const [blocks, setBlocks] = useState<LearningBlock[]>(path.learning_blocks ?? []);
+  const [expandingIndex, setExpandingIndex] = useState<number | null>(null);
   const blockCount = blocks.length > 0 ? blocks.length : path.skill_steps.length;
+
+  async function handleExpandBlock(skillIndex: number) {
+    if (!analysisId || !citizenId) return;
+    setExpandingIndex(skillIndex);
+    try {
+      const expandedBlock = await expandLearningBlock(analysisId, pathKey, citizenId, skillIndex);
+      setBlocks((prev) =>
+        prev.map((block, i) => (i === skillIndex ? expandedBlock : block)),
+      );
+    } catch (error) {
+      console.error("ActiveRoadmapView: failed to expand learning block", { skillIndex, error });
+    } finally {
+      setExpandingIndex(null);
+    }
+  }
+
+  const canExpand = Boolean(analysisId && citizenId);
 
   return (
     <motion.div className="space-y-4 p-4" variants={stagger} initial="hidden" animate="visible">
@@ -92,6 +114,8 @@ export function ActiveRoadmapView({ path, pathKey, onBack }: ActiveRoadmapViewPr
                   index={i}
                   accentColor={accentColor}
                   isExpanded={i === 0}
+                  onExpand={canExpand ? handleExpandBlock : undefined}
+                  isExpanding={expandingIndex === i}
                 />
               ))
             : path.skill_steps.map((step, i) => (

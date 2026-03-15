@@ -65,6 +65,8 @@ export function GrowthPlanView({ onDiscuss }: GrowthPlanViewProps) {
         path={state.activeRoadmapPath}
         pathKey={state.activeRoadmapPathKey}
         onBack={() => dispatch({ type: "CLEAR_ACTIVE_ROADMAP_PATH" })}
+        analysisId={state.activeRoadmapAnalysisId ?? undefined}
+        citizenId={state.citizenMeta?.id}
       />
     );
   }

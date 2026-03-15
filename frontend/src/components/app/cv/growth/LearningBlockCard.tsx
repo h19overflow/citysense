@@ -31,6 +31,8 @@ interface LearningBlockCardProps {
   index: number;
   accentColor: string;
   isExpanded?: boolean;
+  onExpand?: (index: number) => void;
+  isExpanding?: boolean;
 }
 
 function TaskItem({ task }: { task: PhaseTask }) {
@@ -121,7 +123,7 @@ function PhaseSection({ phase }: { phase: Phase }) {
   );
 }
 
-export function LearningBlockCard({ block, index, accentColor, isExpanded = false }: LearningBlockCardProps) {
+export function LearningBlockCard({ block, index, accentColor, isExpanded = false, onExpand, isExpanding = false }: LearningBlockCardProps) {
   const [expanded, setExpanded] = useState(isExpanded);
   const accent = ACCENT_STYLES[accentColor] ?? ACCENT_STYLES.blue;
   const hasPhases = block.phases.length > 0;
@@ -156,7 +158,17 @@ export function LearningBlockCard({ block, index, accentColor, isExpanded = fals
                 {expanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
               </span>
             )}
-            {!hasPhases && (
+            {!hasPhases && onExpand && (
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); onExpand(index); }}
+                disabled={isExpanding}
+                className="text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors disabled:opacity-50"
+              >
+                {isExpanding ? "Generating..." : "Generate detailed plan →"}
+              </button>
+            )}
+            {!hasPhases && !onExpand && (
               <span className="italic text-muted-foreground/60">Details available when you start this step</span>
             )}
           </div>
