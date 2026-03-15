@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { MessageSquare, Sparkles } from "lucide-react";
 import type { PathKey } from "@/lib/types";
 
@@ -37,18 +38,28 @@ export function PanelHeader({ status, isGrowthMode }: { status: string; isGrowth
 export function GrowthBanner({ pathKey, pathTitle }: { pathKey: PathKey | null; pathTitle?: string }) {
   if (!pathKey) {
     return (
-      <div className="mx-4 mt-2 px-3 py-2 rounded-lg bg-muted/60 text-xs text-muted-foreground text-center">
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
+        className="mx-4 mt-2 px-3 py-2 rounded-lg bg-muted/60 text-xs text-muted-foreground text-center"
+      >
         Select a path to start building it together
-      </div>
+      </motion.div>
     );
   }
   return (
-    <div className="mx-4 mt-2 px-3 py-2 rounded-lg bg-muted/60 flex items-center gap-2">
+    <motion.div
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
+      className="mx-4 mt-2 px-3 py-2 rounded-lg bg-muted/60 flex items-center gap-2"
+    >
       <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${PATH_BADGE_COLORS[pathKey] ?? ""}`}>
         {PATH_LABELS[pathKey] ?? pathKey}
       </span>
       <span className="text-xs text-foreground font-medium truncate">{pathTitle}</span>
-    </div>
+    </motion.div>
   );
 }
 
@@ -66,7 +77,12 @@ export function TypingIndicator() {
 
 export function ChatBubbleMessage({ role, content }: { role: "user" | "assistant"; content: string }) {
   return (
-    <div className={`flex ${role === "user" ? "justify-end" : "justify-start"}`}>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.15 }}
+      className={`flex ${role === "user" ? "justify-end" : "justify-start"}`}
+    >
       <div
         className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
           role === "user"
@@ -76,7 +92,7 @@ export function ChatBubbleMessage({ role, content }: { role: "user" | "assistant
       >
         {content}
       </div>
-    </div>
+    </motion.div>
   );
 }
 

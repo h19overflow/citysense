@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, ChevronUp, BookOpen, Code, Users, Target, Check } from "lucide-react";
 import type { RoadmapPath, PathKey } from "@/lib/types";
 
@@ -106,30 +107,40 @@ export function PathCard({ pathKey, path, isDraft = false, isActive = false, onF
         )}
       </div>
 
-      {expanded && (
-        <div className="border-t border-border/50 px-3.5 pb-3.5">
-          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide pt-3 mb-2.5">
-            Learning Path
-          </p>
-          <ol className="space-y-3 relative before:absolute before:left-[10px] before:top-2 before:bottom-2 before:w-px before:bg-border/60">
-            {path.skill_steps.map((step, i) => (
-              <li key={i} className="flex gap-3 relative">
-                <span className="shrink-0 w-5 h-5 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold text-muted-foreground z-10 mt-0.5">
-                  {i + 1}
-                </span>
-                <div className="min-w-0">
-                  <p className="text-xs font-semibold text-foreground">{step.skill}</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">{step.why}</p>
-                  <span className="inline-flex items-center gap-1 mt-1 text-[10px] font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                    {RESOURCE_ICONS[step.resource_type]}
-                    {step.resource}
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </div>
-      )}
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <div className="border-t border-border/50 px-3.5 pb-3.5">
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide pt-3 mb-2.5">
+                Learning Path
+              </p>
+              <ol className="space-y-3 relative before:absolute before:left-[10px] before:top-2 before:bottom-2 before:w-px before:bg-border/60">
+                {path.skill_steps.map((step, i) => (
+                  <li key={i} className="flex gap-3 relative">
+                    <span className="shrink-0 w-5 h-5 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold text-muted-foreground z-10 mt-0.5">
+                      {i + 1}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-foreground">{step.skill}</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">{step.why}</p>
+                      <span className="inline-flex items-center gap-1 mt-1 text-[10px] font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                        {RESOURCE_ICONS[step.resource_type]}
+                        {step.resource}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { ExternalLink, MessageSquare, BookOpen, Code, Users, FileText } from "lucide-react";
 import type { SkillStep } from "@/lib/types";
 
@@ -37,7 +38,12 @@ export function SkillStepCard({ step, index, accentColor, onDiscuss }: SkillStep
   const linkUrl = extractUrl(step);
 
   return (
-    <li className="flex gap-3 relative">
+    <motion.li
+      className="flex gap-3 relative"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.06 }}
+    >
       <span className={`shrink-0 w-8 h-8 rounded-full ${accentBg} flex items-center justify-center text-sm font-bold text-white z-10`}>
         {index + 1}
       </span>
@@ -98,6 +104,6 @@ export function SkillStepCard({ step, index, accentColor, onDiscuss }: SkillStep
           Discuss this step
         </button>
       </div>
-    </li>
+    </motion.li>
   );
 }

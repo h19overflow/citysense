@@ -1,6 +1,16 @@
+import { motion } from "framer-motion";
 import { ArrowLeft, MessageSquare } from "lucide-react";
 import type { RoadmapPath, PathKey } from "@/lib/types";
 import { SkillStepCard } from "./SkillStepCard";
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0 },
+};
+
+const stagger = {
+  visible: { transition: { staggerChildren: 0.08 } },
+};
 
 const PATH_COLORS: Record<string, { badge: string; highlight: string; accent: string }> = {
   fill_gap:          { badge: "bg-blue-100 text-blue-700",    highlight: "bg-blue-50 text-blue-800",    accent: "blue" },
@@ -38,9 +48,9 @@ export function ActiveRoadmapView({ path, pathKey, onDiscuss, onBack }: ActiveRo
   const colors = PATH_COLORS[pathKey];
 
   return (
-    <div className="space-y-4 p-4">
+    <motion.div className="space-y-4 p-4" variants={stagger} initial="hidden" animate="visible">
       {/* Top bar */}
-      <div className="flex items-center gap-3">
+      <motion.div variants={fadeUp} className="flex items-center gap-3">
         <button
           type="button"
           onClick={onBack}
@@ -52,16 +62,16 @@ export function ActiveRoadmapView({ path, pathKey, onDiscuss, onBack }: ActiveRo
         <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${colors.badge}`}>
           {PATH_LABELS[pathKey]}
         </span>
-      </div>
+      </motion.div>
 
       {/* Title */}
-      <div className="flex items-center gap-2">
+      <motion.div variants={fadeUp} className="flex items-center gap-2">
         <h2 className="text-lg font-bold text-foreground">{path.title}</h2>
         <DiscussButton onClick={() => onDiscuss(`title: ${path.title}`)} />
-      </div>
+      </motion.div>
 
       {/* Info row */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+      <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
         <span className="flex items-center gap-1">
           {path.target_role}
           <DiscussButton onClick={() => onDiscuss(`target_role: ${path.target_role}`)} />
@@ -70,10 +80,10 @@ export function ActiveRoadmapView({ path, pathKey, onDiscuss, onBack }: ActiveRo
           {path.timeline_estimate}
           <DiscussButton onClick={() => onDiscuss(`timeline_estimate: ${path.timeline_estimate}`)} />
         </span>
-      </div>
+      </motion.div>
 
       {/* Unfair advantage */}
-      <div className={`rounded-xl px-3.5 py-3 ${colors.highlight}`}>
+      <motion.div variants={fadeUp} className={`rounded-xl px-3.5 py-3 ${colors.highlight}`}>
         <div className="flex items-start justify-between gap-2">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide opacity-60 mb-0.5">
@@ -83,10 +93,10 @@ export function ActiveRoadmapView({ path, pathKey, onDiscuss, onBack }: ActiveRo
           </div>
           <DiscussButton onClick={() => onDiscuss(`unfair_advantage: ${path.unfair_advantage}`)} />
         </div>
-      </div>
+      </motion.div>
 
       {/* Skill steps */}
-      <div>
+      <motion.div variants={fadeUp}>
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
           Learning Path — {path.skill_steps.length} steps
         </p>
@@ -101,7 +111,7 @@ export function ActiveRoadmapView({ path, pathKey, onDiscuss, onBack }: ActiveRo
             />
           ))}
         </ol>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
