@@ -31,7 +31,7 @@
 | CV background worker | `cv_pipeline/worker.py` |
 | Growth plan orchestration | `growth_service.py`, `growth_service_helpers.py` |
 | Growth plan progress bus | `growth_progress.py` |
-| Curriculum builder service | `curriculum_service.py` — **NOT YET BUILT** (see Next Steps) |
+| Learning blocks orchestration | `learning_block_service.py` |
 
 ## Core Files
 | File | Purpose |
@@ -40,8 +40,9 @@
 | `redis_client.py` | `RedisCache` singleton (fail-open), `cache` global instance |
 | `sse_broadcaster.py` | In-memory event broadcaster for SSE clients |
 | `growth_service.py` | `create_intake_record`, `run_intake_pipeline` (BackgroundTask), `process_gap_answers`, `get_latest_roadmap`, `get_roadmap_history`, `compute_roadmap_diff` |
-| `growth_service_helpers.py` | `run_crawl_pipeline`, `extract_cv_summary`, `persist_analysis`, `intake_to_dict`, `serialize_analysis` |
+| `growth_service_helpers.py` | `run_crawl_pipeline`, `extract_cv_summary`, `persist_analysis`, `intake_to_dict`, `serialize_analysis`, `extract_intake_preferences`, `attach_learning_blocks_to_analysis` |
 | `growth_progress.py` | In-process `asyncio.Queue` event bus keyed by `intake_id` — `create_progress_queue`, `get_progress_queue`, `emit_progress`, `close_progress_queue` |
+| `learning_block_service.py` | `generate_learning_blocks(session, analysis_id, path_key)` — orchestrates skill agent across all skill steps, SSE streaming |
 
 ## Growth Plan Pipeline — Architecture
 ```
@@ -68,22 +69,24 @@ GET /api/growth/roadmap/history      → list all versions
 GET /api/growth/roadmap/{id1}/{id2}/diff → compute_roadmap_diff
 ```
 
-## Next Steps — Growth Plan Iteration 2
+## Growth Plan Pipeline — Learning Blocks Integration
+```
+POST /api/growth/intake
+  → run_intake_pipeline → run_final_analysis → persist_analysis
+  → FOR EACH path (fill_gap, multidisciplinary, pivot):
+      → run_skill_orchestrator (parallel skill agents)
+      → persist learning blocks per skill step
+      → close_learning_block_progress_queue(analysis_id, path_key)
 
-### Roadmap mutation endpoint
-`PATCH /api/growth/roadmap/{analysis_id}` — partial update of a single path's fields (title, skill_steps, timeline_estimate, unfair_advantage). Used by the career chat agent when the user asks it to edit their roadmap.
-- Service function: `patch_roadmap_path(session, citizen_id, analysis_id, path_key, updates)`
-- IDOR check required: verify `analysis.citizen_id == citizen_id`
+GET /api/growth/learning-blocks/{analysis_id}/{path_key}
+  → fetch all learning blocks for this path + skill steps
+  → renders LearningBlockCard per step
+```
 
-### Career agent roadmap context
-`backend/api/routers/career_chat.py` context prefix needs a new optional field: `active_roadmap_path` (serialized `RoadmapPath`). When the frontend sends this, the agent prompt should include it under a "ACTIVE GROWTH PATH" section so the agent can reference and suggest edits.
+## Next Steps — Learning Blocks Iteration 2
 
-### Curriculum builder service (`curriculum_service.py`)
-- `build_curriculum(session, citizen_id, analysis_id, path_key, user_prefs)` — orchestrates curriculum agent
-- Persists to new `Curriculum` DB model linked to `RoadmapAnalysis`
-- Supports streaming via SSE (same pattern as growth progress bus)
-- Agent (`backend/agents/growth/curriculum_agent.py`) uses BrightData SERP to find real courses and GitHub projects as milestone markers
-- Dynamic: subsequent chat turns can swap resources ("free only", "YouTube instead of Coursera")
+### Dynamic learning block refinement
+Users should be able to refine blocks via chat: "find Python tutorials on YouTube instead" → agent calls CRUD to update block resources. Requires storing conversation history per learning block + real-time CRUD updates (future work).
 
 ## Data Scraping (`data_scraping/`)
 | File | Purpose |
