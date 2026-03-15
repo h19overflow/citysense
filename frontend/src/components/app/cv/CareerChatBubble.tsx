@@ -53,7 +53,9 @@ export function CareerChatBubble({ cvVersionId, citizenId, activeTab, discussCon
   }, [messages, isSending]);
 
   useEffect(() => {
-    if (discussContext) setInputValue(`Help me with: ${discussContext}`);
+    if (discussContext && citizenId && !isSending) {
+      handleSendMessage(`Help me with: ${discussContext}`);
+    }
   }, [discussContext]);
 
   const isBlocked = status === "running" || isSending || !citizenId;
@@ -76,7 +78,7 @@ export function CareerChatBubble({ cvVersionId, citizenId, activeTab, discussCon
 
   return (
     <div
-      className={`fixed top-0 right-0 z-50 w-[400px] h-full bg-background border-l border-border shadow-2xl flex flex-col transition-transform duration-300 ease-out ${
+      className={`fixed top-0 right-0 z-50 w-[480px] h-full bg-background border-l border-border shadow-2xl flex flex-col transition-transform duration-300 ease-out ${
         visible ? "translate-x-0" : "translate-x-full"
       }`}
     >

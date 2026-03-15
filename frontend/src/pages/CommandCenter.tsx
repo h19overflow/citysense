@@ -165,7 +165,7 @@ export default function CommandCenter() {
   }, [isCareer]);
 
   return (
-    <div className={`h-screen flex flex-col stitch-shell transition-[margin] duration-300 ease-out ${careerMargin ? "mr-[400px]" : "mr-0"}`}>
+    <div className={`h-screen flex flex-col stitch-shell transition-[margin] duration-300 ease-out ${careerMargin ? "mr-[480px]" : "mr-0"}`}>
       <TopBar />
 
       <div className="flex-1 min-h-0 overflow-hidden px-3 md:px-6 py-3 md:py-4">
