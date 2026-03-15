@@ -18,7 +18,11 @@ function NoCvPrompt() {
   );
 }
 
-export function GrowthPlanView() {
+interface GrowthPlanViewProps {
+  onDiscuss?: (context: string) => void;
+}
+
+export function GrowthPlanView({ onDiscuss }: GrowthPlanViewProps) {
   const { state, dispatch } = useApp();
   const {
     growthStage,
@@ -60,10 +64,7 @@ export function GrowthPlanView() {
       <ActiveRoadmapView
         path={state.activeRoadmapPath}
         pathKey={state.activeRoadmapPathKey}
-        onDiscuss={(ctx) => {
-          // TODO(Task 8): wire discuss context to CareerChatBubble
-          console.log("discuss:", ctx);
-        }}
+        onDiscuss={(ctx) => onDiscuss?.(ctx)}
         onBack={() => dispatch({ type: "CLEAR_ACTIVE_ROADMAP_PATH" })}
       />
     );

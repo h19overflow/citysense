@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Briefcase, TrendingUp } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useAuth } from "@clerk/react";
 import { useApp } from "@/lib/appContext";
 import { fetchLatestCv } from "@/lib/cvService";
@@ -34,11 +35,28 @@ function PageHeader() {
   );
 }
 
+const TAB_ORDER: Record<CareerTab, number> = { market: 0, growth: 1 };
+
+const slideVariants = {
+  enter: (dir: number) => ({ x: dir > 0 ? "100%" : "-100%", opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (dir: number) => ({ x: dir > 0 ? "-100%" : "100%", opacity: 0 }),
+};
+
 const CvUploadView = () => {
   const { state, dispatch } = useApp();
   const { getToken, isSignedIn } = useAuth();
   const [activeTab, setActiveTab] = useState<CareerTab>("market");
+  const [discussContext, setDiscussContext] = useState<string | undefined>();
+  const direction = useRef(1);
   const hasCv = !!state.cvResult;
+
+  const handleDiscuss = useCallback((ctx: string) => setDiscussContext(ctx), []);
+
+  function switchTab(tab: CareerTab) {
+    direction.current = TAB_ORDER[tab] > TAB_ORDER[activeTab] ? 1 : -1;
+    setActiveTab(tab);
+  }
 
   useEffect(() => {
     if (!isSignedIn || state.citizenMeta?.id) return;
@@ -80,6 +98,8 @@ const CvUploadView = () => {
       <CareerChatBubble
         citizenId={state.citizenMeta?.id}
         cvVersionId={state.cvUploadId ?? undefined}
+        activeTab={activeTab}
+        discussContext={discussContext}
       />
       {hasCv && <CitizenProfileBar />}
 
@@ -88,7 +108,7 @@ const CvUploadView = () => {
           {TABS.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
-              onClick={() => setActiveTab(id)}
+              onClick={() => switchTab(id)}
               className={`flex items-center gap-2 px-5 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === id
                   ? "border-primary text-primary"
@@ -102,26 +122,40 @@ const CvUploadView = () => {
         </div>
       )}
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-hidden relative">
         {!hasCv && (
-          <div className="space-y-5 p-5 pb-8">
+          <div className="h-full overflow-y-auto space-y-5 p-5 pb-8">
             <PageHeader />
             <CvOnboardingHero />
             <JobMatchPanel />
           </div>
         )}
 
-        {hasCv && activeTab === "market" && (
-          <div className="space-y-0">
-            <div className="px-5 pt-4 pb-0">
-              <PageHeader />
-            </div>
-            <CvResultsPanel result={state.cvResult!} />
-            <JobMatchPanel />
-          </div>
+        {hasCv && (
+          <AnimatePresence mode="popLayout" custom={direction.current} initial={false}>
+            <motion.div
+              key={activeTab}
+              custom={direction.current}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className="absolute inset-0 overflow-y-auto"
+            >
+              {activeTab === "market" && (
+                <div className="space-y-0">
+                  <div className="px-5 pt-4 pb-0">
+                    <PageHeader />
+                  </div>
+                  <CvResultsPanel result={state.cvResult!} />
+                  <JobMatchPanel />
+                </div>
+              )}
+              {activeTab === "growth" && <GrowthPlanView onDiscuss={handleDiscuss} />}
+            </motion.div>
+          </AnimatePresence>
         )}
-
-        {hasCv && activeTab === "growth" && <GrowthPlanView />}
       </div>
     </div>
   );
