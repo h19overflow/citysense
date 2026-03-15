@@ -28,6 +28,8 @@ import type {
   GrowthStage,
   GrowthAnalysis,
   GrowthProgressData,
+  RoadmapPath,
+  PathKey,
 } from "../types";
 
 export type AppAction =
@@ -95,4 +97,6 @@ export type AppAction =
   | { type: "SET_GROWTH_INTAKE_ID"; intakeId: string }
   | { type: "SET_GROWTH_PROGRESS"; progress: GrowthProgressData }
   | { type: "TOGGLE_GROWTH_DIFF" }
-  | { type: "CLEAR_GROWTH" };
+  | { type: "CLEAR_GROWTH" }
+  | { type: "SET_ACTIVE_ROADMAP_PATH"; path: RoadmapPath; analysisId: string; pathKey: PathKey }
+  | { type: "CLEAR_ACTIVE_ROADMAP_PATH" };

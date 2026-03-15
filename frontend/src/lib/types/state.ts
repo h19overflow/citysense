@@ -9,7 +9,7 @@ import type { NewsArticle, NewsCategory, NewsComment, ReactionType } from "./new
 import type { MapCommand } from "./map";
 import type { HousingListing } from "./housing";
 import type { PersonalizedRoadmap } from "./roadmap";
-import type { GrowthStage, GrowthAnalysis, GrowthProgressData } from "./growth";
+import type { GrowthStage, GrowthAnalysis, GrowthProgressData, RoadmapPath, PathKey } from "./growth";
 
 export interface AppState {
   messages: ChatMessage[];
@@ -67,4 +67,7 @@ export interface AppState {
   growthIntakeId: string | null;
   growthProgress: GrowthProgressData | null;
   growthDiffVisible: boolean;
+  activeRoadmapPath: RoadmapPath | null;
+  activeRoadmapAnalysisId: string | null;
+  activeRoadmapPathKey: PathKey | null;
 }

@@ -4,7 +4,10 @@ export interface SkillStep {
   skill: string;
   why: string;
   resource: string;
-  resource_type: "course" | "book" | "project" | "community";
+  resource_url?: string;
+  resource_type: "course" | "book" | "project" | "community" | "documentation";
+  importance?: string;
+  mindset?: string;
 }
 
 export interface RoadmapPath {
@@ -44,6 +47,8 @@ export interface GrowthIntakeForm {
   current_frustrations: string;
   external_links: string[];
 }
+
+export type PathKey = "fill_gap" | "multidisciplinary" | "pivot";
 
 export type GrowthStage =
   | "idle"

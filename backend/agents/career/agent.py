@@ -144,13 +144,14 @@ def _build_context_prefix(context: dict[str, Any]) -> str:
     ) or "  None found"
 
     return (
-        f"[Career analysis already complete — DO NOT call any tools]\n"
+        f"[Career analysis already complete]\n"
         f"Summary: {summary}\n"
         f"Target role: {next_role}\n\n"
         f"Job opportunities:\n{jobs_text}\n\n"
         f"Skill gaps:\n{gaps_text}\n\n"
         f"Upskill resources:\n{resources_text}\n\n"
-        f"Answer the citizen's follow-up question using ONLY the above context."
+        f"For SIMPLE or PROFILE_QUESTION turns, answer using ONLY the above context — no tools.\n"
+        f"For JOB_SEARCH turns, call search_local_jobs then search_web_jobs to fetch fresh results."
     )
 
 

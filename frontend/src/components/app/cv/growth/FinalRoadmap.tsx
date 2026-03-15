@@ -1,8 +1,13 @@
+import { motion } from "framer-motion";
 import { GitCompareArrows } from "lucide-react";
-import type { GrowthAnalysis, RoadmapPath } from "@/lib/types";
+import type { GrowthAnalysis, PathKey, RoadmapPath } from "@/lib/types";
+import { useApp } from "@/lib/appContext";
 import { PathCard } from "./PathCard";
 
-type PathKey = "fill_gap" | "multidisciplinary" | "pivot";
+const cardFadeUp = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0 },
+};
 
 const PATH_KEYS: PathKey[] = ["fill_gap", "multidisciplinary", "pivot"];
 
@@ -19,6 +24,7 @@ interface FinalRoadmapProps {
 }
 
 export function FinalRoadmap({ analysis, diffVisible, onToggleDiff }: FinalRoadmapProps) {
+  const { state, dispatch } = useApp();
   const isDraft = analysis.stage === "preliminary";
   const hasDiff = !!analysis.diff_summary;
   const formattedDate = new Date(analysis.created_at).toLocaleDateString();
@@ -55,22 +61,33 @@ export function FinalRoadmap({ analysis, diffVisible, onToggleDiff }: FinalRoadm
         </div>
       )}
 
-      <div className="space-y-3">
+      <motion.div
+        className="grid grid-cols-3 gap-3"
+        initial="hidden"
+        animate="visible"
+        variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
+      >
         {PATH_KEYS.map((key) => {
           const path = getPath(analysis, key);
           if (!path) return null;
-          const confidence = analysis.confidence_scores?.[key] ?? 0;
           return (
-            <PathCard
-              key={key}
-              pathKey={key}
-              path={path}
-              confidence={confidence}
-              isDraft={isDraft}
-            />
+            <motion.div key={key} variants={cardFadeUp}>
+              <PathCard
+                pathKey={key}
+                path={path}
+                isDraft={isDraft}
+                isActive={state.activeRoadmapPathKey === key}
+                onFocus={() => dispatch({
+                  type: "SET_ACTIVE_ROADMAP_PATH",
+                  path,
+                  analysisId: analysis.id,
+                  pathKey: key,
+                })}
+              />
+            </motion.div>
           );
         })}
-      </div>
+      </motion.div>
 
       {isDraft && (analysis.gap_questions?.length ?? 0) > 0 && (
         <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 mt-1">

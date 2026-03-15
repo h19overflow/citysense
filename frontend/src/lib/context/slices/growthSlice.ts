@@ -21,6 +21,23 @@ export function applyGrowthAction(state: AppState, action: AppAction): AppState 
         growthIntakeId: null,
         growthProgress: null,
         growthDiffVisible: false,
+        activeRoadmapPath: null,
+        activeRoadmapAnalysisId: null,
+        activeRoadmapPathKey: null,
+      };
+    case "SET_ACTIVE_ROADMAP_PATH":
+      return {
+        ...state,
+        activeRoadmapPath: action.path,
+        activeRoadmapAnalysisId: action.analysisId,
+        activeRoadmapPathKey: action.pathKey,
+      };
+    case "CLEAR_ACTIVE_ROADMAP_PATH":
+      return {
+        ...state,
+        activeRoadmapPath: null,
+        activeRoadmapAnalysisId: null,
+        activeRoadmapPathKey: null,
       };
     default:
       return null;

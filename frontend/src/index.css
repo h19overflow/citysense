@@ -98,8 +98,10 @@
 }
 
 @layer base {
-  html {
-    font-size: 130%; /* 20.8px base — scales all rem units up 30% */
+  @media (min-width: 768px) {
+    html {
+      font-size: 130%; /* 20.8px base — scales all rem units up 30% */
+    }
   }
 
   * {

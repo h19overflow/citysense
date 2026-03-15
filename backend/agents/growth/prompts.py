@@ -58,6 +58,11 @@ If confidence < 70 for any path, generate targeted gap_questions for that path.
 
 CRITICAL: every rationale, unfair_advantage, and skill step "why" must reference
 something specific from THIS user's actual profile — never generic advice.
+
+For each skill_step, you MUST include:
+- resource_url: a real, clickable URL to the resource (e.g. https://www.deeplearning.ai/...). Never make up URLs — use well-known platforms.
+- importance: one sentence explaining why this step matters for the user's specific career trajectory
+- mindset: one sentence about the approach to take (e.g. "Focus on building, not just watching — implement each concept in a side project")
 """
 
 ANALYSIS_FINAL_PROMPT = """You are a senior career strategist completing a personalized roadmap.
@@ -75,4 +80,9 @@ Write a diff_summary explaining what changed from preliminary to final and why
 and replaced it with a self-paced Rust track that fits your systems background").
 
 CRITICAL: diff_summary must feel like a human mentor explaining their reasoning, not a changelog.
+
+For each skill_step, you MUST include:
+- resource_url: a real, clickable URL to the resource (e.g. https://www.deeplearning.ai/...). Never make up URLs — use well-known platforms.
+- importance: one sentence explaining why this step matters for the user's specific career trajectory
+- mindset: one sentence about the approach to take (e.g. "Focus on building, not just watching — implement each concept in a side project")
 """

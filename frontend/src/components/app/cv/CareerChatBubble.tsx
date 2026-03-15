@@ -1,57 +1,39 @@
 import { useEffect, useRef, useState } from "react";
-import { MessageSquare, Send, Sparkles } from "lucide-react";
+import { Send } from "lucide-react";
 import { CareerProgressBubble } from "./CareerProgressBubble";
-import { useCareerAgent, type CareerAgentResult } from "../../../lib/hooks/useCareerAgent";
+import { PanelHeader, GrowthBanner, IdleState, TypingIndicator, ChatBubbleMessage } from "./CareerChatParts";
+import { useCareerAgent, type CareerAgentResult, type GrowthChatContext } from "@/lib/hooks/useCareerAgent";
+import { useApp } from "@/lib/appContext";
+import type { RoadmapPath } from "@/lib/types";
 
 interface CareerChatBubbleProps {
   cvVersionId?: string;
   citizenId?: string;
+  activeTab?: "market" | "growth";
+  discussContext?: string;
   onResult?: (result: CareerAgentResult) => void;
 }
 
-function PanelHeader({ status }: { status: string }) {
-  const isRunning = status === "running";
-  return (
-    <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border/30 shrink-0 bg-[hsl(var(--pine-green))] text-white">
-      <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center">
-        <Sparkles className="w-3.5 h-3.5" />
-      </div>
-      <div>
-        <span className="text-sm font-semibold tracking-tight">Career Guide</span>
-        <div className="flex items-center gap-1.5">
-          <span className={`w-1.5 h-1.5 rounded-full ${isRunning ? "bg-yellow-400 animate-pulse" : "bg-emerald-400 animate-pulse"}`} />
-          <span className="text-[10px] text-white/60 font-medium">
-            {isRunning ? "Analyzing..." : "Ready"}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function IdleState() {
-  return (
-    <div className="flex flex-col items-center gap-4 pt-8 px-4">
-      <div className="w-12 h-12 rounded-full bg-[hsl(var(--pine-green))]/10 flex items-center justify-center">
-        <MessageSquare className="w-5 h-5 text-[hsl(var(--pine-green))]" />
-      </div>
-      <div className="text-center space-y-1">
-        <p className="text-sm font-medium text-foreground">Your Career Guide</p>
-        <p className="text-xs text-muted-foreground max-w-[240px]">
-          Upload your CV to get personalized job matches and upskilling paths.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-export function CareerChatBubble({ cvVersionId, citizenId, onResult }: CareerChatBubbleProps) {
+export function CareerChatBubble({ cvVersionId, citizenId, activeTab, discussContext, onResult }: CareerChatBubbleProps) {
   const [visible, setVisible] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const { state, dispatch } = useApp();
   const { status, stage, progress, result, error, jobId, messages, startAnalysis, sendMessage } = useCareerAgent();
   const contextId = jobId ?? "";
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  const isGrowthMode = activeTab === "growth" && !!state.activeRoadmapPath;
+
+  const buildGrowthContext = (): GrowthChatContext | undefined => {
+    if (!isGrowthMode) return undefined;
+    return {
+      growth_mode: true,
+      active_roadmap_analysis_id: state.activeRoadmapAnalysisId!,
+      active_roadmap_path_key: state.activeRoadmapPathKey!,
+      discuss_context: discussContext,
+    };
+  };
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setVisible(true));
@@ -59,93 +41,72 @@ export function CareerChatBubble({ cvVersionId, citizenId, onResult }: CareerCha
   }, []);
 
   useEffect(() => {
-    if (cvVersionId && citizenId) {
-      startAnalysis(cvVersionId, citizenId);
-    }
+    if (cvVersionId && citizenId) startAnalysis(cvVersionId, citizenId);
   }, [cvVersionId, citizenId, startAnalysis]);
 
   useEffect(() => {
-    if (result && onResult) {
-      onResult(result);
-    }
+    if (result && onResult) onResult(result);
   }, [result, onResult]);
 
-  // Scroll to bottom whenever messages change
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isSending]);
 
+  useEffect(() => {
+    if (discussContext && citizenId && !isSending) {
+      handleSendMessage(`Help me with: ${discussContext}`);
+    }
+  }, [discussContext]);
+
   const isBlocked = status === "running" || isSending || !citizenId;
 
-  const handleChipClick = async (chip: string) => {
-    if (isBlocked) return;
-    setIsSending(true);
-    await sendMessage(chip, contextId, citizenId);
-    setIsSending(false);
-  };
-
-  const handleSend = async () => {
-    if (!inputValue.trim() || isBlocked) return;
-    const text = inputValue.trim();
+  const handleSendMessage = async (text: string) => {
+    if (!text.trim() || isBlocked) return;
     setInputValue("");
     setIsSending(true);
-    await sendMessage(text, contextId, citizenId);
+    const res = await sendMessage(text.trim(), contextId, citizenId!, buildGrowthContext());
+    if (res?.updated_path && state.activeRoadmapAnalysisId && state.activeRoadmapPathKey) {
+      dispatch({
+        type: "SET_ACTIVE_ROADMAP_PATH",
+        path: res.updated_path as unknown as RoadmapPath,
+        analysisId: state.activeRoadmapAnalysisId,
+        pathKey: state.activeRoadmapPathKey,
+      });
+    }
     setIsSending(false);
   };
 
   return (
     <div
-      className={`fixed top-0 right-0 z-50 w-[400px] h-full bg-background border-l border-border shadow-2xl flex flex-col transition-transform duration-300 ease-out ${
+      className={`fixed top-0 right-0 z-50 w-[480px] h-full bg-background border-l border-border shadow-2xl flex flex-col transition-transform duration-300 ease-out ${
         visible ? "translate-x-0" : "translate-x-full"
       }`}
     >
-      <PanelHeader status={status} />
+      <PanelHeader status={status} isGrowthMode={activeTab === "growth"} />
+      {activeTab === "growth" && (
+        <GrowthBanner pathKey={state.activeRoadmapPathKey} pathTitle={state.activeRoadmapPath?.title} />
+      )}
+
       <div className="flex-1 overflow-y-auto min-h-0 py-3 flex flex-col gap-3 px-4">
         {status === "idle" && messages.length === 0 && <IdleState />}
-        {status === "running" && (
-          <CareerProgressBubble stage={stage} progress={progress} />
-        )}
+        {status === "running" && <CareerProgressBubble stage={stage} progress={progress} />}
         {status === "failed" && (
           <div className="text-sm text-destructive py-2">{error ?? "Analysis failed."}</div>
         )}
 
-        {/* Message thread */}
         {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-          >
-            <div
-              className={`max-w-[85%] rounded-2xl px-3 py-2 text-xs leading-relaxed ${
-                msg.role === "user"
-                  ? "bg-[hsl(var(--pine-green))] text-white rounded-br-sm"
-                  : "bg-muted text-foreground rounded-bl-sm"
-              }`}
-            >
-              {msg.content}
-            </div>
-          </div>
+          <ChatBubbleMessage key={i} role={msg.role} content={msg.content} />
         ))}
 
-        {/* Typing indicator while waiting for reply */}
-        {isSending && (
-          <div className="flex justify-start">
-            <div className="bg-muted rounded-2xl rounded-bl-sm px-3 py-2 flex gap-1 items-center">
-              <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50 animate-bounce [animation-delay:0ms]" />
-              <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50 animate-bounce [animation-delay:150ms]" />
-              <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50 animate-bounce [animation-delay:300ms]" />
-            </div>
-          </div>
-        )}
+        {isSending && <TypingIndicator />}
 
-        {/* Suggestion chips after last assistant message */}
         {status === "completed" && result && !isSending && (
           <div className="flex flex-wrap gap-2 pt-1">
             {result.chips.map((chip) => (
               <button
                 key={chip}
-                onClick={() => handleChipClick(chip)}
-                className="px-3 py-1.5 rounded-full border border-border/50 bg-background text-xs text-foreground hover:bg-muted transition-colors"
+                onClick={() => handleSendMessage(chip)}
+                className="px-3.5 py-2 rounded-full border border-border/50 bg-background text-sm text-foreground hover:bg-muted transition-colors"
               >
                 {chip}
               </button>
@@ -155,17 +116,18 @@ export function CareerChatBubble({ cvVersionId, citizenId, onResult }: CareerCha
 
         <div ref={bottomRef} />
       </div>
+
       <div className="flex gap-2 p-3 border-t border-border/30 shrink-0">
         <input
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
-          placeholder={status === "running" ? "Analyzing your profile..." : "Ask your career guide..."}
+          onKeyDown={(e) => e.key === "Enter" && handleSendMessage(inputValue)}
+          placeholder={status === "running" ? "Analyzing your profile..." : isGrowthMode ? "What would you like to improve on your path?" : "Ask your career guide..."}
           disabled={isBlocked}
           className="flex-1 px-3 py-2 text-sm rounded-lg border border-border/50 bg-background focus:outline-none min-h-[40px] disabled:opacity-50 disabled:cursor-not-allowed"
         />
         <button
-          onClick={handleSend}
+          onClick={() => handleSendMessage(inputValue)}
           disabled={isBlocked || !inputValue.trim()}
           className="px-3 py-2 rounded-lg bg-[hsl(var(--pine-green))] text-white min-h-[40px] disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
           aria-label="Send message"
