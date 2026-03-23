@@ -15,6 +15,7 @@ from backend.agents.career.prompt import CAREER_AGENT_PROMPT
 from backend.agents.career.schemas import CareerAgentResponse
 from backend.agents.career.tools.registry import CAREER_TOOLS
 from backend.agents.common.llm import build_llm
+from backend.agents.common.monitoring import build_langfuse_config
 
 logger = logging.getLogger(__name__)
 
@@ -50,8 +51,11 @@ async def run_career_analysis(
     prompt = _build_analysis_prompt(cv_result, citizen_profile)
     messages = [HumanMessage(content=prompt)]
 
+    # ── Langfuse tracing: tag career analysis traces ──
+    config = build_langfuse_config(agent_name="career-analysis")
+
     try:
-        result = await agent.ainvoke({"messages": messages})
+        result = await agent.ainvoke({"messages": messages}, config=config)
         return _extract_response(result)
     except (ValueError, RuntimeError) as e:
         logger.error(
@@ -82,8 +86,11 @@ async def handle_career_chat(
         HumanMessage(content=message),
     ]
 
+    # ── Langfuse tracing: tag career chat traces ──
+    config = build_langfuse_config(agent_name="career-chat")
+
     try:
-        result = await agent.ainvoke({"messages": messages})
+        result = await agent.ainvoke({"messages": messages}, config=config)
         return _extract_response(result)
     except (ValueError, RuntimeError) as e:
         logger.error(

@@ -7,6 +7,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable
 
 from backend.agents.common.llm import build_llm
+from backend.agents.common.monitoring import build_langfuse_config
 from backend.agents.growth.schemas import LearningBlock
 from backend.agents.growth.skill_agent_prompt import (
     SKILL_AGENT_SYSTEM_PROMPT,
@@ -55,8 +56,13 @@ async def run_skill_agent(
         previous_learnings=previous_learnings,
     )
 
+    # ── Langfuse tracing: each skill block generation gets a trace ──
+    config = build_langfuse_config(
+        agent_name="growth-skill",
+        tags=[f"skill:{skill_name}"],
+    )
     try:
-        result: LearningBlock = await chain.ainvoke({"input": prompt_input})
+        result: LearningBlock = await chain.ainvoke({"input": prompt_input}, config=config)
         logger.info("Skill agent completed", extra={"skill": skill_name})
         return result
     except (ValueError, RuntimeError) as exc:

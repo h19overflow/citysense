@@ -16,6 +16,7 @@ from langchain_core.runnables import Runnable
 from pydantic import BaseModel, Field
 
 from backend.agents.common.llm import build_llm
+from backend.agents.common.monitoring import build_langfuse_config
 from backend.core.cv_pipeline.schemas import CVAnalysisResult
 
 from .config import CV_ANALYSIS_MODEL, CV_ANALYSIS_TEMPERATURE
@@ -85,14 +86,19 @@ async def synthesize_cv_roles(cv: CVAnalysisResult) -> list[str]:
     summary = cv.summary or "None"
 
     chain = build_synthesizer_chain()
-    result: _RoleList = await chain.ainvoke({
-        "experience_titles": experience_titles,
-        "project_names": project_names,
-        "skills": skills,
-        "tools": tools,
-        "education": education,
-        "summary": summary,
-    })
+    # ── Langfuse tracing: CV role synthesis gets its own trace ──
+    config = build_langfuse_config(agent_name="cv-role-synthesis")
+    result: _RoleList = await chain.ainvoke(
+        {
+            "experience_titles": experience_titles,
+            "project_names": project_names,
+            "skills": skills,
+            "tools": tools,
+            "education": education,
+            "summary": summary,
+        },
+        config=config,
+    )
 
     logger.info("Synthesized %d roles from CV profile", len(result.roles))
     return result.roles
