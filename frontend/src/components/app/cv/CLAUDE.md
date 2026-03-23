@@ -19,10 +19,10 @@
 | Growth Plan roadmap display | `growth/FinalRoadmap.tsx`, `growth/PathCard.tsx` |
 | Growth Plan gap questions | `growth/GapQuestionCards.tsx` |
 | Growth Plan orchestrator | `growth/GrowthPlanView.tsx` |
-| Active roadmap / focused view | `growth/ActiveRoadmapView.tsx` — hero layout for focused path with discuss buttons per section/step |
-| Curriculum builder chat | `growth/CurriculumBuilder.tsx` — **NOT YET BUILT** (see Next Steps) |
+| Active roadmap / focused view | `growth/ActiveRoadmapView.tsx` — hero layout for focused path with learning blocks per skill step |
+| Learning blocks display | `growth/LearningBlockCard.tsx` — individual learning block UI (title, description, resources) |
 | Growth Plan API + state | `growth/hooks/useGrowthPlan.ts`, `../../../lib/context/slices/growthSlice.ts` |
-| Career chat context (roadmap) | `CareerChatBubble.tsx` — dual-mode: Growth Guide (with path banner) vs Career Guide based on activeTab |
+| Career chat | `CareerChatBubble.tsx` — simple career-only chat (no roadmap context) |
 | Job matching logic | `../../lib/jobMatcher.ts`, `../../lib/jobMatcherHelpers.ts` |
 | CV state | `../../lib/context/slices/cvSlice.ts`, `../../lib/context/slices/jobsSlice.ts` |
 
@@ -36,8 +36,8 @@
 ## Root Component Files
 | File | Purpose |
 |------|---------|
-| `CareerChatBubble.tsx` | Fixed 400px right panel — dual-mode chat. Growth Guide (with active path banner, discuss context) when on Growth tab with active path; Career Guide otherwise |
-| `CareerChatParts.tsx` | Extracted sub-components: PanelHeader, GrowthBanner, IdleState, TypingIndicator, ChatBubbleMessage |
+| `CareerChatBubble.tsx` | Fixed 400px right panel — career-only chat for job guidance and upskilling |
+| `CareerChatParts.tsx` | Extracted sub-components: PanelHeader, IdleState, TypingIndicator, ChatBubbleMessage |
 | `CvUploadView.tsx` | Tab container (Job Market / Growth Plan) with slide transition via Framer Motion |
 | `CvOnboardingHero.tsx` | Onboarding when no CV uploaded |
 | `CvResultsPanel.tsx` | Orchestrates result cards with stagger animation |
@@ -69,17 +69,10 @@ The Growth Plan tab is a full pipeline: intake form → crawl + analysis progres
 ## Next Steps — Growth Plan Iteration 2
 
 ### 1. Career chat knows the active roadmap — DONE
-Global state has `activeRoadmapPath`, `activeRoadmapAnalysisId`, `activeRoadmapPathKey`. `PathCard` dispatches `SET_ACTIVE_ROADMAP_PATH`. `CareerChatBubble` sends growth context to backend. Backend Growth Guide agent can read and mutate the path via closure-bound tool.
+Global state has `activeRoadmapPath`, `activeRoadmapAnalysisId`, `activeRoadmapPathKey`. `PathCard` dispatches `SET_ACTIVE_ROADMAP_PATH`.
 
 ### 2. Active roadmap focused view — DONE
-`ActiveRoadmapView.tsx` renders hero layout for the focused path with discuss buttons per section/step. `GrowthPlanView` shows it when `state.activeRoadmapPath` is set. "Back to all paths" clears active path. Discuss buttons open chat sidebar with pre-filled context.
+`ActiveRoadmapView.tsx` renders hero layout for the focused path with learning blocks per skill step. `GrowthPlanView` shows it when `state.activeRoadmapPath` is set. "Back to all paths" clears active path.
 
-### 3. Curriculum builder
-**Goal:** A conversational flow that takes the selected roadmap path and builds a personalized learning curriculum — finding real courses, projects, and milestone checkpoints.
-
-**Implementation sketch:**
-- New component `growth/CurriculumBuilder.tsx` — chat-style UI, triggered from `ActiveRoadmapView`
-- Backend: new agent `backend/agents/growth/curriculum_agent.py` — takes `RoadmapPath` + user learning style + previous conversation, searches for courses (BrightData SERP), suggests GitHub projects as milestones
-- New endpoint: `POST /api/growth/roadmap/{analysis_id}/curriculum` — streams curriculum events (SSE or polling)
-- New DB model: `Curriculum` linked to `RoadmapAnalysis` — stores course list, project milestones, completion state per skill step
-- Curriculum should be dynamic: user can say "swap Coursera for free YouTube resources" and the agent replaces entries
+### 3. Learning blocks display — DONE
+`LearningBlockCard.tsx` displays individual block UI (title, description, learning resources). `ActiveRoadmapView` fetches and renders blocks from `GET /api/growth/learning-blocks/{analysis_id}/{path_key}`.

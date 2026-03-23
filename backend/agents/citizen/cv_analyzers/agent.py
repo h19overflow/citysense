@@ -11,6 +11,7 @@ import logging
 from langchain_core.prompts import ChatPromptTemplate
 
 from backend.agents.common.llm import build_llm
+from backend.agents.common.monitoring import build_langfuse_config
 from backend.core.cv_pipeline.schemas import PageAnalysis
 
 from .config import (
@@ -46,9 +47,12 @@ async def analyze_cv_page(page_content: str) -> PageAnalysis:
         PageAnalysis with extracted experience, skills, tools, etc.
     """
     chain = build_cv_analyzer_chain()
-    result: PageAnalysis = await chain.ainvoke({
-        "page_content": page_content,
-    })
+    # ── Langfuse tracing: each CV page analysis gets a trace ──
+    config = build_langfuse_config(agent_name="cv-page-analysis")
+    result: PageAnalysis = await chain.ainvoke(
+        {"page_content": page_content},
+        config=config,
+    )
     result.raw_text = page_content
     logger.info(
         "Extracted %d skills, %d experience entries from page",

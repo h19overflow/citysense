@@ -33,14 +33,6 @@ export interface CareerAgentResult {
   upskill_resources: UpskillResource[];
   next_role_target: string;
   chips: string[];
-  updated_path?: Record<string, unknown>;
-}
-
-export interface GrowthChatContext {
-  growth_mode: true;
-  active_roadmap_analysis_id: string;
-  active_roadmap_path_key: string;
-  discuss_context?: string;
 }
 
 export interface ChatMessage {
@@ -133,7 +125,6 @@ export function useCareerAgent() {
       message: string,
       contextId: string,
       citizenId: string,
-      growthContext?: GrowthChatContext,
     ): Promise<CareerAgentResult | null> => {
       // Read current history from ref (always up-to-date, no stale closure)
       const currentHistory = messagesRef.current;
@@ -149,9 +140,6 @@ export function useCareerAgent() {
         citizen_id: citizenId,
         history: currentHistory.map((m) => ({ role: m.role, content: m.content })),
       };
-      if (growthContext) {
-        Object.assign(body, growthContext);
-      }
 
       const response = await fetch("/api/career/chat", {
         method: "POST",
@@ -159,11 +147,7 @@ export function useCareerAgent() {
         body: JSON.stringify(body),
       });
       if (!response.ok) return null;
-      const json = await response.json();
-      const result: CareerAgentResult = json;
-      if (json.updated_path) {
-        result.updated_path = json.updated_path;
-      }
+      const result: CareerAgentResult = await response.json();
 
       const assistantMessage: ChatMessage = { role: "assistant", content: result.summary };
       const finalMessages = [...updatedMessages, assistantMessage];

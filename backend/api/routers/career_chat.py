@@ -9,8 +9,6 @@ from fastapi import APIRouter
 from langchain_core.messages import AIMessage, HumanMessage
 
 from backend.agents.career.agent import handle_career_chat, run_career_analysis
-from backend.agents.career.growth_handler import handle_growth_chat
-from backend.api.routers.roadmap_cache import ensure_cached, get_cached_path
 from backend.api.schemas.career_schemas import CareerChatRequest
 from backend.db.crud.citizen import get_citizen_by_id
 from backend.db.crud.cv import list_cv_uploads_by_citizen, get_latest_cv_version
@@ -26,58 +24,12 @@ _context_store: dict[str, dict] = {}
 
 @router.post("/chat")
 async def chat(request: CareerChatRequest) -> dict:
-    """Handle a career or growth chat message.
-
-    Branches on request.growth_mode:
-    - Growth mode: uses active roadmap path context + growth agent
-    - Career mode: uses pre-computed career analysis context
-    """
+    """Handle a career chat message."""
     history = [
         HumanMessage(content=turn.content) if turn.role == "user" else AIMessage(content=turn.content)
         for turn in request.history
     ]
 
-    if _is_growth_mode(request):
-        return await _handle_growth_mode(request, history)
-
-    return await _handle_career_mode(request, history)
-
-
-def _is_growth_mode(request: CareerChatRequest) -> bool:
-    """Check if the request is for Growth Guide mode."""
-    return (
-        request.growth_mode
-        and request.active_roadmap_analysis_id is not None
-        and request.active_roadmap_path_key is not None
-    )
-
-
-async def _handle_growth_mode(
-    request: CareerChatRequest,
-    history: list[HumanMessage | AIMessage],
-) -> dict:
-    """Route to the Growth Guide agent with cached path data."""
-    await ensure_cached(request.active_roadmap_analysis_id)
-    cached_path = get_cached_path(
-        request.active_roadmap_analysis_id,
-        request.active_roadmap_path_key,
-    )
-    return await handle_growth_chat(
-        message=request.message,
-        path_data=cached_path or {},
-        path_key=request.active_roadmap_path_key,
-        analysis_id=request.active_roadmap_analysis_id,
-        citizen_id=request.citizen_id,
-        discuss_context=request.discuss_context,
-        history=history,
-    )
-
-
-async def _handle_career_mode(
-    request: CareerChatRequest,
-    history: list[HumanMessage | AIMessage],
-) -> dict:
-    """Route to the Career Guide agent with pre-computed context."""
     context = _context_store.get(request.career_context_id or "", {})
     if not context and request.citizen_id:
         context = await _resolve_context_from_db(request.citizen_id)

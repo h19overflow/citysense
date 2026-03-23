@@ -11,6 +11,7 @@ from langchain_core.messages import HumanMessage, AIMessage
 from langchain.agents import create_agent
 
 from backend.agents.common.llm import build_llm
+from backend.agents.common.monitoring import build_langfuse_config, langfuse_trace_context
 from backend.agents.mayor.prompt import MAYOR_CHAT_PROMPT
 from backend.agents.mayor.tools.registry import TOOLS
 
@@ -60,9 +61,13 @@ async def stream_mayor_response(
     history = format_chat_history(chat_history)
     history.append(HumanMessage(content=user_message))
 
+    # ── Langfuse tracing: tag this stream with agent identity ──
+    config = build_langfuse_config(agent_name="mayor-chat")
+
     async for chunk in agent.astream(
         {"messages": history},
         stream_mode="updates",
+        config=config,
     ):
         if "model" in chunk:
             messages = chunk["model"].get("messages", [])

@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, MessageSquare } from "lucide-react";
-import type { RoadmapPath, PathKey } from "@/lib/types";
-import { SkillStepCard } from "./SkillStepCard";
+import { ArrowLeft } from "lucide-react";
+import type { RoadmapPath, PathKey, LearningBlock } from "@/lib/types";
+import { LearningBlockCard } from "./LearningBlockCard";
+import { expandLearningBlock } from "@/lib/services/learningBlockService";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
@@ -24,28 +26,43 @@ const PATH_LABELS: Record<string, string> = {
   pivot: "Pivot",
 };
 
+const PATH_ACCENT: Record<string, string> = {
+  fill_gap: "blue",
+  multidisciplinary: "amber",
+  pivot: "violet",
+};
+
 interface ActiveRoadmapViewProps {
   path: RoadmapPath;
   pathKey: PathKey;
-  onDiscuss: (context: string) => void;
   onBack: () => void;
+  analysisId?: string;
+  citizenId?: string;
 }
 
-function DiscussButton({ onClick }: { onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="shrink-0 p-1 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
-      title="Discuss with AI"
-    >
-      <MessageSquare className="w-3.5 h-3.5" />
-    </button>
-  );
-}
-
-export function ActiveRoadmapView({ path, pathKey, onDiscuss, onBack }: ActiveRoadmapViewProps) {
+export function ActiveRoadmapView({ path, pathKey, onBack, analysisId, citizenId }: ActiveRoadmapViewProps) {
   const colors = PATH_COLORS[pathKey];
+  const accentColor = PATH_ACCENT[pathKey] ?? "blue";
+  const [blocks, setBlocks] = useState<LearningBlock[]>(path.learning_blocks ?? []);
+  const [expandingIndex, setExpandingIndex] = useState<number | null>(null);
+  const blockCount = blocks.length > 0 ? blocks.length : path.skill_steps.length;
+
+  async function handleExpandBlock(skillIndex: number) {
+    if (!analysisId || !citizenId) return;
+    setExpandingIndex(skillIndex);
+    try {
+      const expandedBlock = await expandLearningBlock(analysisId, pathKey, citizenId, skillIndex);
+      setBlocks((prev) =>
+        prev.map((block, i) => (i === skillIndex ? expandedBlock : block)),
+      );
+    } catch (error) {
+      console.error("ActiveRoadmapView: failed to expand learning block", { skillIndex, error });
+    } finally {
+      setExpandingIndex(null);
+    }
+  }
+
+  const canExpand = Boolean(analysisId && citizenId);
 
   return (
     <motion.div className="space-y-4 p-4" variants={stagger} initial="hidden" animate="visible">
@@ -65,51 +82,53 @@ export function ActiveRoadmapView({ path, pathKey, onDiscuss, onBack }: ActiveRo
       </motion.div>
 
       {/* Title */}
-      <motion.div variants={fadeUp} className="flex items-center gap-2">
+      <motion.div variants={fadeUp}>
         <h2 className="text-lg font-bold text-foreground">{path.title}</h2>
-        <DiscussButton onClick={() => onDiscuss(`title: ${path.title}`)} />
       </motion.div>
 
       {/* Info row */}
       <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-        <span className="flex items-center gap-1">
-          {path.target_role}
-          <DiscussButton onClick={() => onDiscuss(`target_role: ${path.target_role}`)} />
-        </span>
-        <span className="flex items-center gap-1">
-          {path.timeline_estimate}
-          <DiscussButton onClick={() => onDiscuss(`timeline_estimate: ${path.timeline_estimate}`)} />
-        </span>
+        <span>{path.target_role}</span>
+        <span>{path.timeline_estimate}</span>
       </motion.div>
 
       {/* Unfair advantage */}
       <motion.div variants={fadeUp} className={`rounded-xl px-3.5 py-3 ${colors.highlight}`}>
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide opacity-60 mb-0.5">
-              Your unfair advantage
-            </p>
-            <p className="text-sm font-medium leading-snug">{path.unfair_advantage}</p>
-          </div>
-          <DiscussButton onClick={() => onDiscuss(`unfair_advantage: ${path.unfair_advantage}`)} />
-        </div>
+        <p className="text-xs font-semibold uppercase tracking-wide opacity-60 mb-0.5">
+          Your unfair advantage
+        </p>
+        <p className="text-sm font-medium leading-snug">{path.unfair_advantage}</p>
       </motion.div>
 
-      {/* Skill steps */}
+      {/* Learning blocks */}
       <motion.div variants={fadeUp}>
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-          Learning Path — {path.skill_steps.length} steps
+          Learning Path — {blockCount} steps
         </p>
         <ol className="space-y-5 relative before:absolute before:left-[15px] before:top-2 before:bottom-2 before:w-px before:bg-border/60">
-          {path.skill_steps.map((step, i) => (
-            <SkillStepCard
-              key={i}
-              step={step}
-              index={i}
-              accentColor={colors.accent}
-              onDiscuss={onDiscuss}
-            />
-          ))}
+          {blocks.length > 0
+            ? blocks.map((block, i) => (
+                <LearningBlockCard
+                  key={i}
+                  block={block}
+                  index={i}
+                  accentColor={accentColor}
+                  isExpanded={i === 0}
+                  onExpand={canExpand ? handleExpandBlock : undefined}
+                  isExpanding={expandingIndex === i}
+                />
+              ))
+            : path.skill_steps.map((step, i) => (
+                <li key={i} className="flex gap-3 relative">
+                  <span className="shrink-0 w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-bold z-10">
+                    {i + 1}
+                  </span>
+                  <div className="min-w-0 flex-1 pb-2">
+                    <p className="text-base font-semibold text-foreground">{step.skill}</p>
+                    <p className="text-sm text-muted-foreground mt-0.5 leading-relaxed">{step.why}</p>
+                  </div>
+                </li>
+              ))}
         </ol>
       </motion.div>
     </motion.div>

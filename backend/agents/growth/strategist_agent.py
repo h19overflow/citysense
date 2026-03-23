@@ -9,6 +9,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.runnables import Runnable
 
 from backend.agents.common.llm import build_llm
+from backend.agents.common.monitoring import build_langfuse_config
 from backend.agents.growth.prompts import STRATEGIST_PROMPT
 from backend.agents.growth.schemas import CrawlStrategy, StrategistOutput
 
@@ -52,9 +53,11 @@ async def run_strategist_agent(
     prompt = _build_strategist_prompt(urls, list(headers), cv_summary, career_goal, target_timeline)
     chain = build_strategist_chain()
 
+    # ── Langfuse tracing: strategist gets a trace per batch ──
+    config = build_langfuse_config(agent_name="growth-strategist")
     try:
         messages = [SystemMessage(content=STRATEGIST_PROMPT), HumanMessage(content=prompt)]
-        result: StrategistOutput = await chain.ainvoke(messages)
+        result: StrategistOutput = await chain.ainvoke(messages, config=config)
         return result.strategies
     except (ValueError, RuntimeError, httpx.HTTPError) as exc:
         logger.error(

@@ -7,6 +7,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable
 
 from backend.agents.common.llm import build_llm
+from backend.agents.common.monitoring import build_langfuse_config
 from backend.agents.growth.analysis_prompts import build_final_prompt, build_preliminary_prompt
 from backend.agents.growth.prompts import ANALYSIS_FINAL_PROMPT, ANALYSIS_PRELIMINARY_PROMPT
 from backend.agents.growth.schemas import RoadmapAnalysisResult
@@ -37,8 +38,10 @@ async def run_preliminary_analysis(
     chain = build_analysis_chain(ANALYSIS_PRELIMINARY_PROMPT)
     prompt = build_preliminary_prompt(cv_data, intake_data, crawl_signals)
 
+    # ── Langfuse tracing: preliminary analysis trace ──
+    config = build_langfuse_config(agent_name="growth-analysis-preliminary")
     try:
-        result: RoadmapAnalysisResult = await chain.ainvoke({"input": prompt})
+        result: RoadmapAnalysisResult = await chain.ainvoke({"input": prompt}, config=config)
         return result.model_dump()
     except (ValueError, RuntimeError) as exc:
         logger.error(
@@ -62,8 +65,10 @@ async def run_final_analysis(
         cv_data, intake_data, crawl_signals, gap_answers, previous_analysis
     )
 
+    # ── Langfuse tracing: final analysis trace ──
+    config = build_langfuse_config(agent_name="growth-analysis-final")
     try:
-        result: RoadmapAnalysisResult = await chain.ainvoke({"input": prompt})
+        result: RoadmapAnalysisResult = await chain.ainvoke({"input": prompt}, config=config)
         return result.model_dump()
     except (ValueError, RuntimeError) as exc:
         logger.error(

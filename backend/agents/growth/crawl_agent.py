@@ -9,6 +9,7 @@ from langchain.agents import create_agent
 from langgraph.graph.state import CompiledStateGraph
 
 from backend.agents.common.llm import build_llm
+from backend.agents.common.monitoring import build_langfuse_config
 from backend.agents.growth.prompts import CRAWL_AGENT_PROMPT
 from backend.agents.growth.schemas import CrawlResult, CrawlStrategy
 from backend.agents.growth.tools.registry import CRAWL_TOOLS
@@ -43,8 +44,10 @@ async def run_crawl_agent(strategy: CrawlStrategy) -> CrawlResult:
     agent = get_crawl_agent()
     prompt = _build_crawl_prompt(strategy)
 
+    # ── Langfuse tracing: each URL crawl gets a trace ──
+    config = build_langfuse_config(agent_name="growth-crawl")
     try:
-        result = await agent.ainvoke({"messages": [("human", prompt)]})
+        result = await agent.ainvoke({"messages": [("human", prompt)]}, config=config)
         return _extract_crawl_result(strategy, result)
     except (ValueError, RuntimeError) as exc:
         logger.warning(

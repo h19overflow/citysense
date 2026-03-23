@@ -19,6 +19,8 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable
 
+from backend.agents.common.llm import build_llm as _shared_build_llm
+from backend.agents.common.monitoring import build_langfuse_config
 from backend.config import OUTPUT_FILES, REPO_ROOT
 from backend.core.data_scraping.schemas import ArticleAnalysis, AnalysisResults
 from backend.agents.citizen.redact_pii import redact_comment_text
@@ -33,11 +35,8 @@ PROMPT_VERSION = "v1.0"
 
 
 def build_llm() -> ChatGoogleGenerativeAI:
-    return ChatGoogleGenerativeAI(
-        model=MODEL_NAME,
-        temperature=0,
-        max_output_tokens=8192,
-    )
+    # ── Uses the shared LLM factory with comment-analysis-specific config ──
+    return _shared_build_llm(model=MODEL_NAME, temperature=0, max_tokens=8192)
 
 
 def _build_analysis_chain(llm: ChatGoogleGenerativeAI) -> Runnable:
@@ -69,13 +68,18 @@ async def _analyze_single_article(
 ) -> ArticleAnalysis | None:
     """Run analysis chain on one article. Returns None on failure."""
     comments_text = _format_comments_for_prompt(comments)
+    # ── Langfuse tracing: each article analysis gets a trace ──
+    config = build_langfuse_config(agent_name="comment-analysis")
     try:
-        result: ArticleAnalysis = await chain.ainvoke({
-            "article_title": article["title"],
-            "article_excerpt": article.get("excerpt", ""),
-            "comment_count": str(len(comments)),
-            "comments_text": comments_text,
-        })
+        result: ArticleAnalysis = await chain.ainvoke(
+            {
+                "article_title": article["title"],
+                "article_excerpt": article.get("excerpt", ""),
+                "comment_count": str(len(comments)),
+                "comments_text": comments_text,
+            },
+            config=config,
+        )
         result.article_id = article["id"]
         return result
     except Exception as e:
