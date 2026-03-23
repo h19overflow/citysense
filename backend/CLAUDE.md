@@ -9,6 +9,7 @@
 - LangChain + Google Gemini (AI agents)
 - langchain-docling (PDF/DOCX ingestion via Docling)
 - Bright Data (web scraping + SERP)
+- Langfuse (LLM observability, prompt versioning, A/B testing)
 - Clerk (JWT auth)
 - Pydantic (schemas/validation)
 
@@ -49,6 +50,9 @@ API (routers, schemas, deps) → Core (business logic) → DB (models, CRUD)
 | `REDIS_URL` | Redis cache (optional) |
 | `GEMINI_API_KEY` | Google Generative AI |
 | `AUTO_SCRAPE` | Enable background scraping (1/0) |
+| `LANGFUSE_SECRET_KEY` | Langfuse auth (secret key) |
+| `LANGFUSE_PUBLIC_KEY` | Langfuse auth (public key) |
+| `LANGFUSE_BASE_URL` | Langfuse host URL |
 
 ## CV Pipeline Architecture
 ```

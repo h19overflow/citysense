@@ -14,6 +14,10 @@
 | Comment analysis | `citizen/comment_analysis.py` |
 | PII redaction | `citizen/redact_pii.py` |
 | LLM model/config | `common/llm.py` |
+| Langfuse tracing | `common/monitoring/callback_factory.py` |
+| Prompt versioning | `common/monitoring/prompt_registry.py` |
+| A/B testing prompts | `common/monitoring/ab_testing.py` |
+| Prompt drift detection | `common/monitoring/drift_detector.py` |
 | Web search tool | `common/web_search.py` |
 | CV analysis agent | `citizen/cv_analyzers/agent.py` |
 | CV analysis prompts | `citizen/cv_analyzers/prompts.py` |
@@ -91,8 +95,18 @@
 ## Shared (`common/`)
 | File | Purpose |
 |------|---------|
-| `llm.py` | `build_llm()` factory (Gemini, temp 0.3) |
+| `llm.py` | `build_llm()` factory + `build_traced_chain()` with Langfuse |
 | `web_search.py` | `search_montgomery_web()` via Bright Data SERP |
+
+## Monitoring (`common/monitoring/`)
+| File | Purpose |
+|------|---------|
+| `langfuse_client.py` | `get_langfuse()` — singleton client with graceful degradation |
+| `callback_factory.py` | `build_langfuse_config()`, `create_callback_handler()`, `langfuse_trace_context()` |
+| `prompt_registry.py` | `get_managed_prompt()` — versioned prompt fetch with caching and fallback |
+| `ab_testing.py` | `select_prompt_variant()` — weighted A/B testing, `run_experiment()` — offline eval |
+| `drift_detector.py` | `check_prompt_drift()` — compare local vs Langfuse prompts |
+| `README.md` | Comprehensive guide: architecture, prompt versioning, A/B testing, drift detection |
 
 ## Top-level `tools/` directory
 `agents/tools/` is a **backward-compat shim** — `registry.py` re-exports from `mayor/tools/registry.py`. Do not add real code here; work in `mayor/tools/` or `citizen/tools/` directly.
