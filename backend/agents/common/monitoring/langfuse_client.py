@@ -68,7 +68,13 @@ def get_langfuse():
     # is only required when monitoring is actually enabled.
     from langfuse import Langfuse
 
-    _langfuse_instance = Langfuse()
+    # ── Pass credentials explicitly rather than relying on SDK auto-read ──
+    # This makes the dependency on env vars visible and avoids silent misconfiguration.
+    _langfuse_instance = Langfuse(
+        secret_key=secret_key,
+        public_key=public_key,
+        base_url=base_url,
+    )
     logger.info("Langfuse client initialized (host: %s)", base_url)
     return _langfuse_instance
 
