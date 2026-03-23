@@ -18,6 +18,77 @@
 
 ---
 
+## File Map — Where Everything Lives
+
+> Use this as a quick reference. Every section below links back to these files.
+
+### Monitoring Layer
+
+| File | Purpose |
+|------|---------|
+| [`backend/agents/common/monitoring/__init__.py`](../backend/agents/common/monitoring/__init__.py) | Public API — re-exports all monitoring functions |
+| [`backend/agents/common/monitoring/langfuse_client.py`](../backend/agents/common/monitoring/langfuse_client.py) | Singleton Langfuse connection with graceful degradation |
+| [`backend/agents/common/monitoring/callback_factory.py`](../backend/agents/common/monitoring/callback_factory.py) | Creates trace-aware LangChain callbacks |
+| [`backend/agents/common/monitoring/prompt_registry.py`](../backend/agents/common/monitoring/prompt_registry.py) | Versioned prompt fetch with caching and fallback |
+| [`backend/agents/common/monitoring/ab_testing.py`](../backend/agents/common/monitoring/ab_testing.py) | Weighted A/B variant selection + offline experiments |
+| [`backend/agents/common/monitoring/drift_detector.py`](../backend/agents/common/monitoring/drift_detector.py) | Detects prompt drift between code and Langfuse |
+| [`backend/agents/common/monitoring/README.md`](../backend/agents/common/monitoring/README.md) | Technical README with Mermaid diagrams |
+
+### LLM Factory
+
+| File | Purpose |
+|------|---------|
+| [`backend/agents/common/llm.py`](../backend/agents/common/llm.py) | `build_llm()` + `build_traced_chain()` — LLM construction with optional tracing |
+
+### Prompt Files (Local Fallbacks)
+
+| File | Prompt(s) | Langfuse Name |
+|------|-----------|---------------|
+| [`backend/agents/mayor/prompt.py`](../backend/agents/mayor/prompt.py) | `MAYOR_CHAT_PROMPT`, `BATCH_ANALYSIS_PROMPT` | `mayor-chat`, `comment-analysis` |
+| [`backend/agents/citizen/prompt.py`](../backend/agents/citizen/prompt.py) | `CITIZEN_CHAT_PROMPT` | `citizen-chat` |
+| [`backend/agents/career/prompt.py`](../backend/agents/career/prompt.py) | `CAREER_AGENT_PROMPT` | `career-chat` |
+| [`backend/agents/citizen/cv_analyzers/prompts.py`](../backend/agents/citizen/cv_analyzers/prompts.py) | `CV_PAGE_ANALYSIS_PROMPT` | `cv-page-analysis` |
+| [`backend/agents/citizen/cv_analyzers/synthesizer.py`](../backend/agents/citizen/cv_analyzers/synthesizer.py) | `_SYNTHESIZER_PROMPT` | `cv-role-synthesis` |
+| [`backend/agents/citizen/roadmap_agent.py`](../backend/agents/citizen/roadmap_agent.py) | `SYSTEM_PROMPT` | `civic-roadmap` |
+| [`backend/agents/growth/prompts.py`](../backend/agents/growth/prompts.py) | `STRATEGIST_PROMPT`, `CRAWL_AGENT_PROMPT`, `ANALYSIS_PRELIMINARY_PROMPT`, `ANALYSIS_FINAL_PROMPT` | `growth-strategist`, `growth-crawl`, `growth-analysis-preliminary`, `growth-analysis-final` |
+| [`backend/agents/growth/skill_agent_prompt.py`](../backend/agents/growth/skill_agent_prompt.py) | `SKILL_AGENT_SYSTEM_PROMPT` | `growth-skill` |
+
+### Traced Agent Files
+
+| File | Trace Name | Where tracing is added |
+|------|-----------|------------------------|
+| [`backend/agents/mayor/agent.py`](../backend/agents/mayor/agent.py) | `mayor-chat` | `stream_mayor_response()` |
+| [`backend/agents/citizen/agent.py`](../backend/agents/citizen/agent.py) | `citizen-chat` | `handle_citizen_chat()` |
+| [`backend/agents/career/agent.py`](../backend/agents/career/agent.py) | `career-analysis`, `career-chat` | `run_career_analysis()`, `handle_career_chat()` |
+| [`backend/agents/citizen/cv_analyzers/agent.py`](../backend/agents/citizen/cv_analyzers/agent.py) | `cv-page-analysis` | `analyze_cv_page()` |
+| [`backend/agents/citizen/cv_analyzers/synthesizer.py`](../backend/agents/citizen/cv_analyzers/synthesizer.py) | `cv-role-synthesis` | `synthesize_cv_roles()` |
+| [`backend/agents/citizen/roadmap_agent.py`](../backend/agents/citizen/roadmap_agent.py) | `civic-roadmap` | `generate_personalized_roadmap()` |
+| [`backend/agents/citizen/comment_analysis.py`](../backend/agents/citizen/comment_analysis.py) | `comment-analysis` | `_analyze_single_article()` |
+| [`backend/agents/growth/strategist_agent.py`](../backend/agents/growth/strategist_agent.py) | `growth-strategist` | `run_strategist_agent()` |
+| [`backend/agents/growth/crawl_agent.py`](../backend/agents/growth/crawl_agent.py) | `growth-crawl` | `run_crawl_agent()` |
+| [`backend/agents/growth/analysis_agent.py`](../backend/agents/growth/analysis_agent.py) | `growth-analysis-preliminary`, `growth-analysis-final` | `run_preliminary_analysis()`, `run_final_analysis()` |
+| [`backend/agents/growth/skill_agent.py`](../backend/agents/growth/skill_agent.py) | `growth-skill` | `run_skill_agent()` |
+
+### Tests
+
+| File | What it tests |
+|------|--------------|
+| [`backend/tests/agents/test_langfuse_client.py`](../backend/tests/agents/test_langfuse_client.py) | Singleton, graceful degradation, caching |
+| [`backend/tests/agents/test_callback_factory.py`](../backend/tests/agents/test_callback_factory.py) | Callback creation, config building |
+| [`backend/tests/agents/test_prompt_registry.py`](../backend/tests/agents/test_prompt_registry.py) | Prompt fetch, fallback, caching |
+| [`backend/tests/agents/test_ab_testing.py`](../backend/tests/agents/test_ab_testing.py) | Weighted selection, distribution |
+| [`backend/tests/agents/test_drift_detector.py`](../backend/tests/agents/test_drift_detector.py) | Drift detection, error handling |
+| [`backend/tests/agents/test_traced_llm.py`](../backend/tests/agents/test_traced_llm.py) | `build_traced_chain()` wiring |
+
+### Scripts & Config
+
+| File | Purpose |
+|------|---------|
+| [`backend/scripts/upload_prompts_to_langfuse.py`](../backend/scripts/upload_prompts_to_langfuse.py) | Seed Langfuse with all 12 prompts |
+| [`.env`](../.env) | `LANGFUSE_SECRET_KEY`, `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_BASE_URL` |
+
+---
+
 ## 1. What is Langfuse and Why Do We Use It?
 
 ### The Problem
@@ -74,10 +145,10 @@ Trace: "mayor-chat" (2.3s, 1,200 tokens)
 
 ### How Traces Get Created
 
-In our codebase, every agent creates traces via a **callback handler**:
+The callback handler lives in [`callback_factory.py`](../backend/agents/common/monitoring/callback_factory.py). Every agent uses it via `build_langfuse_config()`:
 
 ```python
-# This is what happens inside every agent:
+# This is what happens inside every agent (e.g., backend/agents/mayor/agent.py:63)
 from backend.agents.common.monitoring import build_langfuse_config
 
 # 1. Create a config with the Langfuse callback
@@ -88,6 +159,8 @@ result = await chain.ainvoke({"input": "..."}, config=config)
 
 # 3. Langfuse automatically records everything that happened
 ```
+
+See a real example: [`backend/agents/mayor/agent.py`](../backend/agents/mayor/agent.py) line 63 — the mayor's streaming agent.
 
 The `config` dict contains a LangChain `CallbackHandler`. This handler gets notified at every step of the chain (LLM start, LLM end, tool call, etc.) and sends the data to Langfuse Cloud in the background.
 
@@ -104,7 +177,10 @@ For each trace:
 
 ### Graceful Degradation
 
+Implemented in [`langfuse_client.py`](../backend/agents/common/monitoring/langfuse_client.py) lines 55-64:
+
 If Langfuse is down or credentials aren't set:
+- `get_langfuse()` returns `None`
 - `build_langfuse_config()` returns `{}` (empty dict)
 - LangChain ignores empty config — the agent runs normally
 - No traces are recorded, but **the agent never fails because of monitoring**
@@ -117,7 +193,7 @@ This is a critical design principle: **monitoring is never a reason for producti
 
 ### The Monitoring Layer
 
-We built an abstraction layer between our agents and Langfuse. No agent imports Langfuse directly.
+We built an abstraction layer between our agents and Langfuse. No agent imports Langfuse directly — everything goes through [`backend/agents/common/monitoring/__init__.py`](../backend/agents/common/monitoring/__init__.py).
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -143,19 +219,19 @@ We built an abstraction layer between our agents and Langfuse. No agent imports 
 ### Why an Abstraction Layer?
 
 1. **Single point of change** — if Langfuse changes their API, we update one module
-2. **Testable** — we can mock the monitoring layer in tests
+2. **Testable** — we can mock the monitoring layer in tests (see [`test_callback_factory.py`](../backend/tests/agents/test_callback_factory.py))
 3. **Swappable** — could replace Langfuse with another provider
 4. **Clean agent code** — agents don't need to know about observability internals
 
 ### Module Responsibilities
 
-| Module | Single Responsibility |
-|--------|----------------------|
-| `langfuse_client.py` | Create and cache the Langfuse connection |
-| `callback_factory.py` | Create LangChain callbacks with trace metadata |
-| `prompt_registry.py` | Fetch, cache, and version prompts |
-| `ab_testing.py` | Select between prompt variants by weight |
-| `drift_detector.py` | Compare local vs remote prompts |
+| Module | Single Responsibility | Source |
+|--------|----------------------|--------|
+| `langfuse_client.py` | Create and cache the Langfuse connection | [View](../backend/agents/common/monitoring/langfuse_client.py) |
+| `callback_factory.py` | Create LangChain callbacks with trace metadata | [View](../backend/agents/common/monitoring/callback_factory.py) |
+| `prompt_registry.py` | Fetch, cache, and version prompts | [View](../backend/agents/common/monitoring/prompt_registry.py) |
+| `ab_testing.py` | Select between prompt variants by weight | [View](../backend/agents/common/monitoring/ab_testing.py) |
+| `drift_detector.py` | Compare local vs remote prompts | [View](../backend/agents/common/monitoring/drift_detector.py) |
 
 ---
 
@@ -164,7 +240,7 @@ We built an abstraction layer between our agents and Langfuse. No agent imports 
 ### The Old Way (Hardcoded Prompts)
 
 ```python
-# In prompt.py — prompt lives in the codebase
+# In backend/agents/mayor/prompt.py — prompt lives in the codebase
 MAYOR_CHAT_PROMPT = """You are a concise civic analyst for the Mayor..."""
 
 # To change the prompt:
@@ -183,6 +259,8 @@ MAYOR_CHAT_PROMPT = """You are a concise civic analyst for the Mayor..."""
 - Can't test a new prompt on a subset of traffic
 
 ### The New Way (Langfuse-Managed Prompts)
+
+Implemented in [`prompt_registry.py`](../backend/agents/common/monitoring/prompt_registry.py) — specifically the `get_managed_prompt()` function:
 
 ```python
 # Prompt is fetched from Langfuse at runtime
@@ -208,7 +286,26 @@ Prompt: "mayor-chat"
 | **Name** | A stable identifier. `"mayor-chat"` always refers to the mayor's prompt, regardless of version. |
 | **Version** | Each edit creates a new version (v1, v2, v3...). Old versions are never deleted. |
 | **Label** | A movable pointer. `"production"` points to the version agents should use. You can move it to any version instantly. |
-| **Fallback** | If Langfuse is unreachable, the local hardcoded prompt is used. Agents never fail. |
+| **Fallback** | If Langfuse is unreachable, the local hardcoded prompt (from the [prompt files listed above](#prompt-files-local-fallbacks)) is used. Agents never fail. |
+
+### All 12 Managed Prompts
+
+Uploaded by [`backend/scripts/upload_prompts_to_langfuse.py`](../backend/scripts/upload_prompts_to_langfuse.py):
+
+| Langfuse Name | Local Fallback File | Used By |
+|---------------|-------------------|---------|
+| `mayor-chat` | [`mayor/prompt.py`](../backend/agents/mayor/prompt.py) | [`mayor/agent.py`](../backend/agents/mayor/agent.py) |
+| `comment-analysis` | [`mayor/prompt.py`](../backend/agents/mayor/prompt.py) | [`citizen/comment_analysis.py`](../backend/agents/citizen/comment_analysis.py) |
+| `citizen-chat` | [`citizen/prompt.py`](../backend/agents/citizen/prompt.py) | [`citizen/agent.py`](../backend/agents/citizen/agent.py) |
+| `career-chat` | [`career/prompt.py`](../backend/agents/career/prompt.py) | [`career/agent.py`](../backend/agents/career/agent.py) |
+| `cv-page-analysis` | [`cv_analyzers/prompts.py`](../backend/agents/citizen/cv_analyzers/prompts.py) | [`cv_analyzers/agent.py`](../backend/agents/citizen/cv_analyzers/agent.py) |
+| `cv-role-synthesis` | [`cv_analyzers/synthesizer.py`](../backend/agents/citizen/cv_analyzers/synthesizer.py) | [`cv_analyzers/synthesizer.py`](../backend/agents/citizen/cv_analyzers/synthesizer.py) |
+| `civic-roadmap` | [`citizen/roadmap_agent.py`](../backend/agents/citizen/roadmap_agent.py) | [`citizen/roadmap_agent.py`](../backend/agents/citizen/roadmap_agent.py) |
+| `growth-strategist` | [`growth/prompts.py`](../backend/agents/growth/prompts.py) | [`growth/strategist_agent.py`](../backend/agents/growth/strategist_agent.py) |
+| `growth-crawl` | [`growth/prompts.py`](../backend/agents/growth/prompts.py) | [`growth/crawl_agent.py`](../backend/agents/growth/crawl_agent.py) |
+| `growth-analysis-preliminary` | [`growth/prompts.py`](../backend/agents/growth/prompts.py) | [`growth/analysis_agent.py`](../backend/agents/growth/analysis_agent.py) |
+| `growth-analysis-final` | [`growth/prompts.py`](../backend/agents/growth/prompts.py) | [`growth/analysis_agent.py`](../backend/agents/growth/analysis_agent.py) |
+| `growth-skill` | [`growth/skill_agent_prompt.py`](../backend/agents/growth/skill_agent_prompt.py) | [`growth/skill_agent.py`](../backend/agents/growth/skill_agent.py) |
 
 ### How to Change a Prompt (No Deploy Needed!)
 
@@ -228,7 +325,7 @@ Prompt: "mayor-chat"
 
 ### The Cache
 
-Prompts are cached in-memory for 5 minutes to avoid hitting Langfuse on every request:
+Implemented in [`prompt_registry.py`](../backend/agents/common/monitoring/prompt_registry.py) lines 89-127. The `_prompt_cache` dict stores prompts with timestamps:
 
 ```
 Request 1 (00:00): Cache miss → fetch from Langfuse → cache → return v3
@@ -239,9 +336,11 @@ Request N (05:01): Cache expired → fetch from Langfuse → cache → return v4
                    (if you moved the production label to v4)
 ```
 
+Default TTL is `DEFAULT_CACHE_TTL_SECONDS = 300` (5 minutes), defined at line 83 of [`prompt_registry.py`](../backend/agents/common/monitoring/prompt_registry.py).
+
 ### Trace Linking
 
-Every trace in Langfuse shows which prompt version produced it. This is automatic — when you use `get_managed_prompt()`, the prompt version metadata is attached to the LangChain template and flows through to the trace.
+Every trace in Langfuse shows which prompt version produced it. This is automatic — the `ManagedPrompt.to_chat_prompt()` method (line 73 of [`prompt_registry.py`](../backend/agents/common/monitoring/prompt_registry.py)) attaches `metadata={"langfuse_prompt": prompt}` to the `ChatPromptTemplate`, which the callback handler reads and records.
 
 In the dashboard: click any trace → see "Prompt: mayor-chat v3" in the metadata.
 
@@ -254,6 +353,8 @@ In the dashboard: click any trace → see "Prompt: mayor-chat v3" in the metadat
 You've rewritten a prompt. You think it's better. But "better" is subjective. Maybe it's more verbose. Maybe it hallucinates more. Maybe users prefer the old one. **Without data, you're guessing.**
 
 ### The Solution: Live Traffic Splitting
+
+Implemented in [`ab_testing.py`](../backend/agents/common/monitoring/ab_testing.py) — the `select_prompt_variant()` function.
 
 A/B testing sends a percentage of traffic to the new prompt and compares outcomes.
 
@@ -275,6 +376,9 @@ After 1 week, compare in Langfuse dashboard:
 - Label the new version `"candidate"`
 
 **Step 2: Add variant selection to your agent**
+
+Uses `select_prompt_variant()` from [`ab_testing.py`](../backend/agents/common/monitoring/ab_testing.py), `get_managed_prompt()` from [`prompt_registry.py`](../backend/agents/common/monitoring/prompt_registry.py), and `build_langfuse_config()` from [`callback_factory.py`](../backend/agents/common/monitoring/callback_factory.py):
+
 ```python
 from backend.agents.common.monitoring import (
     select_prompt_variant,
@@ -324,7 +428,7 @@ result = await chain.ainvoke({"input": "..."}, config=config)
 
 ### Offline Experiments (Alternative to A/B)
 
-For prompts where you don't want to risk live traffic, use **experiments**:
+Uses `run_experiment()` from [`ab_testing.py`](../backend/agents/common/monitoring/ab_testing.py):
 
 1. Create a **dataset** in Langfuse with input/expected-output pairs
 2. Run `run_experiment()` with your candidate prompt against the dataset
@@ -349,9 +453,11 @@ Drift happens when the prompt in your code (the local fallback) and the prompt i
 
 ### How Drift Detection Works
 
+Uses `check_prompt_drift()` from [`drift_detector.py`](../backend/agents/common/monitoring/drift_detector.py). Returns a `DriftReport` dataclass (defined at line 38):
+
 ```python
 from backend.agents.common.monitoring import check_prompt_drift
-from backend.agents.mayor.prompt import MAYOR_CHAT_PROMPT
+from backend.agents.mayor.prompt import MAYOR_CHAT_PROMPT  # local fallback
 
 report = check_prompt_drift("mayor-chat", MAYOR_CHAT_PROMPT)
 
@@ -372,8 +478,8 @@ print(report.remote_version) # Which version number is in production
 ### What to Do When Drift is Detected
 
 1. **Determine which is correct** — usually Langfuse is the source of truth
-2. **If Langfuse is correct**: update the local fallback to match
-3. **If code is correct**: re-upload the prompt to Langfuse (run the upload script)
+2. **If Langfuse is correct**: update the local fallback in the [prompt file](#prompt-files-local-fallbacks)
+3. **If code is correct**: re-upload the prompt via [`upload_prompts_to_langfuse.py`](../backend/scripts/upload_prompts_to_langfuse.py)
 4. **Either way**: re-run the drift check to confirm `status="synced"`
 
 ---
@@ -381,6 +487,8 @@ print(report.remote_version) # Which version number is in production
 ## 7. Practical Guide: Common Tasks
 
 ### Add Tracing to a New Agent
+
+Uses `build_langfuse_config()` from [`callback_factory.py`](../backend/agents/common/monitoring/callback_factory.py):
 
 ```python
 from backend.agents.common.monitoring import build_langfuse_config
@@ -403,15 +511,32 @@ config = build_langfuse_config(
 )
 ```
 
+### Use build_traced_chain() for New Chains
+
+Uses `build_traced_chain()` from [`llm.py`](../backend/agents/common/llm.py) — wires LLM + prompt + callbacks in one call:
+
+```python
+from backend.agents.common.llm import build_traced_chain
+
+chain, config = build_traced_chain(
+    agent_name="my-agent",
+    prompt_template="You are a helpful {role}",
+    structured_output=MySchema,  # optional Pydantic model
+)
+result = await chain.ainvoke({"input": "..."}, config=config)
+```
+
 ### Upload a New Prompt to Langfuse
 
-Add it to `backend/scripts/upload_prompts_to_langfuse.py`:
+Add it to [`backend/scripts/upload_prompts_to_langfuse.py`](../backend/scripts/upload_prompts_to_langfuse.py) inside `_collect_all_prompts()`:
 ```python
 _register("my-new-prompt", MY_PROMPT_TEXT)
 ```
 Then run: `python -m backend.scripts.upload_prompts_to_langfuse`
 
 ### Use a Managed Prompt in an Agent
+
+Uses `get_managed_prompt()` from [`prompt_registry.py`](../backend/agents/common/monitoring/prompt_registry.py):
 
 ```python
 from backend.agents.common.monitoring import get_managed_prompt
@@ -457,38 +582,45 @@ template = prompt.to_chat_prompt()  # Returns ChatPromptTemplate with version me
 |------|-----------|
 | **Trace** | A complete record of one agent invocation |
 | **Span** | One step within a trace (LLM call, tool call, chain step) |
-| **Callback Handler** | A LangChain object that captures events and sends them to Langfuse |
+| **Callback Handler** | A LangChain object that captures events and sends them to Langfuse. Created in [`callback_factory.py`](../backend/agents/common/monitoring/callback_factory.py) |
 | **Prompt Version** | A numbered snapshot of a prompt (v1, v2, v3...) |
 | **Label** | A movable pointer on a prompt version ("production", "candidate", "latest") |
-| **Fallback** | The local hardcoded prompt used when Langfuse is unreachable |
-| **Variant** | One side of an A/B test (e.g., "production" or "candidate") |
-| **Drift** | When local fallback and Langfuse prompt disagree |
-| **TTL** | Time-to-live — how long a cached prompt stays before re-fetching (5 min default) |
+| **Fallback** | The local hardcoded prompt used when Langfuse is unreachable. See [prompt files](#prompt-files-local-fallbacks) |
+| **Variant** | One side of an A/B test (e.g., "production" or "candidate"). Selected in [`ab_testing.py`](../backend/agents/common/monitoring/ab_testing.py) |
+| **Drift** | When local fallback and Langfuse prompt disagree. Detected by [`drift_detector.py`](../backend/agents/common/monitoring/drift_detector.py) |
+| **TTL** | Time-to-live — how long a cached prompt stays before re-fetching (5 min default, set in [`prompt_registry.py`](../backend/agents/common/monitoring/prompt_registry.py)) |
 | **Dataset** | A collection of input/expected-output pairs for offline experiments |
-| **Experiment** | Running a prompt against a dataset and recording the results |
-| **Graceful Degradation** | The system continues working even if monitoring is unavailable |
+| **Experiment** | Running a prompt against a dataset. Uses `run_experiment()` in [`ab_testing.py`](../backend/agents/common/monitoring/ab_testing.py) |
+| **Graceful Degradation** | The system continues working even if monitoring is unavailable. Implemented in [`langfuse_client.py`](../backend/agents/common/monitoring/langfuse_client.py) |
+| **ManagedPrompt** | Wrapper class with template + version metadata. Defined in [`prompt_registry.py`](../backend/agents/common/monitoring/prompt_registry.py) |
+| **DriftReport** | Dataclass with drift check results. Defined in [`drift_detector.py`](../backend/agents/common/monitoring/drift_detector.py) |
 
 ---
 
 ## Quick Reference Card
 
-```
-# Add tracing to any agent (2 lines)
+```python
+# ── Add tracing to any agent (2 lines) ──
+# Source: backend/agents/common/monitoring/callback_factory.py
 config = build_langfuse_config(agent_name="my-agent")
 result = await chain.ainvoke(input, config=config)
 
-# Fetch a versioned prompt
+# ── Fetch a versioned prompt ──
+# Source: backend/agents/common/monitoring/prompt_registry.py
 prompt = get_managed_prompt("name", fallback=LOCAL, label="production")
 
-# A/B test a prompt
+# ── A/B test a prompt ──
+# Source: backend/agents/common/monitoring/ab_testing.py
 label = select_prompt_variant("name", [
     {"label": "production", "weight": 0.8},
     {"label": "candidate", "weight": 0.2},
 ])
 
-# Check for drift
+# ── Check for drift ──
+# Source: backend/agents/common/monitoring/drift_detector.py
 report = check_prompt_drift("name", LOCAL_PROMPT)
 
-# Upload prompts
+# ── Upload prompts ──
+# Source: backend/scripts/upload_prompts_to_langfuse.py
 python -m backend.scripts.upload_prompts_to_langfuse
 ```
