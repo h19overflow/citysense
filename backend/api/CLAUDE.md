@@ -15,6 +15,7 @@
 | CV upload / stream | `routers/cv.py`, `routers/cv_stream.py` |
 | Career chat / analysis | `routers/career_chat.py`, `routers/career_analyze.py` |
 | Growth plan endpoints | `routers/growth.py` |
+| Learning blocks endpoints | `routers/learning_block.py` |
 | Growth plan schemas | `schemas/growth_schemas.py` |
 | Roadmap schemas | `schemas/roadmap_schemas.py` |
 | CV schemas | `schemas/cv_schemas.py` |
@@ -28,7 +29,7 @@
 | `auth.py` | Auth-related endpoints |
 | `benefits.py` | Benefits listing endpoints |
 | `career_analyze.py` | Career CV analysis endpoints |
-| `career_chat.py` | Career chatbot SSE stream — dual-mode: Career Guide (default) or Growth Guide (`growth_mode=True`) with roadmap cache |
+| `career_chat.py` | Career chatbot SSE stream — simple Career Guide (no roadmap context) |
 | `chat.py` | Mayor chatbot SSE stream |
 | `citizen_chat.py` | Civic chatbot + hotspot/trend predictions |
 | `citizen_profile.py` | Citizen profile CRUD endpoints |
@@ -37,7 +38,7 @@
 | `cv_latest.py` | Fetch latest CV version |
 | `cv_stream.py` | CV pipeline SSE stream |
 | `growth.py` | 5 growth plan endpoints (intake, gap answers, latest/history roadmap, diff) |
-| `roadmap_cache.py` | In-memory cache for roadmap paths keyed by analysis_id. `get_cached_path`, `ensure_cached`, `invalidate_cache` |
+| `learning_block.py` | Learning blocks generation — `POST /api/growth/learning-blocks`, `GET /api/growth/learning-blocks/{analysis_id}/{path_key}` |
 | `housing.py` | Housing listings endpoints |
 | `jobs.py` | Job listings endpoints |
 | `misinfo.py` | Misinformation detection endpoints |
@@ -49,7 +50,7 @@
 ## Schemas (`schemas/`)
 | File | Purpose |
 |------|---------|
-| `career_schemas.py` | Career chat and analysis request/response models. `CareerChatRequest` includes `growth_mode`, `active_roadmap_analysis_id`, `active_roadmap_path_key`, `discuss_context` |
+| `career_schemas.py` | Career chat and analysis request/response models. `CareerChatRequest` is simple (no growth context) |
 | `cv_schemas.py` | CV upload, version, and pipeline event models |
 | `growth_schemas.py` | `GrowthIntakeRequest`, `GapAnswersRequest` |
 | `roadmap_schemas.py` | `RoadmapRequest`, `PersonalizedRoadmap`, `RoadmapStep`, `CitizenMeta` |

@@ -17,6 +17,7 @@
 | API base URL | `apiConfig.ts` |
 | Auth hook | `useAuth.ts` |
 | CV upload/streaming | `cvService.ts`, `sseClient.ts` |
+| Learning blocks fetching | `learningBlockService.ts` |
 | SSE streaming | `sseClient.ts` |
 | Comment persistence | `newsCommentStore.ts` |
 | Reaction persistence | `newsReactionStore.ts` |
@@ -51,7 +52,7 @@
 | `housing.ts` | HousingListing |
 | `roadmap.ts` | PersonalizedRoadmap |
 | `map.ts` | MapCommand |
-| `growth.ts` | `PathKey` type alias (`"fill_gap" \| "multidisciplinary" \| "pivot"`) |
+| `growth.ts` | `PathKey` type alias (`"fill_gap" \| "multidisciplinary" \| "pivot"`), `LearningBlock` interface |
 | `state.ts` | AppState — includes `activeRoadmapPath`, `activeRoadmapAnalysisId`, `activeRoadmapPathKey` |
 | `index.ts` | Barrel export |
 
@@ -71,6 +72,7 @@
 | `businessGrowthService.ts` | Entrepreneurship recs |
 | `predictiveService.ts` | Predictive analytics (admin) |
 | `cvService.ts` | CV upload, job status, SSE streaming |
+| `learningBlockService.ts` | Fetch learning blocks by path, cache by analysis_id/path_key |
 | `sseClient.ts` | SSE client for streaming |
 | `newsCommentStore.ts` | localStorage comments |
 | `newsReactionStore.ts` | localStorage reactions |
@@ -90,7 +92,7 @@
 |------|---------|
 | `apiConfig.ts` | API_BASE URL |
 | `useAuth.ts` | Clerk auth hook |
-| `hooks/useCareerAgent.ts` | Career chat hook — `sendMessage` accepts optional `GrowthChatContext` (growth_mode, analysis_id, path_key, discuss_context). Returns `updated_path` when agent mutates roadmap |
+| `hooks/useCareerAgent.ts` | Career chat hook — `sendMessage` simple message + context. Career-only, no growth params |
 | `useDataStream.ts` | SSE/WebSocket hook |
 | `useDraggable.ts` | Draggable DOM hook |
 | `utils.ts` | Generic utils |

@@ -127,5 +127,5 @@ class TestHandleCareerChatErrorHandling:
 
         invoked_messages = mock_agent.ainvoke.call_args[0][0]["messages"]
         context_msg = invoked_messages[0].content
-        assert "answer using ONLY the above context" in context_msg
+        assert "no tools" in context_msg.lower()
         assert result["next_role_target"] == "Manager"

@@ -11,6 +11,7 @@ from backend.agents.citizen.prompt import CITIZEN_CHAT_PROMPT
 from backend.agents.citizen.schemas import CitizenAgentResponse
 from backend.agents.citizen.tools.registry import CITIZEN_TOOLS
 from backend.agents.common.llm import build_llm
+from backend.agents.common.monitoring import build_langfuse_config
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -49,8 +50,11 @@ async def handle_citizen_chat(
     history = _history[conv_id][-MAX_HISTORY_TURNS:]
     messages = [*history, HumanMessage(content=message)]
 
+    # ── Langfuse tracing: every citizen chat gets a trace ──
+    config = build_langfuse_config(agent_name="citizen-chat")
+
     try:
-        result = await agent.ainvoke({"messages": messages})
+        result = await agent.ainvoke({"messages": messages}, config=config)
         response = _build_response(result)
 
         # Save user message and assistant reply to history

@@ -24,6 +24,8 @@
 | CRUD for CVs | `crud/cv.py` |
 | CRUD for growth plans | `crud/growth.py` |
 | Growth plan schema | `models/growth_plan.py` |
+| CRUD for learning blocks | `crud/learning_block.py` |
+| Learning blocks schema | `models/learning_block.py` |
 | Generic CRUD helpers | `crud/base.py` |
 
 ## Core Files
@@ -45,6 +47,7 @@
 | `cv_upload.py` | `cv_uploads` | `id` (UUID) | citizen_id (FK→citizen_profiles), file_name, file_url |
 | `cv_upload.py` | `cv_versions` | `id` (UUID) | cv_upload_id (FK→cv_uploads), version_number, content_hash (SHA-256 dedup), experience/skills/soft_skills/tools/roles/education (JSONB), summary (Text), page_count |
 | `growth_plan.py` | `growth_intakes`, `roadmap_analyses` | `id` (UUID) | `GrowthIntake` (intake form + crawl data), `RoadmapAnalysis` (versioned analysis with 3 paths) |
+| `learning_block.py` | `learning_blocks` | `id` (UUID) | analysis_id (FK→roadmap_analyses.id), path_key, skill_step_index, block_title, block_description, learning_resources (JSONB), completion_status |
 
 ## CRUD (`crud/`)
 | File | Key Functions |
@@ -58,4 +61,4 @@
 | `admin.py` | `create_admin()`, `get_admin_by_email()`, `update_admin()` |
 | `cv.py` | `create_cv_upload()`, `get_cv_upload_with_versions()`, `list_cv_uploads_by_citizen()`, `create_cv_version()`, `get_latest_cv_version()`, `get_next_version_number()`, `find_version_by_hash()`, `list_cv_versions()` |
 | `growth.py` | `create_growth_intake`, `get_growth_intake`, `update_growth_intake_crawl_data`, `create_roadmap_analysis`, `get_latest_roadmap_analysis`, `get_roadmap_analysis_by_id`, `get_next_analysis_version_number`, `list_roadmap_analyses_by_citizen`, `update_roadmap_analysis_answers` |
-| `growth_path.py` | `update_roadmap_path_fields` (JSONB merge + skill_steps mutations, IDOR check) |
+| `learning_block.py` | `create_learning_block()`, `get_learning_blocks_by_analysis_and_path()`, `update_learning_block_status()`, `list_learning_blocks_by_analysis()` |

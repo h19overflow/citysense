@@ -8,6 +8,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.agents.growth.analysis_agent import run_final_analysis, run_preliminary_analysis
 from backend.core.exceptions import NotFoundError
 from backend.core.growth_progress import close_progress_queue, create_progress_queue, emit_progress
+from backend.core.growth_learning_helpers import (
+    attach_learning_blocks_to_analysis,
+    extract_intake_preferences,
+)
 from backend.core.growth_service_helpers import (
     intake_to_dict,
     persist_analysis,
@@ -67,6 +71,8 @@ async def run_intake_pipeline(
         await emit_progress(intake_id, "analyzing", "Building your 3 growth paths…", 75)
 
         analysis_data = await run_preliminary_analysis(cv_data, intake_form, crawl_signals)
+        intake_prefs = extract_intake_preferences(intake_form)
+        analysis_data = await attach_learning_blocks_to_analysis(analysis_data, cv_data, intake_prefs)
         await emit_progress(intake_id, "persisting", "Saving your roadmap…", 95)
 
         async with get_session() as session:

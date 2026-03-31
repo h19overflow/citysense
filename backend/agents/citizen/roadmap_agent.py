@@ -14,6 +14,7 @@ from typing import Any
 from langchain_core.prompts import ChatPromptTemplate
 
 from backend.agents.common.llm import build_llm
+from backend.agents.common.monitoring import build_langfuse_config
 from backend.api.schemas.roadmap_schemas import (
     CitizenMeta,
     PersonalizedRoadmap,
@@ -281,9 +282,12 @@ def generate_personalized_roadmap(
     guide = _get_service(service_id)
     prompt = _build_prompt(citizen, guide)
 
+    # ── Langfuse tracing: roadmap generation gets a trace ──
+    config = build_langfuse_config(agent_name="civic-roadmap")
+
     draft: RoadmapDraft
     try:
-        draft = _build_chain().invoke({"prompt": prompt})
+        draft = _build_chain().invoke({"prompt": prompt}, config=config)
     except Exception as exc:
         logger.warning(
             "Roadmap LLM generation failed for %s; using fallback steps. Error: %s",

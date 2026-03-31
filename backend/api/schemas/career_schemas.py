@@ -1,7 +1,5 @@
 """Request/response schemas for the Career API."""
 
-from typing import Literal
-
 from pydantic import BaseModel
 
 
@@ -24,8 +22,3 @@ class CareerChatRequest(BaseModel):
     career_context_id: str
     citizen_id: str
     history: list[ChatTurn] = []
-    # Growth Guide mode fields (all optional)
-    growth_mode: bool = False
-    active_roadmap_analysis_id: str | None = None
-    active_roadmap_path_key: Literal["fill_gap", "multidisciplinary", "pivot"] | None = None
-    discuss_context: str | None = None
