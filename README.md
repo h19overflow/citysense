@@ -7,6 +7,10 @@ AI-powered civic intelligence platform for Montgomery, Alabama. Maps services, a
 ![React](https://img.shields.io/badge/react-18-61dafb)
 ![Hackathon](https://img.shields.io/badge/WWV%202026-$5k%20prize-orange)
 
+## Demo
+
+[![CitySense Demo](https://img.youtube.com/vi/DeUTCx11mdI/maxresdefault.jpg)](https://www.youtube.com/watch?v=DeUTCx11mdI&feature=youtu.be)
+
 ## What It Does
 
 **For residents:**
